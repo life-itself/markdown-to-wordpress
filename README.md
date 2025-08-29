@@ -1,0 +1,1 @@
+This is a project to create a migration tool (command line tool) for migrating our existing markdown material to WordPress in a fairly complex way.
