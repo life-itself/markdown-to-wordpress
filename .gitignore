@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Configuration files (keep examples only)
+config/config.yml
+config/mappings.yml
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+.spyderproject
+.spyproject
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+migration.log
+migration-error.log
+
+# Migration artifacts
+migration-ledger.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pytest
+.pytest_cache/
+.coverage
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# WordPress credentials (if using config files)
+wp-config.php
+wp-credentials.yml
+
+# Sample data with real content (keep placeholder samples)
+# Uncomment if you add real content files
+# sample-data/content/real-*.md
+# sample-data/assets/images/real-*
