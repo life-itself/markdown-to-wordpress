@@ -1,262 +1,168 @@
-# Markdown to WordPress Migration Tool
+# Markdown to WordPress Migration Tool (Python Version)
 
-A powerful Node.js CLI tool for migrating markdown content with YAML front matter to WordPress via the REST API. Designed to handle large-scale migrations (1000+ posts) with support for multiple content types, media uploads, taxonomies, and idempotent operations.
-
-## Features
-
-- **Multiple Content Types**: Support for blog posts, podcasts, events, and pages
-- **Idempotent Operations**: Safe re-runs without duplicating content
-- **Media Handling**: Automatic upload and linking of images to WordPress Media Library
-- **Taxonomy Management**: Automatic creation and assignment of tags, categories, and custom taxonomies
-- **Wiki Link Resolution**: Converts `[[wiki-style]]` links to proper URLs
-- **Validation**: Schema-based validation before migration
-- **Dry Run Mode**: Test migrations without making changes
-- **Progress Tracking**: Real-time progress updates and detailed logging
-- **Resumable**: Migration ledger tracks processed files for resumability
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/life-itself/markdown-to-wordpress.git
-cd markdown-to-wordpress
-
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Optional: Link globally for CLI access
-npm link
-```
+This is a Python implementation of the markdown-to-wordpress migration tool, designed for testing and validation with small datasets.
 
 ## Quick Start
 
-1. **Set up configuration files:**
-
+1. **Install dependencies:**
 ```bash
-# Copy example configs
-cp config/config.example.yml config/config.yml
-cp config/mappings.example.yml config/mappings.yml
-cp .env.example .env
+pip install -r requirements.txt
 ```
 
-2. **Configure WordPress authentication:**
-
-Edit `.env` and add your WordPress application password:
-
-```env
-WP_APP_PASSWORD=your-application-password-here
-```
-
-3. **Update config.yml with your WordPress site details:**
-
-```yaml
-wordpress:
-  base_url: https://your-wordpress-site.com
-  auth:
-    username: your-username
-```
-
-4. **Run migration:**
-
+2. **Test with sample data:**
 ```bash
-# Dry run first to test
-npm run migrate -- migrate -c config/config.yml -i ./content --dry-run
-
-# Actual migration
-npm run migrate -- migrate -c config/config.yml -i ./content
+python test_simple.py
 ```
 
-## Usage
-
-### Commands
-
-#### Migrate
-
-Migrate markdown files to WordPress:
-
+3. **Validate markdown files:**
 ```bash
-markdown-to-wordpress migrate -c config.yml -i ./content [options]
-
-Options:
-  -t, --type <type>        Content type (blog|podcast|event|page|auto)
-  --dry-run                Simulate without making changes
-  --concurrency <number>   Number of concurrent operations (default: 4)
-  --limit <number>         Limit number of files to process
-  --since <date>           Only process files since date (YYYY-MM-DD)
-  --media-mode <mode>      Media handling (upload|skip)
-  -v, --verbose            Show detailed output
+python -m src.cli validate -i sample-data/content
 ```
 
-#### Validate
-
-Validate markdown files against schemas:
-
+4. **Inspect a single file:**
 ```bash
-markdown-to-wordpress validate -c config.yml -i ./content [options]
-
-Options:
-  -t, --type <type>    Content type to validate
-  -v, --verbose        Show detailed validation errors
+python -m src.cli inspect -f sample-data/content/about.md
 ```
 
-#### Inspect
-
-Inspect a single file and show how it will be mapped:
-
+5. **Migrate to WordPress:**
 ```bash
-markdown-to-wordpress inspect -f ./content/post.md -c config.yml [options]
-
-Options:
-  -v, --verbose    Show detailed output
+python -m src.cli migrate -i sample-data/content --wp-url https://your-site.com --wp-user admin --wp-password your-app-password --dry-run
 ```
 
-## Front Matter Format
+## Sample Data
 
-### Blog/News Post
+The `sample-data/` directory contains:
+- **3 markdown files** representing different content types (blog, page, event)
+- **4 placeholder images** in `assets/images/`
 
-```yaml
----
-type: blog
-title: "Article Title"
-subtitle: "Brief description"
-slug: "article-slug"
-date_published: 2024-05-01T10:00:00Z
-date_updated: 2024-06-10T18:30:00Z
-featured_image: ./images/feature.jpg
-authors: ["Author Name", "author@email.com"]
-status: publish
-featured: true
-tags: [tag1, tag2]
-categories: [category1]
-initiatives: [initiative1]
----
+### Sample Files:
+1. `about.md` - A page about Life Itself
+2. `community.md` - A blog post about community
+3. `conscious-coliving-retreat.md` - An event listing
+
+## Features Implemented
+
+✅ **Core Parser**
+- Front matter extraction with python-frontmatter
+- Markdown to HTML conversion
+- Content type detection (blog, event, podcast, page)
+- Wiki-style link processing (`[[link]]` → `<a href="/slug">link</a>`)
+- Image path processing for later media handling
+
+✅ **WordPress Client**
+- REST API connection with application password auth
+- Post creation/update operations
+- Taxonomy term management
+- User lookup by email/name
+- Idempotent operations (find existing by slug/meta)
+
+✅ **CLI Interface**
+- `validate` - Check markdown files for issues
+- `inspect` - Show detailed info about a single file
+- `migrate` - Full WordPress post creation and management
+
+## Testing Results
+
+Running `python test_simple.py` shows:
+
+```
+=== Testing Markdown Parser ===
+
+Looking for files in: sample-data/content
+Found 3 files:
+  - about.md
+  - community.md
+  - conscious-coliving-retreat.md
+
+=== Parsing Files ===
+
+--- about.md ---
+Title: About Life Itself
+Type: page
+Slug: about
+Status: publish
+Content Length: 733 chars
+HTML Length: 1058 chars
+STATUS: OK
+
+--- community.md ---
+Title: Our Community
+Type: blog
+Slug: community
+Status: publish
+Tags: community, connection, wisdom
+Authors: Rufus Pollock, Sylvie Barbier
+Content Length: 963 chars
+HTML Length: 1401 chars
+STATUS: OK
+
+--- conscious-coliving-retreat.md ---
+Title: Conscious Coliving Retreat - Spring 2024
+Type: event
+Slug: conscious-coliving-retreat-spring-2024
+Status: publish
+Tags: retreat, coliving, community
+Start Date: 2024-04-15T00:00:00
+Location: Life Itself Hub, Bergerac
+Content Length: 1193 chars
+HTML Length: 1768 chars
+STATUS: OK
 ```
 
-### Event
+## WordPress Post Creation
 
-```yaml
----
-type: event
-title: "Event Name"
-slug: "event-slug"
-start_date: 2025-10-01
-end_date: 2025-10-15
-location_name: "Venue Name"
-location_address: "Full Address"
-host: ["Host Organization"]
-featured_image: ./images/event.jpg
-registration_url: "https://..."
----
-```
+The tool now supports **full WordPress post creation**! See `MIGRATION_GUIDE.md` for complete instructions.
 
-### Podcast
+**What's Implemented:**
+✅ WordPress REST API integration  
+✅ Post/page creation and updates  
+✅ Taxonomy management (tags, categories)  
+✅ Author resolution  
+✅ Content mapping from front matter  
+✅ Idempotent operations (safe re-runs)  
 
-```yaml
----
-type: podcast
-title: "Episode Title"
-slug: "podcast-ep-01"
-episode_number: 1
-audio_url: "https://..."
-duration: "00:48:22"
-guests: ["Guest Name"]
-show: "Podcast Series Name"
----
-```
-
-### Page
-
-```yaml
----
-type: page
-title: "Page Title"
-slug: "page-slug"
-template: "custom-template"
-parent_slug: "parent-page"
-description: "Page description"
----
-```
-
-## Configuration
-
-### config.yml
-
-Main configuration file for WordPress connection and migration settings.
-
-### mappings.yml
-
-Defines how front matter fields map to WordPress fields and taxonomies.
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run in development mode
-npm run dev
-
-# Run tests
-npm test
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-```
+**Next Steps for Production Scale:**
+1. **Media Handler** - Implement image upload to WordPress Media Library
+2. **Bulk Processing** - Handle 1000+ files efficiently  
+3. **Configuration** - YAML config file support
+4. **Error Recovery** - Better error handling and retry logic
 
 ## Project Structure
 
 ```
 markdown-to-wordpress/
 ├── src/
-│   ├── cli/           # CLI commands
-│   ├── core/          # Core logic (parser, mapper, migrator)
-│   ├── wordpress/     # WordPress API client and media handler
-│   ├── utils/         # Utilities (logger, config loader)
-│   └── types/         # TypeScript type definitions
-├── config/            # Configuration files
-├── schemas/           # JSON schemas for validation
-└── tests/             # Test files
+│   ├── cli.py              # Command line interface
+│   ├── parser.py           # Markdown parsing and front matter extraction
+│   ├── wordpress_client.py # WordPress REST API client
+│   ├── mapper.py           # Content mapping to WordPress format
+│   └── types.py            # Type definitions
+├── sample-data/
+│   ├── content/            # Sample markdown files
+│   └── assets/images/      # Sample images (placeholders)
+├── config/
+│   └── config.example.yml  # Configuration example
+├── test_simple.py          # Simple test script
+├── requirements.txt        # Python dependencies
+├── MIGRATION_GUIDE.md      # Step-by-step WordPress migration guide
+└── README.md               # This file
 ```
 
-## Requirements
+## Dependencies
 
-- Node.js 18+ (LTS recommended)
-- WordPress 5.0+ with REST API enabled
-- WordPress Application Passwords or JWT authentication
+- `requests` - HTTP client for WordPress API
+- `pyyaml` - YAML configuration support  
+- `python-frontmatter` - Front matter parsing
+- `markdown` - Markdown to HTML conversion
+- `click` - CLI framework
+- `rich` - Rich console output (optional)
 
-## Troubleshooting
+## Testing Philosophy
 
-### Authentication Issues
+This Python version focuses on:
+- **Small datasets** - Test with 2-3 files only
+- **Step-by-step validation** - Ensure each component works
+- **Simple testing** - Basic validation before complex features
+- **Unit testing approach** - Test parser, client, and mapper separately
 
-- Ensure Application Passwords are enabled in WordPress
-- Check username and password in config
-- Verify REST API is accessible at `/wp-json/wp/v2/`
-
-### Media Upload Failures
-
-- Check file size limits in WordPress
-- Verify write permissions on WordPress media directory
-- Ensure image paths are correct in markdown files
-
-### Custom Post Types Not Found
-
-- Verify custom post types are registered with REST API support
-- Check endpoint URLs in config.yml
-
-## License
-
-ISC
-
-## Contributing
-
-Contributions are welcome! Please submit pull requests or open issues for bugs and feature requests.
-
-## Support
-
-For issues and questions, please open an issue on GitHub.
+Perfect for validating the approach before scaling to 1000+ files!

@@ -1,6 +1,6 @@
-# Markdown to WordPress Migration Tool
+# {old} Markdown to WordPress Migration Tool
 
-A powerful Node.js CLI tool for migrating markdown content with YAML front matter to WordPress via the REST API. Designed to handle large-scale migrations (1000+ posts) with support for multiple content types, media uploads, taxonomies, and idempotent operations.
+A powerful .js CLI tool for migrating markdown content with YAML front matter to WordPress via the REST API. Designed to handle large-scale migrations (1000+ posts) with support for multiple content types, media uploads, taxonomies, and idempotent operations.
 
 ## Features
 
