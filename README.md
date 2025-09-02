@@ -13,12 +13,37 @@ We are migrating the **Life Itself website https://lifeitself.org/** to WordPres
 
 So far, neither are great ... as a bit over-complex. Insight is to break down parts myself and then spec one part at a time and create that and then chain them together.
 
-- SPEC v0.1 (openai)
+- SPEC v0.1 (ChatGPT)
 - Spec v0.2 (Cursor)
 
-## Overview
+## Design
 
-# WordPress Migration Steps
+We will structure the WordPress migration as an **ETL pipeline** with clear stages, where each step is isolated, produces defined outputs, and feeds into the next. This makes the process modular, testable, and easier to extend.
+
+* Each step will live in its **own subfolder** (e.g. `/01-prepare`, `/02-mappings`, etc.) with a clear **`in/` and `out/`** directory.
+* The **input of each step** is the **output of the previous step**.
+* The **initial input** will be an externally specific folder. We can create an initial `sample/` folder with an example subset of Markdown + assets.
+* Each step will include a **sub-README** describing its purpose, inputs, and outputs.
+* Steps will be developed **one at a time**, tested independently before chaining.
+* We will use prompt engineering (or scripts) at each step to ensure repeatable results.
+* Open questions to resolve:
+  * How to **orchestrate the steps** together into a full pipeline (make vs airflow vs prefect custom)?
+  * What tooling/framework (if any) we use for orchestration and dependency handling.
+
+### Steps
+
+May still be missing some ...
+
+```mermaid
+graph TD
+    A[Sort out images] --> B[Prepare source content]
+    B --> C[Decide mappings]
+    C --> D[Upload media]
+    D --> E[Rewrite links in content]
+    E --> F[Create content in WordPress]
+    F --> G[Verify and tidy]
+    G --> H[Iterate - optional]
+```
 
 0. Sort out images
 1. Prepare source content  
@@ -41,9 +66,8 @@ So far, neither are great ... as a bit over-complex. Insight is to break down pa
 
 - [ ] Clean up front-matter (titles, dates, slugs, tags)  
 - [ ] Fix/standardize Markdown 
-- [ ] Rename images sensibly; ensure alt text  
 - [ ] Fixing wiki markdown links like `[[]]` which aren't fully qualified
-  - [ ] Locate broken links
+- [ ] Locate broken links
 
 ### 2. Decide mappings
 
