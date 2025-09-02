@@ -1,0 +1,17 @@
+# Placeholder Images for Testing
+
+This directory contains placeholder images for testing the migration tool.
+
+In a real migration, you would copy actual images from:
+- lifeitself.org/content/assets/images/
+- Or other image directories
+
+For testing purposes, we'll create small placeholder files to simulate the process.
+
+## Images referenced in sample content:
+1. lifeitself-landingpage.webp (referenced in about.md)
+2. community-gathering.jpg (referenced in community.md)
+3. hub-space.jpg (referenced in community.md)
+4. bergerac-hub.jpg (referenced in conscious-coliving-retreat.md)
+
+These would normally be copied from the actual lifeitself.org repository.

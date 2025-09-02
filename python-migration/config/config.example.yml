@@ -1,0 +1,16 @@
+wordpress:
+  url: "https://your-wordpress-site.com"
+  username: "your-username" 
+  password: "your-application-password"  # Use environment variable in production
+  
+migration:
+  default_status: "draft"  # draft, publish, private
+  default_author: "admin"
+  concurrency: 4
+  retry_attempts: 3
+  retry_delay: 1.0
+  upload_media: true
+  media_max_size_mb: 10
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR

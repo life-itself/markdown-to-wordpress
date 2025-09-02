@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "markdown-to-wordpress"
+version = "1.0.0"
+description = "A Python CLI tool to migrate markdown content to WordPress"
+authors = [{name = "Life Itself", email = "hello@lifeitself.org"}]
+license = {text = "ISC"}
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.31.0",
+    "pyyaml>=6.0",
+    "python-frontmatter>=1.0.0",
+    "markdown>=3.4.0",
+    "click>=8.1.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+]
+
+[project.scripts]
+m2wp = "src.cli:main"
+markdown-to-wordpress = "src.cli:main"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
