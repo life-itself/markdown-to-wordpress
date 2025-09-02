@@ -16,17 +16,17 @@ python test_simple.py
 
 3. **Validate markdown files:**
 ```bash
-python -m src.cli validate -i sample-data/content
+python -m src.cli validate -i sample/content
 ```
 
 4. **Inspect a single file:**
 ```bash
-python -m src.cli inspect -f sample-data/content/about.md
+python -m src.cli inspect -f sample/content/about.md
 ```
 
 ## Sample Data
 
-The `sample-data/` directory contains:
+The `sample/` directory contains:
 - **3 markdown files** representing different content types (blog, page, event)
 - **4 placeholder images** in `assets/images/`
 
@@ -63,7 +63,7 @@ Running `python test_simple.py` shows:
 ```
 === Testing Markdown Parser ===
 
-Looking for files in: sample-data/content
+Looking for files in: sample/content
 Found 3 files:
   - about.md
   - community.md
@@ -124,7 +124,7 @@ python-migration/
 │   ├── parser.py           # Markdown parsing and front matter extraction
 │   ├── wordpress_client.py # WordPress REST API client
 │   └── types.py            # Type definitions
-├── sample-data/
+├── sample/
 │   ├── content/            # Sample markdown files
 │   └── assets/images/      # Sample images (placeholders)
 ├── config/

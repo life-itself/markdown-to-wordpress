@@ -18,7 +18,7 @@ def test_parser():
     parser = MarkdownParser()
     
     # Find files
-    sample_path = "sample-data/content"
+    sample_path = "sample/content"
     if not os.path.exists(sample_path):
         print(f"ERROR: Sample path not found: {sample_path}")
         return

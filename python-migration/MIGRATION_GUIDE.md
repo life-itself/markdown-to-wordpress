@@ -24,7 +24,7 @@ Go to your WordPress Admin → Users → Your Profile → Application Passwords
 cd python-migration
 
 python -m src.cli migrate \
-  -i sample-data/content \
+  -i sample/content \
   --wp-url https://your-wordpress-site.com \
   --wp-user your-username \
   --wp-password your-application-password \
@@ -36,7 +36,7 @@ This will show you what **would** be created without actually creating anything.
 ### **Step 2: Actually Create Posts**
 ```bash
 python -m src.cli migrate \
-  -i sample-data/content \
+  -i sample/content \
   --wp-url https://your-wordpress-site.com \
   --wp-user your-username \
   --wp-password your-application-password
@@ -90,7 +90,7 @@ Python implementation for testing and validation
 Testing WordPress connection...
 ✓ Connected to WordPress
 
-Finding markdown files in: sample-data/content
+Finding markdown files in: sample/content
 Found 3 markdown files
 
 Processing: about.md
