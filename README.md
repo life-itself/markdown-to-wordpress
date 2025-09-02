@@ -45,6 +45,7 @@ cp .env.example .env
 2. **Configure WordPress authentication:**
 
 Edit `.env` and add your WordPress application password:
+
 ```env
 WP_APP_PASSWORD=your-application-password-here
 ```
@@ -73,6 +74,7 @@ npm run migrate -- migrate -c config/config.yml -i ./content
 ### Commands
 
 #### Migrate
+
 Migrate markdown files to WordPress:
 
 ```bash
@@ -89,6 +91,7 @@ Options:
 ```
 
 #### Validate
+
 Validate markdown files against schemas:
 
 ```bash
@@ -100,6 +103,7 @@ Options:
 ```
 
 #### Inspect
+
 Inspect a single file and show how it will be mapped:
 
 ```bash
@@ -112,6 +116,7 @@ Options:
 ## Front Matter Format
 
 ### Blog/News Post
+
 ```yaml
 ---
 type: blog
@@ -131,6 +136,7 @@ initiatives: [initiative1]
 ```
 
 ### Event
+
 ```yaml
 ---
 type: event
@@ -147,6 +153,7 @@ registration_url: "https://..."
 ```
 
 ### Podcast
+
 ```yaml
 ---
 type: podcast
@@ -161,6 +168,7 @@ show: "Podcast Series Name"
 ```
 
 ### Page
+
 ```yaml
 ---
 type: page
@@ -175,9 +183,11 @@ description: "Page description"
 ## Configuration
 
 ### config.yml
+
 Main configuration file for WordPress connection and migration settings.
 
 ### mappings.yml
+
 Defines how front matter fields map to WordPress fields and taxonomies.
 
 ## Development
@@ -223,16 +233,19 @@ markdown-to-wordpress/
 ## Troubleshooting
 
 ### Authentication Issues
+
 - Ensure Application Passwords are enabled in WordPress
 - Check username and password in config
 - Verify REST API is accessible at `/wp-json/wp/v2/`
 
 ### Media Upload Failures
+
 - Check file size limits in WordPress
 - Verify write permissions on WordPress media directory
 - Ensure image paths are correct in markdown files
 
 ### Custom Post Types Not Found
+
 - Verify custom post types are registered with REST API support
 - Check endpoint URLs in config.yml
 
