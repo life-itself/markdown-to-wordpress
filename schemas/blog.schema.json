@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Blog Post Schema",
+  "type": "object",
+  "required": ["title", "slug"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["blog", "news"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "date_published": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "date_updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "featured_image": {
+      "type": "string"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "publish", "private"]
+    },
+    "featured": {
+      "type": "boolean"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "initiatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "external_id": {
+      "type": "string"
+    }
+  }
+}

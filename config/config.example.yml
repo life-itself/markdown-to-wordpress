@@ -1,0 +1,27 @@
+wordpress:
+  base_url: https://your-wordpress-site.com
+  auth:
+    method: application_passwords # or jwt
+    username: your-username
+    application_password: ${WP_APP_PASSWORD} # Set in environment variable
+  endpoints:
+    posts: /wp-json/wp/v2/posts
+    pages: /wp-json/wp/v2/pages
+    media: /wp-json/wp/v2/media
+    podcast: /wp-json/wp/v2/podcast # Custom post type endpoint
+    event: /wp-json/wp/v2/event     # Custom post type endpoint
+
+defaults:
+  status: draft # draft|publish|private
+  timezone: Europe/London
+  author_fallback: admin # Username to use when author not found
+  media:
+    upload: true
+    dedupe_by: filename # filename|hash
+    max_size_mb: 10
+
+migration:
+  concurrency: 4 # Number of parallel API requests
+  retry_attempts: 3
+  retry_delay_ms: 1000
+  rate_limit_ms: 100 # Delay between API requests

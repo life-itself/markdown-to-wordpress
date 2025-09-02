@@ -1,90 +1,249 @@
-A migration tool (command line tool) to migrate our existing markdown material to WordPress in a fairly complex way.
+# Markdown to WordPress Migration Tool
 
-## Context
+A powerful Node.js CLI tool for migrating markdown content with YAML front matter to WordPress via the REST API. Designed to handle large-scale migrations (1000+ posts) with support for multiple content types, media uploads, taxonomies, and idempotent operations.
 
-We are migrating the **Life Itself website https://lifeitself.org/** to WordPress.
+## Features
 
-- The existing site contains a large volume of content (around 1,000 posts) along with images and other assets
-- The content is stored in **GitHub at https://github.com/life-itself/lifeitself.org** and published with Flowershow (old self-hosted version) 
-- We need a migration script that can transfer posts and media into WordPress, upload images to the Media Library, relink them correctly within posts, and map existing metadata such as tags or taxonomies.
-- The aim is to create a reliable, repeatable process that handles the scale and complexity of the migration while preserving content integrity.
+- **Multiple Content Types**: Support for blog posts, podcasts, events, and pages
+- **Idempotent Operations**: Safe re-runs without duplicating content
+- **Media Handling**: Automatic upload and linking of images to WordPress Media Library
+- **Taxonomy Management**: Automatic creation and assignment of tags, categories, and custom taxonomies
+- **Wiki Link Resolution**: Converts `[[wiki-style]]` links to proper URLs
+- **Validation**: Schema-based validation before migration
+- **Dry Run Mode**: Test migrations without making changes
+- **Progress Tracking**: Real-time progress updates and detailed logging
+- **Resumable**: Migration ledger tracks processed files for resumability
 
-## Spec (experiments)
+## Installation
 
-So far, neither are great ... as a bit over-complex. Insight is to break down parts myself and then spec one part at a time and create that and then chain them together.
+```bash
+# Clone the repository
+git clone https://github.com/life-itself/markdown-to-wordpress.git
+cd markdown-to-wordpress
 
-- SPEC v0.1 (openai)
-- Spec v0.2 (Cursor)
+# Install dependencies
+npm install
 
-## Overview
+# Build the project
+npm run build
 
-# WordPress Migration Steps
+# Optional: Link globally for CLI access
+npm link
+```
 
-0. Sort out images
-1. Prepare source content  
-2. Decide mappings  
-3. Upload media  
-4. Rewrite links in content  
-5. Create content in WordPress  
-6. Verify & tidy  
-7. Iterate (optional, later)  
+## Quick Start
 
+1. **Set up configuration files:**
+
+```bash
+# Copy example configs
+cp config/config.example.yml config/config.yml
+cp config/mappings.example.yml config/mappings.yml
+cp .env.example .env
+```
+
+2. **Configure WordPress authentication:**
+
+Edit `.env` and add your WordPress application password:
+```env
+WP_APP_PASSWORD=your-application-password-here
+```
+
+3. **Update config.yml with your WordPress site details:**
+
+```yaml
+wordpress:
+  base_url: https://your-wordpress-site.com
+  auth:
+    username: your-username
+```
+
+4. **Run migration:**
+
+```bash
+# Dry run first to test
+npm run migrate -- migrate -c config/config.yml -i ./content --dry-run
+
+# Actual migration
+npm run migrate -- migrate -c config/config.yml -i ./content
+```
+
+## Usage
+
+### Commands
+
+#### Migrate
+Migrate markdown files to WordPress:
+
+```bash
+markdown-to-wordpress migrate -c config.yml -i ./content [options]
+
+Options:
+  -t, --type <type>        Content type (blog|podcast|event|page|auto)
+  --dry-run                Simulate without making changes
+  --concurrency <number>   Number of concurrent operations (default: 4)
+  --limit <number>         Limit number of files to process
+  --since <date>           Only process files since date (YYYY-MM-DD)
+  --media-mode <mode>      Media handling (upload|skip)
+  -v, --verbose            Show detailed output
+```
+
+#### Validate
+Validate markdown files against schemas:
+
+```bash
+markdown-to-wordpress validate -c config.yml -i ./content [options]
+
+Options:
+  -t, --type <type>    Content type to validate
+  -v, --verbose        Show detailed validation errors
+```
+
+#### Inspect
+Inspect a single file and show how it will be mapped:
+
+```bash
+markdown-to-wordpress inspect -f ./content/post.md -c config.yml [options]
+
+Options:
+  -v, --verbose    Show detailed output
+```
+
+## Front Matter Format
+
+### Blog/News Post
+```yaml
 ---
+type: blog
+title: "Article Title"
+subtitle: "Brief description"
+slug: "article-slug"
+date_published: 2024-05-01T10:00:00Z
+date_updated: 2024-06-10T18:30:00Z
+featured_image: ./images/feature.jpg
+authors: ["Author Name", "author@email.com"]
+status: publish
+featured: true
+tags: [tag1, tag2]
+categories: [category1]
+initiatives: [initiative1]
+---
+```
 
-### 0. Image processing
+### Event
+```yaml
+---
+type: event
+title: "Event Name"
+slug: "event-slug"
+start_date: 2025-10-01
+end_date: 2025-10-15
+location_name: "Venue Name"
+location_address: "Full Address"
+host: ["Host Organization"]
+featured_image: ./images/event.jpg
+registration_url: "https://..."
+---
+```
 
-- [ ] Renaming image assets (based on file they are used in)
-- [ ] Uploading image assets
-- [ ] Updating links in markdown files to corrected image links
+### Podcast
+```yaml
+---
+type: podcast
+title: "Episode Title"
+slug: "podcast-ep-01"
+episode_number: 1
+audio_url: "https://..."
+duration: "00:48:22"
+guests: ["Guest Name"]
+show: "Podcast Series Name"
+---
+```
 
-### 1. Prepare source content
+### Page
+```yaml
+---
+type: page
+title: "Page Title"
+slug: "page-slug"
+template: "custom-template"
+parent_slug: "parent-page"
+description: "Page description"
+---
+```
 
-- [ ] Clean up front-matter (titles, dates, slugs, tags)  
-- [ ] Fix/standardize Markdown 
-- [ ] Rename images sensibly; ensure alt text  
-- [ ] Fixing wiki markdown links like `[[]]` which aren't fully qualified
-  - [ ] Locate broken links
+## Configuration
 
-### 2. Decide mappings
+### config.yml
+Main configuration file for WordPress connection and migration settings.
 
-- [ ] Map folders/files to WordPress types (post, page, etc.)  
-- [ ] Decide taxonomy use (tags/categories)  
-- [ ] Choose final permalink style (usually slug-based)  
+### mappings.yml
+Defines how front matter fields map to WordPress fields and taxonomies.
 
-### 3. Upload media
+## Development
 
-- [ ] Upload all referenced images/files to the WP media library  
-- [ ] Record the final URLs/IDs  
+```bash
+# Install dependencies
+npm install
 
-### 4. Rewrite links in content
+# Run in development mode
+npm run dev
 
-- [ ] Replace local image paths with their WP media URLs  
-- [ ] Convert internal links to their final slugs/paths  
+# Run tests
+npm test
 
-### 5. Create content in WordPress
+# Lint code
+npm run lint
 
-- [ ] Create posts/pages with title, slug, date, status, excerpt  
-- [ ] Set featured image where relevant  
-- [ ] Assign tags/categories  
+# Format code
+npm run format
+```
 
-### 6. Verify & tidy
+## Project Structure
 
-- [ ] Spot-check a sample: images display, links work, formatting looks right  
-- [ ] Add redirects for any old URLs if needed  
-- [ ] Generate a short report of anything to fix later  
+```
+markdown-to-wordpress/
+├── src/
+│   ├── cli/           # CLI commands
+│   ├── core/          # Core logic (parser, mapper, migrator)
+│   ├── wordpress/     # WordPress API client and media handler
+│   ├── utils/         # Utilities (logger, config loader)
+│   └── types/         # TypeScript type definitions
+├── config/            # Configuration files
+├── schemas/           # JSON schemas for validation
+└── tests/             # Test files
+```
 
-### 7. Iterate (optional, later)
+## Requirements
 
-- [ ] Add custom post types/fields if needed  
-- [ ] Improve images (sizes/WebP)  
-- [ ] Add richer blocks, embeds, or shortcodes  
+- Node.js 18+ (LTS recommended)
+- WordPress 5.0+ with REST API enabled
+- WordPress Application Passwords or JWT authentication
 
-# Notes
+## Troubleshooting
 
-## Things to cover
+### Authentication Issues
+- Ensure Application Passwords are enabled in WordPress
+- Check username and password in config
+- Verify REST API is accessible at `/wp-json/wp/v2/`
 
-- [ ] Fixing wiki markdown links like `[[]]` which aren't fully qualified
+### Media Upload Failures
+- Check file size limits in WordPress
+- Verify write permissions on WordPress media directory
+- Ensure image paths are correct in markdown files
 
-## Inbox
+### Custom Post Types Not Found
+- Verify custom post types are registered with REST API support
+- Check endpoint URLs in config.yml
 
-- [ ] ➕2025-08-29 https://gitlab.com/obviate.io/hugo2wordpress/-/blob/main/hugo2wordpress.py - a sort of useful script
+## License
+
+ISC
+
+## Contributing
+
+Contributions are welcome! Please submit pull requests or open issues for bugs and feature requests.
+
+## Support
+
+For issues and questions, please open an issue on GitHub.

@@ -1,0 +1,61 @@
+{
+  "name": "markdown-to-wordpress",
+  "version": "1.0.0",
+  "description": "A migration tool (command line tool) to migrate our existing markdown material to WordPress in a fairly complex way.",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "markdown-to-wordpress": "./dist/cli/index.js",
+    "m2wp": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli/index.js",
+    "migrate": "npm run build && node dist/cli/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/life-itself/markdown-to-wordpress.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/life-itself/markdown-to-wordpress/issues"
+  },
+  "homepage": "https://github.com/life-itself/markdown-to-wordpress#readme",
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "axios": "^1.11.0",
+    "chalk": "^5.6.0",
+    "commander": "^14.0.0",
+    "dotenv": "^17.2.1",
+    "form-data": "^4.0.4",
+    "glob": "^11.0.3",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
+    "markdown-it": "^14.1.0",
+    "mime-types": "^3.0.1",
+    "ora": "^8.2.0",
+    "p-limit": "^7.1.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/markdown-it": "^14.1.2",
+    "@types/mime-types": "^3.0.1",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "jest": "^30.1.2",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.1",
+    "typescript": "^5.9.2"
+  }
+}

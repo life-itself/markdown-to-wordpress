@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(node dist/cli/index.js inspect:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

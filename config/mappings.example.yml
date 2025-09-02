@@ -1,0 +1,83 @@
+post_types:
+  blog:
+    endpoint: /wp-json/wp/v2/posts
+    required_fields: [title, slug]
+    fields:
+      title: title
+      excerpt: subtitle
+      date: date_published
+      modified: date_updated
+      slug: slug
+      content: BODY # Special token for markdown body
+      featured_media: featured_image
+    taxonomies:
+      post_tag: tags
+      category: categories
+      initiative: initiatives
+    meta:
+      featured: featured
+      _external_id: external_id
+  
+  podcast:
+    endpoint: /wp-json/wp/v2/podcast
+    required_fields: [title, episode_number]
+    fields:
+      title: title
+      date: date_published
+      slug: slug
+      content: BODY
+      featured_media: featured_image
+    taxonomies:
+      post_tag: tags
+      initiative: initiatives
+    meta:
+      episode_number: episode_number
+      audio_url: audio_url
+      duration: duration
+      guests: guests
+      show: show
+      _external_id: external_id
+  
+  event:
+    endpoint: /wp-json/wp/v2/event
+    required_fields: [title, start_date]
+    fields:
+      title: title
+      slug: slug
+      content: BODY
+      featured_media: featured_image
+    taxonomies:
+      post_tag: tags
+      initiative: initiatives
+    meta:
+      start_date: start_date
+      end_date: end_date
+      host: host
+      location_name: location_name
+      location_address: location_address
+      location_lat: location_lat
+      location_lng: location_lng
+      registration_url: registration_url
+      _external_id: external_id
+  
+  page:
+    endpoint: /wp-json/wp/v2/pages
+    required_fields: [title, slug]
+    fields:
+      title: title
+      slug: slug
+      content: BODY
+      featured_media: featured_image
+    meta:
+      description: description
+      template: template
+      _external_id: external_id
+
+taxonomies:
+  tag: post_tag
+  category: category
+  initiatives: initiatives
+
+relationships:
+  initiatives:
+    mode: taxonomy # or 'relation' for ACF relationships
