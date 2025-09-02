@@ -1,5 +1,21 @@
 # Markdown to WordPress Migration Tool - Development Guide
 
+# TLDR:
+1. Clear project overview with the migration goal and context
+2. Detailed implementation phases broken down into manageable steps
+3. Complete content type specifications for blogs, events, podcasts, and pages
+4. CLI command structure with all necessary flags and options
+5. Configuration file templates for both config.yml and mappings.yml
+6. Key implementation details including error handling, performance optimization, and
+   testing strategies
+7. Special considerations for image processing, wiki-style links, and author handling
+8. Project structure and dependency recommendations
+9. Success criteria to measure project completion
+
+The prompt is designed to guide development of a production-ready Node.js CLI tool that
+can handle the complexity of migrating ~1,000 posts from markdown to WordPress while
+maintaining data integrity and supporting resumable, idempotent operations.
+
 ## Project Overview
 
 You are building a **Node.js CLI tool** that migrates markdown content with YAML front matter from a GitHub repository (https://github.com/life-itself/lifeitself.org) to WordPress via the REST API. The existing site has ~1,000 posts published with Flowershow that need to be migrated to WordPress while preserving content integrity, relationships, and media.
@@ -7,7 +23,9 @@ You are building a **Node.js CLI tool** that migrates markdown content with YAML
 ## Core Requirements
 
 ### Primary Goal
+
 Create a reliable, idempotent, and resumable migration tool that:
+
 - Converts markdown files with front matter to WordPress posts/pages
 - Handles multiple content types (blog posts, podcasts, events, pages)
 - Uploads and correctly links media files
@@ -15,6 +33,7 @@ Create a reliable, idempotent, and resumable migration tool that:
 - Supports safe re-runs without duplicating content
 
 ### Technology Stack
+
 - **Runtime**: Node.js (LTS version)
 - **Language**: JavaScript/TypeScript (prefer TypeScript for type safety)
 - **API**: WordPress REST API (with ACF support if needed)
@@ -27,7 +46,9 @@ Create a reliable, idempotent, and resumable migration tool that:
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure
+
 1. **CLI Setup**
+
    - Command structure: `migrate`, `validate`, `inspect`
    - Configuration loading (config.yml, mappings.yml)
    - Environment variable support for credentials
@@ -40,7 +61,9 @@ Create a reliable, idempotent, and resumable migration tool that:
    - Validation against JSON schemas
 
 ### Phase 2: Content Processing Pipeline
+
 1. **Field Mapping Engine**
+
    ```javascript
    // Example mapping structure
    {
@@ -69,6 +92,7 @@ Create a reliable, idempotent, and resumable migration tool that:
    ```
 
 2. **Markdown to HTML Conversion**
+
    - GitHub-flavored markdown support
    - Preserve heading hierarchy
    - Handle wiki-style links `[[]]`
@@ -82,13 +106,16 @@ Create a reliable, idempotent, and resumable migration tool that:
    - Generate appropriate alt text from filenames
 
 ### Phase 3: WordPress Integration
+
 1. **API Client**
+
    - Rate limiting and retry logic
    - Batch operations support
    - Error handling with detailed logging
    - Progress tracking and resumability
 
 2. **Idempotent Operations**
+
    - Lookup existing content by:
      1. `_external_id` meta field
      2. `slug` match within post type
@@ -112,6 +139,7 @@ Create a reliable, idempotent, and resumable migration tool that:
 ## Content Type Specifications
 
 ### Blog/News Posts
+
 ```yaml
 type: blog
 title: "Article Title"
@@ -129,6 +157,7 @@ initiatives: [initiative1]
 ```
 
 ### Events/Residencies
+
 ```yaml
 type: event
 title: "Event Name"
@@ -143,6 +172,7 @@ registration_url: "https://..."
 ```
 
 ### Podcasts
+
 ```yaml
 type: podcast
 title: "Episode Title"
@@ -155,6 +185,7 @@ show: "Podcast Series Name"
 ```
 
 ### Pages
+
 ```yaml
 type: page
 title: "Page Title"
@@ -167,6 +198,7 @@ description: "Page description"
 ## CLI Commands
 
 ### Main Migration Command
+
 ```bash
 node migrate.js migrate \
   --config ./config.yml \
@@ -180,6 +212,7 @@ node migrate.js migrate \
 ```
 
 ### Validation Command
+
 ```bash
 node migrate.js validate \
   --input ./content \
@@ -187,6 +220,7 @@ node migrate.js validate \
 ```
 
 ### Inspection Command
+
 ```bash
 node migrate.js inspect \
   --file ./content/posts/example.md \
@@ -196,6 +230,7 @@ node migrate.js inspect \
 ## Configuration Files
 
 ### config.yml
+
 ```yaml
 wordpress:
   base_url: https://example.com
@@ -227,6 +262,7 @@ migration:
 ```
 
 ### mappings.yml
+
 ```yaml
 post_types:
   blog:
@@ -256,6 +292,7 @@ relationships:
 ## Key Implementation Details
 
 ### Error Handling
+
 - Validate all inputs before processing
 - Implement circuit breaker pattern for API failures
 - Log all errors with context (file path, line number, field)
@@ -263,6 +300,7 @@ relationships:
 - Generate error report at end of migration
 
 ### Performance Optimization
+
 - Process files in batches with configurable concurrency
 - Implement request pooling for API calls
 - Cache taxonomy and author lookups
@@ -270,6 +308,7 @@ relationships:
 - Implement progress bars for long operations
 
 ### Logging & Reporting
+
 ```javascript
 // Log entry structure
 {
@@ -288,6 +327,7 @@ relationships:
 ```
 
 ### Testing Strategy
+
 1. **Unit Tests**: Field mapping, markdown conversion, validation
 2. **Integration Tests**: API client with mock server
 3. **E2E Tests**: Full pipeline with test WordPress instance
@@ -296,7 +336,9 @@ relationships:
 ## Special Considerations
 
 ### Image Processing
+
 1. **Renaming Strategy**
+
    - Generate SEO-friendly names from post title + sequence
    - Preserve original as meta field
    - Example: `article-title-feature.jpg`, `article-title-01.jpg`
@@ -307,6 +349,7 @@ relationships:
    - Generate WordPress-compatible metadata
 
 ### Wiki-Style Links
+
 - Pattern: `[[Page Name]]` or `[[page-slug|Display Text]]`
 - Resolution:
   1. Look up target by slug in migration ledger
@@ -315,6 +358,7 @@ relationships:
   4. Log unresolved links for manual review
 
 ### Author Handling
+
 ```javascript
 async function resolveAuthor(authorRef) {
   // Try email first
@@ -334,6 +378,7 @@ async function resolveAuthor(authorRef) {
 ```
 
 ### Taxonomy Management
+
 - Ensure all terms exist before assignment
 - Create missing terms with proper hierarchy
 - Map flat tags to hierarchical categories where needed
@@ -342,6 +387,7 @@ async function resolveAuthor(authorRef) {
 ## Development Workflow
 
 ### Project Structure
+
 ```
 markdown-to-wordpress/
 ├── src/
@@ -374,6 +420,7 @@ markdown-to-wordpress/
 ```
 
 ### Dependencies
+
 ```json
 {
   "dependencies": {
@@ -401,16 +448,19 @@ markdown-to-wordpress/
 ## Success Criteria
 
 1. **Reliability**
+
    - Zero data loss during migration
    - Graceful handling of all error cases
    - Complete audit trail of all operations
 
 2. **Performance**
+
    - Process 1000 posts in under 30 minutes
    - Efficient media upload with deduplication
    - Minimal memory footprint
 
 3. **Maintainability**
+
    - Clear, documented code structure
    - Comprehensive test coverage
    - Easy configuration updates
