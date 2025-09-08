@@ -32,10 +32,19 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environment files
+# Environment files - CRITICAL: Never commit tokens!
 .env
 .env.local
 .env.production
+.env.*
+!.env.example
+
+# WordPress credentials and tokens - SECURITY CRITICAL
+wpcom_config.json
+wordpress_config.json
+*oauth*.json
+*token*.json
+*credentials*.json
 
 # Configuration files (keep examples only)
 config/config.yml
