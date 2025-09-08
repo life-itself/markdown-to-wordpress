@@ -37,12 +37,15 @@ May still be missing some ...
 ```mermaid
 graph TD
     A[Sort out images] --> B[Prepare source content]
+    A --> A2[Upload Images]
     B --> C[Decide mappings]
     C --> D[Upload media]
     D --> E[Rewrite links in content]
     E --> F[Create content in WordPress]
     F --> G[Verify and tidy]
     G --> H[Iterate - optional]
+    A2 --> End
+    H --> End
 ```
 
 0. Sort out images
@@ -58,9 +61,15 @@ graph TD
 
 ### 0. Image processing
 
-- [ ] Renaming image assets (based on file they are used in)
+- [ ] Create dictionary of renaming image assets (based on file they are used in)
+
+So in this step, we are looking through all the image assets, deciding if they need renaming. If they are renaming, and they use often image assets only used in one file, renaming based on that file in some useful way or context. Then saving them again and making probably a note of the rename. Like we need a list of the data of the rename because we're going to use that when we then go through all the other marked down files and update the links to the image assets at some point. And then there would be another step here which would probably be like uploading. I mean there might even just be a dictionary here. Like the output of the stage might actually only need to be a dictionary of renames because frankly you could do the rename when you do the upload. You don't need to store all the image files again and you just need to do the renaming. So the output of this stage would probably be a dictionary file of renames. And you know with the source name and then the target name. And then there would be a stage for actually doing the upload. There would be a code script for actually doing the upload to WordPress or whatever it is. That could even be a separate stage. Really it could be run separately. So yeah.
+
+### 0.b Image uploading
+
+This can happen at any stage actually (and in parallel)
+
 - [ ] Uploading image assets
-- [ ] Updating links in markdown files to corrected image links
 
 ### 1. Prepare source content
 
@@ -68,6 +77,7 @@ graph TD
 - [ ] Fix/standardize Markdown
 - [ ] Fixing wiki markdown links like `[[]]` which aren't fully qualified
 - [ ] Locate broken links
+- [ ] Updating links in markdown files to corrected image links
 
 ### 2. Decide mappings
 
