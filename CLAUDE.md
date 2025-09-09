@@ -1,24 +1,43 @@
 # Markdown to WordPress Migration Tool - Development Guide
 
+# CURRENT STATUS (2025-01-09):
+**IMPLEMENTED & WORKING:**
+✅ **Step 0: Image Processing** - SEO-friendly image renaming based on usage context
+✅ **Step 1: Prepare Content** - Markdown to WordPress-ready JSON conversion  
+✅ **Step 3: Upload Media** - WordPress REST API media upload with deduplication
+✅ **Testing Infrastructure** - Dynamic tests using real lifeitself.org sample data
+✅ **Configuration** - Working WordPress.com OAuth connection to flowerdemo4.wordpress.com
+✅ **Sample Data** - Real content from lifeitself.org repository integrated
+
+**ARCHITECTURE DECISION:**
+Following ETL pipeline approach from DESIGN.md with **Python implementation** instead of Node.js
+- Each step is isolated with clear inputs/outputs
+- Modular structure: `/etl/0-image-processing/`, `/etl/1-prepare-content/`, etc.
+- Each module has `main.py` + `main_test.py` for clean testing
+- Uses real sample data from lifeitself.org content repository
+
 # TLDR:
 1. Clear project overview with the migration goal and context
-2. Detailed implementation phases broken down into manageable steps
+2. **UPDATED**: Python-based ETL pipeline (not Node.js) following DESIGN.md principles
 3. Complete content type specifications for blogs, events, podcasts, and pages
-4. CLI command structure with all necessary flags and options
-5. Configuration file templates for both config.yml and mappings.yml
-6. Key implementation details including error handling, performance optimization, and
-   testing strategies
+4. **IMPLEMENTED**: Working image processing and media upload to WordPress
+5. Configuration file templates and working .env setup
+6. **IMPLEMENTED**: Dynamic testing with real sample data
 7. Special considerations for image processing, wiki-style links, and author handling
-8. Project structure and dependency recommendations
+8. **UPDATED**: Python project structure with modular ETL steps
 9. Success criteria to measure project completion
 
-The prompt is designed to guide development of a production-ready Node.js CLI tool that
-can handle the complexity of migrating ~1,000 posts from markdown to WordPress while
-maintaining data integrity and supporting resumable, idempotent operations.
+This tool is being developed as a production-ready **Python ETL pipeline** that can handle the complexity of migrating ~1,000 posts from markdown to WordPress while maintaining data integrity and supporting resumable, idempotent operations.
 
 ## Project Overview
 
-You are building a **Node.js CLI tool** that migrates markdown content with YAML front matter from a GitHub repository (https://github.com/life-itself/lifeitself.org) to WordPress via the REST API. The existing site has ~1,000 posts published with Flowershow that need to be migrated to WordPress while preserving content integrity, relationships, and media.
+You are building a **Python ETL pipeline** that migrates markdown content with YAML front matter from a GitHub repository (https://github.com/life-itself/lifeitself.org) to WordPress via the REST API. The existing site has ~1,000 posts published with Flowershow that need to be migrated to WordPress while preserving content integrity, relationships, and media.
+
+**Current Implementation Status:**
+- **WordPress Site**: flowerdemo4.wordpress.com (WordPress.com hosted)  
+- **Authentication**: OAuth token configured in `.env`
+- **Sample Data**: Real content from lifeitself.org repository in `/sample-data/`
+- **Testing**: All modules use dynamic testing with real sample data (no hardcoded filenames)
 
 ## Core Requirements
 
@@ -32,20 +51,183 @@ Create a reliable, idempotent, and resumable migration tool that:
 - Preserves metadata, taxonomies, and relationships
 - Supports safe re-runs without duplicating content
 
-### Technology Stack
+### Technology Stack (**UPDATED - Python Implementation**)
 
-- **Runtime**: Node.js (LTS version)
-- **Language**: JavaScript/TypeScript (prefer TypeScript for type safety)
-- **API**: WordPress REST API (with ACF support if needed)
-- **Authentication**: WordPress Application Passwords or JWT
-- **Markdown Parser**: markdown-it or remark/unified
-- **CLI Framework**: Commander.js or yargs
-- **HTTP Client**: axios or node-fetch
-- **Configuration**: YAML/JSON files
+- **Runtime**: Python 3.13+ 
+- **Language**: Python (with type hints)
+- **API**: WordPress REST API (WordPress.com OAuth)
+- **Authentication**: OAuth Bearer Token (configured in .env)
+- **Markdown Parser**: `markdown` library with extensions
+- **HTTP Client**: `requests` library
+- **Configuration**: `.env` files + JSON output files
+- **Testing**: `pytest` with dynamic sample data
+- **Dependencies**: `pyyaml`, `python-dotenv`, `requests`, `markdown`
+
+## **IMPLEMENTED ETL PIPELINE STEPS**
+
+### Step 0: Image Processing ✅ **COMPLETE**
+**Location**: `/etl/0-image-processing/`
+**Purpose**: Analyze image usage and generate SEO-friendly rename mappings
+**Files**: `main.py`, `main_test.py`
+
+**What it does:**
+- Scans all markdown files to find image references (frontmatter + inline)
+- Analyzes image usage patterns (single-use vs multi-use)
+- Generates SEO-friendly filenames based on post context
+- Creates `image_rename_dict.json` mapping old paths to new names
+- Example: `eco-communities-blog.jpg` → `10-eco-communities-to-visit-in-europe-feature.jpg`
+
+**Input**: Sample data from lifeitself.org repository  
+**Output**: `image_rename_dict.json`, `image_usage_report.json`, `orphaned_images.json`
+
+### Step 1: Prepare Content ✅ **COMPLETE**
+**Location**: `/etl/1-prepare-content/`  
+**Purpose**: Convert markdown files to WordPress-ready JSON format
+**Files**: `main.py`, `main_test.py`
+
+**What it does:**
+- Extracts YAML frontmatter and markdown content
+- Converts markdown to HTML using `markdown` library
+- Processes wiki-style links `[[]]`
+- Updates image references using rename dictionary
+- Generates proper slugs, handles dates, taxonomies
+- Creates WordPress-compatible data structure
+
+**Input**: Sample data + rename dictionary from Step 0  
+**Output**: `prepared_content.json` with all posts ready for WordPress
+
+### Step 3: Upload Media ✅ **COMPLETE** 
+**Location**: `/etl/3-upload-media/`
+**Purpose**: Upload images to WordPress Media Library
+**Files**: `main.py`, `main_test.py`
+
+**What it does:**
+- Uses WordPress.com REST API with OAuth authentication
+- Uploads images with SEO-friendly names from rename dictionary  
+- Handles deduplication (checks if media already exists)
+- Implements rate limiting and error handling
+- Creates mapping of local paths to WordPress media IDs/URLs
+
+**Input**: Sample data + rename dictionary from Step 0
+**Output**: `media_upload_map.json` with WordPress media IDs and URLs
+**Live Result**: Successfully uploaded to flowerdemo4.wordpress.com (media ID 13)
+
+### **REMAINING STEPS TO IMPLEMENT:**
+
+### Step 2: Decide Mappings (TODO)
+- Map content types to WordPress post types
+- Configure taxonomy mappings
+- Set up field mappings
+
+### Step 4: Rewrite Links (TODO)  
+- Update image URLs in content using media upload map
+- Fix internal wiki-style links
+- Update relative paths to absolute WordPress URLs
+
+### Step 5: Create Content (TODO)
+- Create WordPress posts/pages using prepared content
+- Set featured images using media IDs
+- Assign taxonomies and meta fields
+- Handle idempotent updates (don't duplicate)
+
+### Step 6: Verify (TODO)
+- Check all content migrated correctly
+- Validate image display and link functionality
+- Generate migration report
+
+## **CURRENT PROJECT STRUCTURE**
+
+```
+markdown-to-wordpress/
+├── etl/
+│   ├── 0-image-processing/
+│   │   ├── main.py                    ✅ Image processing & renaming
+│   │   ├── main_test.py               ✅ Dynamic tests
+│   │   └── test-output/               ✅ Generated rename dictionaries
+│   ├── 1-prepare-content/
+│   │   ├── main.py                    ✅ Markdown → WordPress JSON  
+│   │   ├── main_test.py               ✅ Content preparation tests
+│   │   └── output/                    ✅ prepared_content.json
+│   ├── 3-upload-media/
+│   │   ├── main.py                    ✅ WordPress media upload
+│   │   ├── main_test.py               ✅ Upload tests (mocked)
+│   │   └── output/                    ✅ media_upload_map.json
+│   └── run_pipeline.py                📝 Pipeline orchestration
+├── sample-data/                       ✅ Real lifeitself.org content
+│   ├── blog/                          ✅ Sample markdown files
+│   └── assets/images/                 ✅ Sample image files  
+├── .env                               ✅ WordPress.com OAuth config
+├── .env.example                       ✅ Configuration template
+└── CLAUDE.md                          ✅ This development guide
+```
+
+## **TESTING APPROACH** 
+
+**Dynamic Testing Philosophy**: All tests use real sample data and avoid hardcoded assumptions
+- Tests work with any markdown/image files in `sample-data/`
+- No hardcoded filenames, image counts, or specific content expectations  
+- Tests validate patterns and data structures, not specific values
+- Easy to add new sample data without breaking tests
+
+**Test Files**: Each ETL step has `main_test.py` with comprehensive test coverage
+- Step 0: 4 tests covering image discovery, usage analysis, renaming
+- Step 1: 6 tests covering markdown parsing, HTML conversion, WordPress formatting
+- Step 3: 6 tests covering connection, upload, deduplication (with mocking)
+
+**Sample Data Integration**: Uses real content from lifeitself.org repository
+- Blog posts: `10-eco-communities-to-visit-in-europe.md`, `governance-at-life-itself-v2.md`, `possibility-now.md`
+- Images: `eco-communities-blog.jpg`, `sample-image.jpg`
+- Structure matches actual lifeitself.org content organization
+
+## **CONFIGURATION & CREDENTIALS**
+
+**WordPress Connection**: Currently configured for WordPress.com hosted site
+```bash
+# .env file configuration (WORKING)
+WORDPRESS_SITE_DOMAIN=flowerdemo4.wordpress.com
+WORDPRESS_OAUTH_TOKEN=[OAuth token from WordPress.com]
+DEFAULT_AUTHOR=admin
+DEFAULT_STATUS=draft
+UPLOAD_MEDIA=true
+BATCH_SIZE=10
+RETRY_DELAY=1000
+```
+
+**Authentication Method**: WordPress.com OAuth Bearer Token
+- More secure than username/password
+- Works with WordPress.com hosted sites  
+- Token configured in `.env` file
+- Successfully tested with media upload (media ID 13 created)
+
+**Usage Examples**:
+```bash
+# Step 0: Process images and create rename dictionary
+cd etl/0-image-processing
+python main.py --input-dir ../../sample-data --output-dir ./test-output
+
+# Step 1: Prepare content for WordPress  
+cd etl/1-prepare-content  
+python main.py --input-dir ../../sample-data --output-dir ./output --rename-dict ../0-image-processing/test-output/image_rename_dict.json
+
+# Step 3: Upload media to WordPress
+cd etl/3-upload-media
+python main.py --input-dir ../../sample-data --output-dir ./output --rename-dict ../0-image-processing/test-output/image_rename_dict.json
+
+# Run tests
+python -m pytest main_test.py -v
+```
+
+## **NEXT STEPS FOR DEVELOPMENT**
+
+1. **Implement Step 2: Decide Mappings** - Content type and taxonomy mapping
+2. **Implement Step 4: Rewrite Links** - Update image URLs using media upload map  
+3. **Implement Step 5: Create Content** - WordPress post/page creation with idempotency
+4. **Implement Step 6: Verify** - Migration validation and reporting
+5. **Create Pipeline Orchestrator** - Chain all steps together with error handling
+6. **Scale Testing** - Test with larger sample datasets
+7. **Production Migration** - Run full lifeitself.org content migration
 
 ## Implementation Phases
-
-### Phase 1: Core Infrastructure
 
 1. **CLI Setup**
 
