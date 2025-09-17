@@ -1,0 +1,128 @@
+{
+  "errors": [
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\untitled_logo.svg",
+      "error": "Failed to upload collaborators-02.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\mythology-and-the-art-of-rituals.png",
+      "error": "Failed to upload mythology-and-the-art-of-rituals-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "assets\\images\\Life-Itself-the-Reason-for-our-Existence-\u00e2\u20ac\u201c-a-Preliminary-SCQH.png",
+      "error": "File not found"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\image.png",
+      "error": "Failed to upload life-itself-the-reason-for-our-existence-a-preliminary-scqh-02.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-4.png",
+      "error": "Failed to upload the-way-we-live-now-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "assets\\images\\Examining-\u00e2\u20ac\u02dcThe-Way-We-Live-Now-What-do-we-really-want-1024x576.png",
+      "error": "File not found"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-12.png",
+      "error": "Failed to upload re-mythologizing-technology-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-14.png",
+      "error": "Failed to upload can-digital-businesses-thrive-and-have-a-mindful-culture-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-16.png",
+      "error": "Failed to upload notes-on-david-sloan-wilsons-darwins-cathedral-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-18.png",
+      "error": "Failed to upload we-have-failed-to-escape-mystery-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-19.png",
+      "error": "Failed to upload ritual-and-the-return-to-mystery-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-20.png",
+      "error": "Failed to upload technology-is-the-answer-to-our-problems-another-app-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-26.png",
+      "error": "Failed to upload individualism-collective-blind-spot-2-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-27.png",
+      "error": "Failed to upload the-case-for-contemplative-activism-why-why-now-and-what-are-we-offering-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Screenshot-2022-11-25-at-12.35.07.png",
+      "error": "Failed to upload screenshot-2022-11-25-at-123507.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Mapping-Metamodern-4.png",
+      "error": "Failed to upload insight-interbeing-and-science-may-2022-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Mapping-Metamodern.png",
+      "error": "Failed to upload mapping-an-emerging-ecosystem-partnership-with-the-institute-for-integral-studies-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-8.png",
+      "error": "Failed to upload mapping-metamodern-what-is-metamodernism-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Screenshot-2022-06-09-at-14.51.41.png",
+      "error": "Failed to upload launch-announcement-life-itself-labs-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-17.png",
+      "error": "Failed to upload collective-practice-and-the-life-itself-open-residency-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-21.png",
+      "error": "Failed to upload tending-the-seeds-of-a-new-culture-hope-history-and-humility-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Blog-Feature-Images-22.png",
+      "error": "Failed to upload collective-practice-with-valerie-duvauchelle-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\excalidraw\\research-topical-map-2023-01-14.excalidraw.svg",
+      "error": "Failed to upload announcing-the-first-life-itself-research-hackathon-feature.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "assets\\images\\ValerieDuvauchelle-9\u00c2\u00a9sophie-lavaur-2-1024x683.jpg",
+      "error": "File not found"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Group-16.svg",
+      "error": "Failed to upload group-16.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Group-17.svg",
+      "error": "Failed to upload group-17.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Group-20.svg",
+      "error": "Failed to upload emergent-dialogue-residency-june-2022-09.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Group-19.svg",
+      "error": "Failed to upload group-19.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\Group-25.svg",
+      "error": "Failed to upload emergent-dialogue-residency-june-2022-10.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\1.svg",
+      "error": "Failed to upload 1.svg: 500 - {\"code\":\"rest_upload_unknown_error\",\"message\":\"Sorry, you are not allowed to upload this file type.\",\"data\":{\"status\":500}}"
+    },
+    {
+      "file": "C:\\Users\\Abeelha\\Documents\\github\\lifeitself.org\\content\\assets\\images\\instagram-screenshot.png",
+      "error": "Failed to upload publishing-an-instagram-post-feature.png: 503 - <!DOCTYPE html>\n<html style=\"height:100%\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n<title> 503 Service Unavailable\r\n</title><style>@media (prefers-color-scheme:dark){body{background-color:#000!important}}</style></head>\n<body style=\"color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;\">\n<div style=\"height:auto; min-height:100%; \">     <div style=\"text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;\">\n        <h1 style=\"margin:0; font-size:150px; line-height:150px; font-weight:bold;\">503</h1>\n<h2 style=\"margin-top:20px;font-size: 30px;\">Service Unavailable\r\n</h2>\n<p>The server is temporarily busy, try again later!</p>\n</div></div></body></html>\n"
+    }
+  ]
+}

@@ -10,7 +10,9 @@
       "Bash(python -m pytest tests/test_media_handler.py -v)",
       "Read(//c/Users/Abeelha/Documents/github/lifeitself.org/content//**)",
       "Bash(python:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Read(//c/Users/Abeelha/Documents/github/lifeitself.org/content/**)",
+      "Read(//c/Users/Abeelha/Documents/github/lifeitself.org/**)"
     ],
     "deny": [],
     "ask": []
