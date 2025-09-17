@@ -1,0 +1,26 @@
+{
+  "created": [
+    {
+      "wordpress_id": 1,
+      "title": "Test Blog Post",
+      "slug": "test-blog-post",
+      "type": "post",
+      "url": "https://test.com/test-blog-post"
+    },
+    {
+      "wordpress_id": 2,
+      "title": "Test Page",
+      "slug": "test-page",
+      "type": "page",
+      "url": "https://test.com/test-page"
+    }
+  ],
+  "updated": [],
+  "failed": [],
+  "summary": {
+    "total": 2,
+    "created": 2,
+    "updated": 0,
+    "failed": 0
+  }
+}
