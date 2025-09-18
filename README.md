@@ -24,7 +24,7 @@ cp .env.example .env
 
 ### 2. Configure WordPress.com
 
-Get your OAuth token (see [WORDPRESS_SETUP.md](WORDPRESS_SETUP.md)) and edit `.env`:
+Get your OAuth token (see [WORDPRESS_SETUP.md](Documentation/WORDPRESS_SETUP.md)) and edit `.env`:
 
 ```env
 WORDPRESS_SITE_DOMAIN=yoursite.wordpress.com
@@ -166,8 +166,11 @@ python -m pytest main_test.py -v
 cd etl/5-create-content
 python main.py --input-dir /path/to/content --output-dir output --content-file ../1-prepare-content/output/prepared_content.json --media-map ../3-upload-media/output/media_upload_map.json
 
-# Full migration example
-python main.py --input-dir ../../lifeitself.org/content --output-dir ./full-migration-output --content-file ../1-prepare-content/full-migration-output/prepared_content.json --media-map ../3-upload-media/full-migration-output/media_upload_map.json
+# Full batch migration (recommended for large sites)
+python batch_create.py --content-file ../1-prepare-content/full-migration-output/prepared_content.json --media-map ../3-upload-media/full-migration-output/media_upload_map.json --output-dir ./full-migration-output
+
+# Custom batch size
+python batch_create.py --batch-size 20
 
 # Run tests
 python -m pytest main_test.py -v
@@ -225,10 +228,20 @@ With lifeitself.org content:
 
 ## 📚 Documentation
 
-- [WORDPRESS_SETUP.md](WORDPRESS_SETUP.md) - WordPress.com OAuth setup guide
-- [PROJECT_STATUS.md](PROJECT_STATUS.md) - Current implementation status
-- [DESIGN.md](DESIGN.md) - Original design specification
-- [CLAUDE.md](CLAUDE.md) - Detailed technical requirements
+### Core Documentation
+- [WORDPRESS_SETUP.md](Documentation/WORDPRESS_SETUP.md) - WordPress.com OAuth setup guide
+- [PROJECT_STATUS.md](Documentation/PROJECT_STATUS.md) - Current implementation status
+- [DESIGN.md](Documentation/DESIGN.md) - Original design specification
+- [CLAUDE.md](Documentation/CLAUDE.md) - Detailed technical requirements
+
+### Migration Reports
+- [MIGRATION_FINAL_REPORT.md](Documentation/MIGRATION_FINAL_REPORT.md) - Complete migration results and statistics
+- [MIGRATION_ANALYSIS.md](Documentation/MIGRATION_ANALYSIS.md) - Detailed pre-migration analysis
+- [MIGRATION_COMPLETE.md](Documentation/MIGRATION_COMPLETE.md) - Migration completion summary
+- [MIGRATION_HANDLING.md](Documentation/MIGRATION_HANDLING.md) - Content handling documentation
+
+### Migration Steps
+- [Step-by-step migration guides](migration-steps-md/) - Detailed documentation for each ETL step
 
 ## 🎯 Next Steps
 
@@ -240,4 +253,4 @@ With lifeitself.org content:
 
 ---
 
-**Ready to migrate?** Start with the [WordPress Setup Guide](WORDPRESS_SETUP.md) 🚀
+**Ready to migrate?** Start with the [WordPress Setup Guide](Documentation/WORDPRESS_SETUP.md) 🚀
