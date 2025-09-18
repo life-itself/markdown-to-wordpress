@@ -57,11 +57,11 @@ Each step is isolated with clear inputs and outputs:
 ```
 etl/
 ├── 0-image-processing/  ✅ COMPLETE
-├── 1-prepare-content/   🚧 Next
+├── 1-prepare-content/   ✅ COMPLETE
 ├── 2-decide-mappings/   🚧 To Do
-├── 3-upload-media/      🚧 To Do
+├── 3-upload-media/      ✅ COMPLETE
 ├── 4-rewrite-links/     🚧 To Do
-├── 5-create-content/    🚧 To Do
+├── 5-create-content/    ✅ COMPLETE
 └── 6-verify/           🚧 To Do
 ```
 
@@ -76,13 +76,106 @@ etl/
 - Handles featured images vs inline images
 - Generates comprehensive usage reports
 
-**Usage**:
+**CLI Commands**:
 ```bash
+# Basic usage
 cd etl/0-image-processing
 python main.py --input-dir /path/to/content --output-dir output
+
+# Full migration example
+python main.py --input-dir ../../lifeitself.org/content --output-dir ./full-migration-output
+
+# Run tests
+python -m pytest main_test.py -v
 ```
 
-**Output**: JSON files with rename mappings and analysis
+**Output**:
+- `image_rename_dict.json` - Mapping of old to new filenames
+- `image_usage_report.json` - Detailed usage analysis
+- `orphaned_images.json` - List of unused images
+
+### ✅ Step 1: Prepare Content
+
+**Purpose**: Convert markdown files to WordPress-ready JSON format
+
+**Features**:
+- Extracts YAML frontmatter and markdown content
+- Converts markdown to HTML
+- Processes wiki-style links `[[]]`
+- Updates image references using rename dictionary
+- Generates WordPress-compatible data structure
+
+**CLI Commands**:
+```bash
+# Basic usage
+cd etl/1-prepare-content
+python main.py --input-dir /path/to/content --output-dir output --rename-dict ../0-image-processing/output/image_rename_dict.json
+
+# Full migration example
+python main.py --input-dir ../../lifeitself.org/content --output-dir ./full-migration-output --rename-dict ../0-image-processing/full-migration-output/image_rename_dict.json
+
+# Run tests
+python -m pytest main_test.py -v
+```
+
+**Output**:
+- `prepared_content.json` - All posts ready for WordPress
+
+### ✅ Step 3: Upload Media
+
+**Purpose**: Upload images to WordPress Media Library
+
+**Features**:
+- Uses WordPress REST API with authentication
+- Uploads images with SEO-friendly names
+- Handles deduplication (checks if media already exists)
+- Implements rate limiting and error handling
+- Creates mapping of local paths to WordPress media IDs/URLs
+
+**CLI Commands**:
+```bash
+# Basic usage
+cd etl/3-upload-media
+python main.py --input-dir /path/to/content --output-dir output --rename-dict ../0-image-processing/output/image_rename_dict.json
+
+# Full migration example
+python main.py --input-dir ../../lifeitself.org/content --output-dir ./full-migration-output --rename-dict ../0-image-processing/full-migration-output/image_rename_dict.json
+
+# Run tests
+python -m pytest main_test.py -v
+```
+
+**Output**:
+- `media_upload_map.json` - WordPress media IDs and URLs
+- `upload_errors.json` - Any failed uploads
+
+### ✅ Step 5: Create Content
+
+**Purpose**: Create WordPress posts/pages from prepared content
+
+**Features**:
+- Creates posts with proper metadata
+- Sets featured images using media IDs
+- Assigns categories and tags
+- Handles idempotent updates (won't duplicate)
+- Supports both posts and pages
+
+**CLI Commands**:
+```bash
+# Basic usage
+cd etl/5-create-content
+python main.py --input-dir /path/to/content --output-dir output --content-file ../1-prepare-content/output/prepared_content.json --media-map ../3-upload-media/output/media_upload_map.json
+
+# Full migration example
+python main.py --input-dir ../../lifeitself.org/content --output-dir ./full-migration-output --content-file ../1-prepare-content/full-migration-output/prepared_content.json --media-map ../3-upload-media/full-migration-output/media_upload_map.json
+
+# Run tests
+python -m pytest main_test.py -v
+```
+
+**Output**:
+- `content_creation_results.json` - WordPress post IDs and URLs
+- `creation_errors.json` - Any failed posts
 
 ## 🧪 Testing
 
