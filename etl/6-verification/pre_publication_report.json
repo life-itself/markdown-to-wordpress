@@ -1,0 +1,11 @@
+{
+  "api_access": true,
+  "featured_images": true,
+  "links_analysis": {
+    "wiki_links": 0,
+    "internal_links": 221,
+    "problematic_links": 135
+  },
+  "content_rendering": false,
+  "media_access": true
+}

@@ -30,17 +30,21 @@ class MediaUploader:
         
         # Configure WordPress connection
         self.site_domain = os.getenv('WORDPRESS_SITE_DOMAIN')
-        self.oauth_token = os.getenv('WORDPRESS_OAUTH_TOKEN')
-        
-        if not self.site_domain or not self.oauth_token:
+        self.username = os.getenv('WORDPRESS_USERNAME')
+        self.app_password = os.getenv('WORDPRESS_APPLICATION_PASSWORD')
+
+        if not self.site_domain or not self.username or not self.app_password:
             raise ValueError("Missing WordPress credentials in .env file")
-        
-        # WordPress.com API endpoint
-        self.api_base = f"https://public-api.wordpress.com/wp/v2/sites/{self.site_domain}"
-        
-        # Set up headers
+
+        # Self-hosted WordPress API endpoint
+        self.api_base = f"https://{self.site_domain}/?rest_route=/wp/v2"
+
+        # Set up Basic Auth headers
+        import base64
+        credentials = f'{self.username}:{self.app_password}'
+        encoded_credentials = base64.b64encode(credentials.encode()).decode()
         self.headers = {
-            'Authorization': f'Bearer {self.oauth_token}',
+            'Authorization': f'Basic {encoded_credentials}',
         }
         
         # Load rename dictionary
