@@ -1,0 +1,36 @@
+{
+  "post_tested": {
+    "original_url": "https://lifeitself.org/blog/second-renaissance-name-why",
+    "wordpress_id": 940,
+    "wordpress_title": "Second Renaissance: what&#8217;s in a name?"
+  },
+  "test_results": [
+    {
+      "test": "Footnotes",
+      "passed": false
+    },
+    {
+      "test": "Special Blocks",
+      "passed": false
+    },
+    {
+      "test": "Authors",
+      "passed": true
+    },
+    {
+      "test": "Images",
+      "passed": false
+    },
+    {
+      "test": "Content Structure",
+      "passed": true
+    }
+  ],
+  "issues": [
+    "Found 1 broken footnote references",
+    "Raw markdown footnote syntax found in HTML",
+    "Found 1 unconverted [!note] blocks",
+    "Image file not accessible (HTTP 404): /wp-content/uploads/first-renaissance-to-second-renaissance-bridge.webp"
+  ],
+  "success_rate": 40.0
+}
