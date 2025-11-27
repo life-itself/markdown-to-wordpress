@@ -1,48 +1,60 @@
-import {describe, expect, it, vi, beforeEach} from 'vitest';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {convertMarkdownToPost, normalizeTags, findPostBySlug, upsertPostToWordpress} from '../src/lib.js';
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import path from "node:path";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import {
+  convertMarkdownToPost,
+  normalizeTags,
+  findPostBySlug,
+  upsertPostToWordpress,
+} from "../src/lib.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const fixturesDir = path.join(__dirname, 'fixtures');
+const fixturesDir = path.join(__dirname, "fixtures");
 
-describe('convertMarkdownToPost', () => {
-  it('parses front matter and converts markdown to HTML with gfm support', async () => {
-    const fixturePath = path.join(fixturesDir, 'post.md');
-    const {payload, htmlContent} = await convertMarkdownToPost(fixturePath);
+describe("convertMarkdownToPost", () => {
+  it("parses front matter and converts markdown to HTML with gfm support", async () => {
+    const fixturePath = path.join(fixturesDir, "post.md");
+    const raw = await readFile(fixturePath, "utf8");
+    const { payload, htmlContent } = await convertMarkdownToPost(raw, {
+      sourcePath: fixturePath,
+    });
 
     expect(payload).toMatchObject({
-      title: 'Fixture Title',
-      status: 'publish',
-      slug: 'fixture-title',
-      excerpt: expect.stringContaining('Quick summary')
+      title: "Fixture Title",
+      status: "publish",
+      slug: "fixture-title",
+      excerpt: expect.stringContaining("Quick summary"),
     });
-    expect(htmlContent).toContain('<strong>');
-    expect(htmlContent).toContain('<sup');
+    expect(htmlContent).toContain("<strong>");
+    expect(htmlContent).toContain("<sup");
   });
 
-  it('applies sensible defaults when optional fields are missing', async () => {
-    const fixturePath = path.join(fixturesDir, 'minimal.md');
-    const {payload} = await convertMarkdownToPost(fixturePath);
+  it("applies sensible defaults when optional fields are missing", async () => {
+    const fixturePath = path.join(fixturesDir, "minimal.md");
+    const raw = await readFile(fixturePath, "utf8");
+    const { payload } = await convertMarkdownToPost(raw, {
+      sourcePath: fixturePath,
+    });
 
-    expect(payload.status).toBe('draft');
-    expect(payload.slug).toBe('minimal'); // Slug derived from filename
+    expect(payload.status).toBe("draft");
+    expect(payload.slug).toBe("minimal"); // Slug derived from filename
   });
 });
 
-describe('normalizeTags', () => {
-  it('normalizes string inputs to arrays', () => {
-    expect(normalizeTags('alpha')).toEqual(['alpha']);
+describe("normalizeTags", () => {
+  it("normalizes string inputs to arrays", () => {
+    expect(normalizeTags("alpha")).toEqual(["alpha"]);
   });
 
-  it('returns undefined when tags are missing or empty', () => {
+  it("returns undefined when tags are missing or empty", () => {
     expect(normalizeTags(undefined)).toBeUndefined();
     expect(normalizeTags([])).toBeUndefined();
   });
 });
 
-describe('upsertPostToWordpress', () => {
+describe("upsertPostToWordpress", () => {
   let mockWpClient;
   let mockPostsChain;
 
@@ -59,26 +71,33 @@ describe('upsertPostToWordpress', () => {
     };
   });
 
-  it('should create a new post if no post with the slug exists', async () => {
+  it("should create a new post if no post with the slug exists", async () => {
     mockPostsChain.get.mockResolvedValue([]); // No existing post
-    mockPostsChain.create.mockResolvedValue({id: 1, link: 'new-post-link'});
+    mockPostsChain.create.mockResolvedValue({ id: 1, link: "new-post-link" });
 
-    const payload = {title: 'New Post', content: '...', slug: 'new-post'};
+    const payload = { title: "New Post", content: "...", slug: "new-post" };
     const result = await upsertPostToWordpress(mockWpClient, payload);
 
     expect(mockPostsChain.get).toHaveBeenCalledWith(); // Called by slug().get()
     expect(mockPostsChain.slug).toHaveBeenCalledWith(payload.slug);
     expect(mockPostsChain.create).toHaveBeenCalledWith(payload);
     expect(mockPostsChain.update).not.toHaveBeenCalled();
-    expect(result).toEqual({id: 1, link: 'new-post-link'});
+    expect(result).toEqual({ id: 1, link: "new-post-link" });
   });
 
-  it('should update an existing post if a post with the slug is found', async () => {
-    const existingPost = {id: 123, title: 'Old Post', slug: 'existing-post'};
+  it("should update an existing post if a post with the slug is found", async () => {
+    const existingPost = { id: 123, title: "Old Post", slug: "existing-post" };
     mockPostsChain.get.mockResolvedValue([existingPost]); // Existing post found
-    mockPostsChain.update.mockResolvedValue({id: 123, link: 'updated-post-link'});
+    mockPostsChain.update.mockResolvedValue({
+      id: 123,
+      link: "updated-post-link",
+    });
 
-    const payload = {title: 'Updated Post', content: '...', slug: 'existing-post'};
+    const payload = {
+      title: "Updated Post",
+      content: "...",
+      slug: "existing-post",
+    };
     const result = await upsertPostToWordpress(mockWpClient, payload);
 
     expect(mockPostsChain.get).toHaveBeenCalledWith();
@@ -86,11 +105,13 @@ describe('upsertPostToWordpress', () => {
     expect(mockPostsChain.id).toHaveBeenCalledWith(existingPost.id);
     expect(mockPostsChain.update).toHaveBeenCalledWith(payload);
     expect(mockPostsChain.create).not.toHaveBeenCalled();
-    expect(result).toEqual({id: 123, link: 'updated-post-link'});
+    expect(result).toEqual({ id: 123, link: "updated-post-link" });
   });
 
-  it('should throw an error if payload is missing slug', async () => {
-    const payload = {title: 'New Post', content: '...'}; // Missing slug
-    await expect(upsertPostToWordpress(mockWpClient, payload)).rejects.toThrow('Payload must contain a slug for idempotent upload.');
+  it("should throw an error if payload is missing slug", async () => {
+    const payload = { title: "New Post", content: "..." }; // Missing slug
+    await expect(upsertPostToWordpress(mockWpClient, payload)).rejects.toThrow(
+      "Payload must contain a slug for idempotent upload.",
+    );
   });
 });
