@@ -2,10 +2,10 @@ import { test, expect } from "vitest";
 import axios from "axios";
 import { oldNewUrls } from "./urls.js";
 
-// Test suite for 404 checks
-test("check for 404s", async () => {
-  for (const urlPair of oldNewUrls) {
-    const newUrl = urlPair.new;
+for (const urlPair of oldNewUrls) {
+  const newUrl = urlPair.new;
+  // Test suite for 404 checks
+  test("check for 404s", async () => {
     try {
       const response = await axios.get(newUrl);
       expect(response.status).toBe(200);
@@ -15,5 +15,5 @@ test("check for 404s", async () => {
       console.error(`Failed to fetch ${newUrl}:`, error.message);
       throw error;
     }
-  }
-});
+  });
+}

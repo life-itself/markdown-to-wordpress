@@ -20,3 +20,4 @@ The objective is to create **functional end-to-end tests** using **Node.js** to 
 
 - Use vitest in `--run` mode to avoid hanging (defaults to watch mode)
 - Tests *should* fail initially because the content will not exist. these are "black-box" functional tests on an external system (not local unit tests).
+- I want the tests here in this directory to run over all urls and report on those that are broken and not just fail on the first on that is broken.

@@ -1,5 +1,6 @@
 const oldSite = "https://lifeitself.org";
-const newSite = "http://next.lifeitself.org";
+// const newSite = "http://next.lifeitself.org";
+const newSite = "https://app-689360d2c1ac1829f80cac86.closte.com/";
 
 // List of old URLs to test
 const pagePaths = ["/", "/hubs", "/research"];
