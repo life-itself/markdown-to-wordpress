@@ -29,6 +29,7 @@ describe("convertMarkdownToPost", () => {
     });
     expect(htmlContent).toContain("<strong>");
     expect(htmlContent).toContain("<sup");
+    expect(payload.meta.raw_markdown).toBe(raw);
   });
 
   it("applies sensible defaults when optional fields are missing", async () => {
@@ -40,6 +41,7 @@ describe("convertMarkdownToPost", () => {
 
     expect(payload.status).toBe("draft");
     expect(payload.slug).toBe("minimal"); // Slug derived from filename
+    expect(payload.meta.raw_markdown).toBe(raw);
   });
 });
 

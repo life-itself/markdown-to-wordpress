@@ -67,11 +67,20 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
     );
   }
 
+  const metaFromFrontmatter =
+    frontmatter.meta && typeof frontmatter.meta === "object"
+      ? frontmatter.meta
+      : undefined;
+
   const payload = {
     title: frontmatter.title,
     content: htmlContent,
     status: frontmatter.status || "draft",
     slug: slug, // Always include slug in payload for idempotent uploads
+    meta: {
+      ...(metaFromFrontmatter || {}),
+      raw_markdown: raw,
+    },
   };
 
   if (frontmatter.date) payload.date = frontmatter.date;

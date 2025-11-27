@@ -19,9 +19,12 @@ Given a Markdown file(s) or directories of files successfully create or update p
 
 For each Markdown file:
 
-1. Parse front matter and content.
+1. Handle content:
+   * Put rendered HTML (Markdown → HTML) into the WordPress `content` field.
+   * Store original Markdown in post meta (`raw_markdown`).
 2. Determine target post:
    * If a `slug` exists and a post with that slug already exists, update that post; otherwise create a new post.
+   * Slug determiend by file path if no slug field or frontmatter in the post.
 3. Handle media:
    * If `featured_image` is given and is a local file, upload it to `/wp/v2/media` using multipart/form-data and get back its ID. ([WordPress Developer Resources][1])
    * Use that ID as `featured_media` on the post.
@@ -29,9 +32,7 @@ For each Markdown file:
 4. Handle authors / team mapping:
    * Look up each front-matter author key in `team_mapping`.
    * Write the corresponding team IDs into a custom field on the post (e.g. `team_members`), assuming that field is registered with `show_in_rest` or handled by Pods’ REST integration. ([WordPress Development Stack Exchange][8])
-5. Handle content:
-   * Put rendered HTML (Markdown → HTML) into the WordPress `content` field.
-   * Store original Markdown in post meta (`raw_markdown`).
+
 6. Handle other metadata:
    * Map front-matter tags/categories to WordPress taxonomies; create terms on demand if they don’t exist.
    * Set `status` based on config or front-matter override.
@@ -43,7 +44,6 @@ For each Markdown file:
    * Print new/updated post ID, slug, and URL.
    * On error, show HTTP status, response body and the file that failed.
 
-
 ## Tasks
 
 We will split this work into subtasks and try and complete each one in turn.
@@ -52,7 +52,8 @@ See substacks below for details on each one
 
 - [x] Basic working script for one file
 - [x] Basic working command line for multiple files
-- [ ] Test that uploads existing files
+- [x] Test that uploads existing files
+- [x] Use slugs and idempotency
 
 ---
 ---
@@ -68,8 +69,7 @@ See substacks below for details on each one
 * Provide a basic Node script (e.g., `uploadPost.js`) that:
   * loads `.env`
   * reads a hardcoded Markdown file path for now
-  * runs conversion → upload
-  * logs the result
+  * runs conversion
 * Provide a `.env.sample` file with required WordPress credentials.
   ```
   WP_BASE_URL="https://example.com"
@@ -174,3 +174,11 @@ We can leverage the slug system to ensure our uploads are "idempotent"—that is
     *   If the API returns nothing, **create** a new post, making sure to set the `slug` field to your desired value in the creation request.
 
 This approach ensures that each file corresponds to exactly one post on your WordPress site.
+
+## Subtask no 5: store original raw file content (markdown) into wordpress
+
+Modify uploader library to store the original markdown in `raw_markdown` field in wordpress metadata.
+
+this means the original markdown process code should have an additional metadata key for the raw markdown and this should be be used by uploader code.
+
+By raw markdown i mean the literal content of the file whatever it is in pure format including the frontmatter.
