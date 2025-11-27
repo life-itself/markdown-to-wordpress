@@ -2,9 +2,9 @@
   "name": "markdown-to-wordpress",
   "version": "0.1.0",
   "type": "module",
-  "main": "uploadPost.js",
+  "main": "upload.js",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
