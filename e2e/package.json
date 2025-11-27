@@ -1,0 +1,17 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "The objective is to create **functional end-to-end tests** using **Node.js** to verify successful content migration from an old system to a new system. The tests must confirm that migrated pages exist (no 404s) and that the core content is **reasonably similar** despite underlying HTML differences. The tests should be executable via `npm test` using a standard Node testing framework (recommend vitest).",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest --run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "axios": "^1.13.2",
+    "vitest": "^4.0.14"
+  }
+}
