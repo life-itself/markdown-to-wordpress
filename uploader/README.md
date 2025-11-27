@@ -2,25 +2,56 @@
 
 Set up the simple Node script in this repo to convert Markdown and upload to WordPress:
 
-1. Install dependencies: `npm install`.
-2. Copy `.env.sample` to `.env` and set `WP_BASE_URL`, `WP_USERNAME`, and `WP_APP_PASSWORD` (WordPress application password).  IMPORTANT: you will need to create a wordpress application password for your user.
-3. Create a Markdown file with YAML front matter, e.g.
+1.  **Install dependencies**:
+    ```sh
+    npm install
+    ```
+2.  **Configure Environment**: Copy `.env.sample` to `.env` and set the following variables:
+    *   `WP_BASE_URL`: The base URL of your WordPress site (e.g., `https://example.com`).
+    *   `WP_USERNAME`: Your WordPress username.
+    *   `WP_APP_PASSWORD`: A WordPress [application password](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/).
 
-   ```markdown
-   ---
-   title: My Post
-   slug: my-post
-   status: draft
-   tags:
-     - gardening
-     - learning
-   excerpt: |
-     A short preview paragraph.
-   ---
+3.  **Create Markdown Files**: Write your posts in Markdown with YAML front matter. The `title` field is required.
 
-   Body content in GitHub-flavored Markdown with tables and footnotes.
-   ```
+    *Example (`my-post.md`):*
+    ```markdown
+    ---
+    title: My Awesome Post
+    slug: my-awesome-post
+    status: draft
+    tags: [tech, blogging]
+    excerpt: A brief summary of the post.
+    ---
 
-4. Update `upload.js` (or use `sample-post.md`) to point at the Markdown file you want to publish.
-5. Run the uploader with `node upload.js`. On success the script logs the WordPress post ID, link, and status.
-6. (Optional) Run Markdown conversion tests with `npm test` to verify the Markdown processing module.
+    Your post content here, written in GitHub-Flavored Markdown.
+    ```
+
+4.  **Run the Uploader**: Execute the script from your terminal, passing one or more paths to your Markdown files or directories containing them.
+
+    *   **Upload a single file**:
+        ```sh
+        node upload.js path/to/my-post.md
+        ```
+
+    *   **Upload multiple files**:
+        ```sh
+        node upload.js file1.md file2.md
+        ```
+
+    *   **Upload all Markdown files in a directory (and its subdirectories)**:
+        ```sh
+        node upload.js path/to/my/posts/
+        ```
+
+    *   **Upload a combination of files and directories**:
+        ```sh
+        node upload.js file1.md my-blog/
+        ```
+
+    On success, the script will log the URL of each uploaded post.
+
+5.  **(Optional) Run Tests**:
+    To verify the Markdown processing module, run the tests:
+    ```sh
+    npm test
+    ```

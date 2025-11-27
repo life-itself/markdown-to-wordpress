@@ -8,11 +8,13 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "glob": "^13.0.0",
     "gray-matter": "^4.0.3",
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.0",
     "remark-html": "^16.0.1",
-    "wpapi": "^1.2.1"
+    "wpapi": "^1.2.1",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "vitest": "^1.6.0"

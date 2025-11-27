@@ -1,7 +1,9 @@
 import 'dotenv/config';
-import {readFile} from 'node:fs/promises';
+import {readFile, stat} from 'node:fs/promises';
 import path from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {glob} from 'glob';
+import yargs from 'yargs';
+import {hideBin} from 'yargs/helpers';
 import matter from 'gray-matter';
 import {remark} from 'remark';
 import remarkGfm from 'remark-gfm';
@@ -81,8 +83,45 @@ export async function uploadToWordpress(client, payload) {
   return client.posts().create(payload);
 }
 
-export async function main(markdownPath = path.resolve('sample-post.md')) {
-  const {payload} = await convertMarkdownToPost(markdownPath);
+async function getMarkdownFiles(paths) {
+  const filePaths = new Set();
+
+  for (const p of paths) {
+    const stats = await stat(p);
+    if (stats.isDirectory()) {
+      const files = await glob('**/*.md', {cwd: p, realpath: true});
+      files.forEach((file) => filePaths.add(file));
+    } else if (p.endsWith('.md')) {
+      filePaths.add(path.resolve(p));
+    }
+  }
+
+  return Array.from(filePaths);
+}
+
+async function uploadFile(client, filePath) {
+  try {
+    const {payload} = await convertMarkdownToPost(filePath);
+    const response = await uploadToWordpress(client, payload);
+    console.log(`Successfully uploaded ${path.basename(filePath)}: ${response.link}`);
+  } catch (error) {
+    console.error(`Failed to upload ${path.basename(filePath)}: ${error.message}`);
+  }
+}
+
+async function main() {
+  const argv = await yargs(hideBin(process.argv))
+    .usage('Usage: $0 <paths...>')
+    .demandCommand(1, 'You must provide at least one file or directory path.')
+    .help()
+    .argv;
+
+  const filePaths = await getMarkdownFiles(argv._);
+
+  if (filePaths.length === 0) {
+    console.log('No markdown files found to upload.');
+    return;
+  }
 
   const client = createWpClient({
     baseUrl: process.env.WP_BASE_URL,
@@ -90,24 +129,14 @@ export async function main(markdownPath = path.resolve('sample-post.md')) {
     appPassword: process.env.WP_APP_PASSWORD
   });
 
-  const response = await uploadToWordpress(client, payload);
-  console.log('Post uploaded successfully:', {
-    id: response?.id,
-    link: response?.link,
-    status: response?.status
-  });
-  return response;
+  console.log(`Found ${filePaths.length} markdown file(s) to upload.`);
+
+  for (const filePath of filePaths) {
+    await uploadFile(client, filePath);
+  }
 }
 
-function isDirectExecution() {
-  const entry = process.argv[1];
-  if (!entry) return false;
-  return import.meta.url === pathToFileURL(entry).href;
-}
-
-if (isDirectExecution()) {
-  main().catch((error) => {
-    console.error('Failed to upload post:', error.message);
-    process.exit(1);
-  });
-}
+main().catch((error) => {
+  console.error('An unexpected error occurred:', error.message);
+  process.exit(1);
+});
