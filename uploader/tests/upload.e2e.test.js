@@ -1,13 +1,15 @@
 import {describe, it, expect, beforeAll, afterAll} from 'vitest';
-import {exec} from 'node:child_process';
-import {promisify} from 'node:util';
 import path from 'node:path';
 import {promises as fs, existsSync, readFileSync} from 'node:fs';
 import matter from 'gray-matter';
 import dotenv from 'dotenv';
 import {blogPostPaths} from '../filestotest.js';
+import {
+  convertMarkdownToPost,
+  createWpClient,
+  uploadToWordpress
+} from '../src/lib.js';
 
-const execPromise = promisify(exec);
 const TEMP_DIR = path.resolve('tests/temp');
 
 // Load test-specific environment variables
@@ -23,15 +25,24 @@ const existingPostPaths = blogPostPaths.filter(filePath => {
   return exists;
 });
 
-// E2E tests for uploading to WordPress
-describe('WordPress Upload E2E', () => {
+// Integration tests for uploading to WordPress using the library functions
+describe('WordPress Upload Integration', () => {
+  let client;
+
   beforeAll(async () => {
     // Check for environment variables from .env.test
-    if (!testEnv.WP_BASE_URL || !testEnv.WP_USERNAME || !testEnv.WP_APP_PASSWORD) {
+    const {WP_BASE_URL, WP_USERNAME, WP_APP_PASSWORD} = testEnv;
+    if (!WP_BASE_URL || !WP_USERNAME || !WP_APP_PASSWORD) {
       throw new Error(
         'Missing WordPress environment variables in .env.test.'
       );
     }
+    // Create a single client for all tests
+    client = createWpClient({
+      baseUrl: WP_BASE_URL,
+      username: WP_USERNAME,
+      appPassword: WP_APP_PASSWORD
+    });
     // Create a temporary directory for modified test files
     await fs.mkdir(TEMP_DIR, {recursive: true});
   });
@@ -61,26 +72,19 @@ describe('WordPress Upload E2E', () => {
     const newContent = matter.stringify(content, frontmatter);
     await fs.writeFile(tempPath, newContent);
 
-    // Upload the temporary file, injecting the .env.test variables
-    const command = `node upload.js ${tempPath}`;
-    let stdout, stderr;
+    // Upload using the library functions
+    let uploadResponse;
     try {
-      const result = await execPromise(command, {env: {...process.env, ...testEnv}});
-      stdout = result.stdout;
-      stderr = result.stderr;
+      const {payload} = await convertMarkdownToPost(tempPath);
+      uploadResponse = await uploadToWordpress(client, payload);
     } catch (error) {
-      console.error('STDOUT:', error.stdout);
-      console.error('STDERR:', error.stderr);
+      console.error('Error during upload:', error);
       throw error;
     }
 
-    expect(stderr).toBe('');
-
-    // Extract the URL from the success message
-    const match = stdout.match(/Successfully uploaded .*: (https?:\/\/\S+)/);
-    expect(match, `Could not find a URL in the script output: "${stdout}"`).not.toBeNull();
-
-    const postUrl = match[1];
+    expect(uploadResponse).toBeDefined();
+    expect(uploadResponse.link).toBeDefined();
+    const postUrl = uploadResponse.link;
 
     // Verify the URL is accessible
     let response;

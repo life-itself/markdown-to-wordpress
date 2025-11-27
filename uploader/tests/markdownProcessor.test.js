@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {convertMarkdownToPost, normalizeTags} from '../upload.js';
+import {convertMarkdownToPost, normalizeTags} from '../src/lib.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
