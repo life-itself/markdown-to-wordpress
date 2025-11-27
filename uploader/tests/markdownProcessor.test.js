@@ -1,7 +1,7 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi, beforeEach} from 'vitest';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {convertMarkdownToPost, normalizeTags} from '../src/lib.js';
+import {convertMarkdownToPost, normalizeTags, findPostBySlug, upsertPostToWordpress} from '../src/lib.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,7 +27,7 @@ describe('convertMarkdownToPost', () => {
     const {payload} = await convertMarkdownToPost(fixturePath);
 
     expect(payload.status).toBe('draft');
-    expect(payload.slug).toBeUndefined();
+    expect(payload.slug).toBe('minimal'); // Slug derived from filename
   });
 });
 
@@ -39,5 +39,58 @@ describe('normalizeTags', () => {
   it('returns undefined when tags are missing or empty', () => {
     expect(normalizeTags(undefined)).toBeUndefined();
     expect(normalizeTags([])).toBeUndefined();
+  });
+});
+
+describe('upsertPostToWordpress', () => {
+  let mockWpClient;
+  let mockPostsChain;
+
+  beforeEach(() => {
+    mockPostsChain = {
+      slug: vi.fn(() => mockPostsChain),
+      get: vi.fn(),
+      id: vi.fn(() => mockPostsChain),
+      update: vi.fn(),
+      create: vi.fn(),
+    };
+    mockWpClient = {
+      posts: vi.fn(() => mockPostsChain),
+    };
+  });
+
+  it('should create a new post if no post with the slug exists', async () => {
+    mockPostsChain.get.mockResolvedValue([]); // No existing post
+    mockPostsChain.create.mockResolvedValue({id: 1, link: 'new-post-link'});
+
+    const payload = {title: 'New Post', content: '...', slug: 'new-post'};
+    const result = await upsertPostToWordpress(mockWpClient, payload);
+
+    expect(mockPostsChain.get).toHaveBeenCalledWith(); // Called by slug().get()
+    expect(mockPostsChain.slug).toHaveBeenCalledWith(payload.slug);
+    expect(mockPostsChain.create).toHaveBeenCalledWith(payload);
+    expect(mockPostsChain.update).not.toHaveBeenCalled();
+    expect(result).toEqual({id: 1, link: 'new-post-link'});
+  });
+
+  it('should update an existing post if a post with the slug is found', async () => {
+    const existingPost = {id: 123, title: 'Old Post', slug: 'existing-post'};
+    mockPostsChain.get.mockResolvedValue([existingPost]); // Existing post found
+    mockPostsChain.update.mockResolvedValue({id: 123, link: 'updated-post-link'});
+
+    const payload = {title: 'Updated Post', content: '...', slug: 'existing-post'};
+    const result = await upsertPostToWordpress(mockWpClient, payload);
+
+    expect(mockPostsChain.get).toHaveBeenCalledWith();
+    expect(mockPostsChain.slug).toHaveBeenCalledWith(payload.slug);
+    expect(mockPostsChain.id).toHaveBeenCalledWith(existingPost.id);
+    expect(mockPostsChain.update).toHaveBeenCalledWith(payload);
+    expect(mockPostsChain.create).not.toHaveBeenCalled();
+    expect(result).toEqual({id: 123, link: 'updated-post-link'});
+  });
+
+  it('should throw an error if payload is missing slug', async () => {
+    const payload = {title: 'New Post', content: '...'}; // Missing slug
+    await expect(upsertPostToWordpress(mockWpClient, payload)).rejects.toThrow('Payload must contain a slug for idempotent upload.');
   });
 });

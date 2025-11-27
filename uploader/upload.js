@@ -4,7 +4,7 @@ import path from 'node:path';
 import {glob} from 'glob';
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
-import {convertMarkdownToPost, createWpClient, uploadToWordpress} from './src/lib.js';
+import {convertMarkdownToPost, createWpClient, upsertPostToWordpress} from './src/lib.js';
 
 async function getMarkdownFiles(paths) {
   const filePaths = new Set();
@@ -25,8 +25,9 @@ async function getMarkdownFiles(paths) {
 async function uploadFile(client, filePath) {
   try {
     const {payload} = await convertMarkdownToPost(filePath);
-    const response = await uploadToWordpress(client, payload);
-    console.log(`Successfully uploaded ${path.basename(filePath)}: ${response.link}`);
+    const response = await upsertPostToWordpress(client, payload); // Use upsert function
+    const action = response.id === payload.id ? 'Updated' : 'Uploaded'; // Differentiate update/create
+    console.log(`${action} ${path.basename(filePath)}: ${response.link}`);
   } catch (error) {
     console.error(`Failed to upload ${path.basename(filePath)}: ${error.message}`);
   }

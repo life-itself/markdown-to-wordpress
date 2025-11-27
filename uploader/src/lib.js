@@ -37,13 +37,16 @@ export async function convertMarkdownToPost(filePath) {
   const processed = await remark().use(remarkGfm).use(remarkHtml).process(content);
   const htmlContent = String(processed).trim();
 
+  // Derive slug from filename if not provided in frontmatter
+  const slug = frontmatter.slug || path.basename(filePath, path.extname(filePath));
+
   const payload = {
     title: frontmatter.title,
     content: htmlContent,
-    status: frontmatter.status || 'draft'
+    status: frontmatter.status || 'draft',
+    slug: slug // Always include slug in payload for idempotent uploads
   };
 
-  if (frontmatter.slug) payload.slug = frontmatter.slug;
   if (frontmatter.date) payload.date = frontmatter.date;
   if (frontmatter.excerpt) payload.excerpt = frontmatter.excerpt;
   const tags = normalizeTags(frontmatter.tags);
@@ -73,8 +76,24 @@ export function createWpClient({baseUrl, username, appPassword}) {
   });
 }
 
-export async function uploadToWordpress(client, payload) {
+export async function findPostBySlug(client, slug) {
+  const response = await client.posts().slug(slug).get();
+  return response.length > 0 ? response[0] : null;
+}
+
+export async function upsertPostToWordpress(client, payload) {
   if (!client) throw new Error('A configured WPAPI client is required.');
   if (!payload) throw new Error('No payload provided to upload.');
-  return client.posts().create(payload);
+  if (!payload.slug) throw new Error('Payload must contain a slug for idempotent upload.');
+
+  const existingPost = await findPostBySlug(client, payload.slug);
+
+  if (existingPost) {
+    // Update existing post
+    // Make sure to include the ID for updates
+    return client.posts().id(existingPost.id).update(payload);
+  } else {
+    // Create new post, ensuring slug is explicitly set
+    return client.posts().create(payload);
+  }
 }

@@ -1,13 +1,13 @@
 import {describe, it, expect, beforeAll, afterAll} from 'vitest';
-import path from 'node:path';
-import {promises as fs, existsSync, readFileSync} from 'node:fs';
+import path from 'path';
+import {promises as fs, existsSync, readFileSync} from 'fs';
 import matter from 'gray-matter';
 import dotenv from 'dotenv';
 import {blogPostPaths} from '../filestotest.js';
 import {
   convertMarkdownToPost,
   createWpClient,
-  uploadToWordpress
+  upsertPostToWordpress
 } from '../src/lib.js';
 
 const TEMP_DIR = path.resolve('tests/temp');
@@ -43,8 +43,6 @@ describe('WordPress Upload Integration', () => {
       username: WP_USERNAME,
       appPassword: WP_APP_PASSWORD
     });
-    // Create a temporary directory for modified test files
-    await fs.mkdir(TEMP_DIR, {recursive: true});
   });
 
   afterAll(async () => {
@@ -63,7 +61,11 @@ describe('WordPress Upload Integration', () => {
 
   it.each(existingPostPaths)('should upload %s as "publish" and be accessible online', async (filePath) => {
     const originalPath = path.join('next.lifeitself.org', filePath);
-    const tempPath = path.join(TEMP_DIR, path.basename(filePath));
+    const uniqueFileName = `${path.basename(filePath, path.extname(filePath))}-${Math.random().toString(36).substring(2)}${path.extname(filePath)}`;
+    const tempPath = path.join(TEMP_DIR, uniqueFileName);
+
+    // Create TEMP_DIR for each test to ensure it always exists before writing
+    await fs.mkdir(TEMP_DIR, {recursive: true});
 
     // Read original file, set status to 'publish', and write to temp file
     const originalContent = await fs.readFile(originalPath, 'utf8');
@@ -76,7 +78,7 @@ describe('WordPress Upload Integration', () => {
     let uploadResponse;
     try {
       const {payload} = await convertMarkdownToPost(tempPath);
-      uploadResponse = await uploadToWordpress(client, payload);
+      uploadResponse = await upsertPostToWordpress(client, payload);
     } catch (error) {
       console.error('Error during upload:', error);
       throw error;
