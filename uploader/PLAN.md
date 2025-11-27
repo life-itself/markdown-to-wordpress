@@ -84,4 +84,8 @@ Extend the README with:
 * how to run the script using Node
 * how to run the tests for the Markdown processor
 
-If you'd like, I can now generate the complete file tree, code skeleton, and README section.
+## Subtask no 2
+
+So I want to update the upload.js and make it into a command line script where I can pass it a file or a directory or a combination of files and directories and it will then upload those.
+
+It will log to the terminal the urls of the resulting uploaded files on the WordPress site.
