@@ -1,0 +1,32 @@
+{
+  "featured-hero.jpg": {
+    "url": "https://example.com/wp-content/uploads/featured-hero.jpg",
+    "id": 101,
+    "hash": "abc"
+  },
+  "body-image.png": {
+    "url": "https://example.com/wp-content/uploads/body-image.png",
+    "id": 202,
+    "hash": "def"
+  },
+  "inline-note.jpg": {
+    "url": "https://example.com/wp-content/uploads/inline-note.jpg",
+    "id": 303,
+    "hash": "ghi"
+  },
+  "html-picture.svg": {
+    "url": "https://example.com/wp-content/uploads/html-picture.svg",
+    "id": 404,
+    "hash": "jkl"
+  },
+  "report.pdf": {
+    "url": "https://example.com/wp-content/uploads/report.pdf",
+    "id": 505,
+    "hash": "mno"
+  },
+  "second-body.jpg": {
+    "url": "https://example.com/wp-content/uploads/second-body.jpg",
+    "id": 909,
+    "hash": "pqr"
+  }
+}

@@ -12,6 +12,7 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const fixturesDir = path.join(__dirname, "fixtures");
+const mediaMapPath = path.join(fixturesDir, "uploadMediaMap.json");
 
 describe("convertMarkdownToPost", () => {
   it("parses front matter and converts markdown to HTML with gfm support", async () => {
@@ -42,6 +43,47 @@ describe("convertMarkdownToPost", () => {
     expect(payload.status).toBe("draft");
     expect(payload.slug).toBe("minimal"); // Slug derived from filename
     expect(payload.meta.raw_markdown).toBe(raw);
+  });
+
+  it("rewrites media references and sets featured image from front matter when available", async () => {
+    const fixturePath = path.join(fixturesDir, "image-frontmatter.md");
+    const raw = await readFile(fixturePath, "utf8");
+    const mediaMap = JSON.parse(await readFile(mediaMapPath, "utf8"));
+
+    const { payload, htmlContent, frontmatter } = await convertMarkdownToPost(
+      raw,
+      {
+        sourcePath: fixturePath,
+        mediaMap,
+      },
+    );
+
+    expect(frontmatter.image).toBe("/wp-content/uploads/featured-hero.jpg");
+    expect(payload.featured_media).toBe(101);
+    expect(payload.content).toContain('src="/wp-content/uploads/body-image.png"');
+    expect(payload.content).toContain(
+      'src="/wp-content/uploads/inline-note.jpg"',
+    );
+    expect(payload.content).toContain(
+      'src="/wp-content/uploads/html-picture.svg"',
+    );
+    expect(payload.content).toContain('href="/wp-content/uploads/report.pdf"');
+    expect(htmlContent).not.toContain("example.com");
+  });
+
+  it("uses the first body image as featured media when front matter is missing", async () => {
+    const fixturePath = path.join(fixturesDir, "image-body.md");
+    const raw = await readFile(fixturePath, "utf8");
+    const mediaMap = JSON.parse(await readFile(mediaMapPath, "utf8"));
+
+    const { payload } = await convertMarkdownToPost(raw, {
+      sourcePath: fixturePath,
+      mediaMap,
+    });
+
+    expect(payload.featured_media).toBe(909);
+    expect(payload.content).toContain('src="/wp-content/uploads/second-body.jpg"');
+    expect(payload.content).toContain('href="/wp-content/uploads/report.pdf"');
   });
 });
 

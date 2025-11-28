@@ -8,11 +8,7 @@ Summary: Create a minimal Node.js script that takes a Markdown file or files wit
 
 ## Acceptance
 
-Given a Markdown file(s) or directories of files successfully create or update posts in wordpress with:
-
-* Images and media properly uploaded and linked.
-* Author mapping correctly filled based on front matter authors.
-* Running the tool twice on the same file is idempotent (no duplicate posts).
+Given a Markdown file(s) or directories of files successfully create or update posts (or pages) in wordpress. Specifically:
 
 - [ ] Upload posts
   - [x] Correct title
@@ -38,10 +34,8 @@ Given a Markdown file(s) or directories of files successfully create or update p
 - [ ] 4. Handle authors / team mapping:
    * Look up each front-matter author key in `team_mapping`.
    * Write the corresponding team IDs into a custom field on the post (e.g. `team_members`), assuming that field is registered with `show_in_rest` or handled by Pods’ REST integration. ([WordPress Development Stack Exchange][8])
-- [ ] Idempotency / safety:
-   * Dry-run mode that prints what would be done without actually calling the API.
-   * Support `--update-only` and `--create-only` modes (optional).
-8. Output:
+- [ ] 5. Idempotency / safety. **✅2025-11-28 given we use slugs and file names on media**
+- [ ] 6. Output:
    * Print new/updated post ID, slug, and URL.
    * On error, show HTTP status, response body and the file that failed.
 
@@ -186,7 +180,7 @@ By raw markdown i mean the literal content of the file whatever it is in pure fo
 
 ## Substack no 6: image uploading command line tool and script
 
-This extends are library and adds a new command line script uploadMedia.js to handle the uploading of image files to WordPress. The script must accept a single file path or a directory path. It will utilize a local JSON file, `uploadMediaMap.json`, to store key-value pairs of local file paths (and optionally their hash) against their final WordPress destination URLs, enabling **idempotent uploads** (skipping already processed files).
+This extends are library and adds a new command line script uploadMedia.js to handle the uploading of media assets (images + PDFs) to WordPress. The script must accept a single file path or a directory path. It will utilize a local JSON file, `uploadMediaMap.json`, to store key-value pairs of local file paths (and optionally their hash) against their final WordPress destination URLs, enabling **idempotent uploads** (skipping already processed files).
 
 I want the `uploadMediaMap.json` so it can be used in subsequent steps to rewrite links in markdown files ahead of their uploading.
 
@@ -238,6 +232,45 @@ Checked boaz picture by eye and this is the same.
 
 use only image filename as the key in uploadMediaMap.json when building the upload info dictionary.
 
-### UPDATE: upload pdfs as well as images and store in same way
+### UPDATE 6.b: upload pdfs as well as images and store in same way
 
 As it says: let's upload pdfs too.
+
+## Task no 7: 🏞️ WordPress Post Uploader: Image Rewriting
+
+Update the content upload code to WordPress (upload.js etc) to correctly handle and **rewrite all local image references** within a Markdown post's content (including front matter, HTML tags, and Obsidian-style links). The core logic involves replacing local paths with the corresponding URLs on the wordpress server generated during the media upload step (and stored in `uploadMediaMap.json`).
+
+The process must also automatically determine and set the post's **Featured Image**.
+
+Notes:
+
+- We can assume we have a mapping file (`uploadMediaMap.json`) that contains `filename` to `destination_url` pairs.
+
+### Acceptance Criteria
+
+- [ ] Do test driven development: this can be unit tested for the markdown processing module.
+  - [ ] Have a mock media mapping file (`uploadMediaMap.json`) for testing purposes in fixtures directory
+  - [ ] Have one or two sample wordpress files
+  - [ ] Check that the payload generated for wordpress by the markdown processing module correctly handles local image references.
+- [ ] Additionally you can also update the e2e tests in basic ways e.g test that featured image is correctly set (retrieve the featured image from the wordpress API)
+- [ ] **Image Link Identification & Rewriting:** The code must locate and rewrite local image paths for the following three types of references:
+    * **Front Matter:** A key-value pair `image: [local_path]`.
+    * **HTML Tags:** Within the post body, locate image and PDF references using standard HTML tags (e.g., `<img src="...">`, `<a href="...pdf">`).
+    * **Markdown Links:** Locate and process references using the format standard Markdown `![alt](local_path)`.
+    * **Obsidian Links:** Locate and process references using the format `![[local_path]]`
+- [ ] **URL Replacement:** The local paths identified must be replaced with their corresponding absolute WordPress destination URLs found in the media mapping file.
+    * Note it would make sense to use relative urls on the server to make this info more portable i.e. `/uploads/filename.jpg` rather than absolute urls like `https://example.com/uploads/filename.jpg`
+    * I would suggest this be an option with a default value of `true`.
+- [ ]  **Featured Image Logic:** The script must set the WordPress post's featured image based on the following priority:
+    * **Priority 1:** Use the image URL specified in the **Front Matter** (if present).
+    * **Priority 2:** If no image is found in the Front Matter, use the URL of the **first image found** within the post body. (if any)
+- [ ] Update README.md here to reflect this new feature (in a concise way)
+
+### Implementation Notes
+
+* **Mapping Dependency:** The script requires the **`uploadMediaMap.json`** file (or equivalent) to be loaded and accessible for lookups.
+  * NB: the markdown processing code should be passed a map (not a path to a file) to make the code more portable and easier to test.
+  * It should be the command line that loads an actual map. This map should default to `uploadMediaMap.json` in current directory and have a `--media-map` option to specify a different file.
+* **Regular Expressions/Parsing:** Robust parsing tools (e.g., regex, dedicated Markdown parsers) are necessary to accurately identify and extract the three different reference formats (Front Matter keys, HTML attributes, and Markdown/Obsidian syntax).
+* **Front Matter Library:** A library to safely parse YAML/TOML Front Matter is recommended for the first priority check.
+* **WordPress API:** The final Featured Image URL must be linked to the post during the main post creation/update API call (typically using the media item's WordPress ID).

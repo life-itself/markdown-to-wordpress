@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { stat, readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { glob } from "glob";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -9,6 +10,10 @@ import {
   createWpClient,
   upsertPostToWordpress,
 } from "./src/lib.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DEFAULT_MAPPING_PATH = path.join(__dirname, "uploadMediaMap.json");
 
 async function getMarkdownFiles(paths) {
   const filePaths = new Set();
@@ -26,11 +31,30 @@ async function getMarkdownFiles(paths) {
   return Array.from(filePaths);
 }
 
-async function uploadFile(client, filePath) {
+async function loadMediaMap(mappingPath) {
+  try {
+    const raw = await readFile(mappingPath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    const message =
+      error.code === "ENOENT"
+        ? `Media mapping not found at ${mappingPath}. Skipping image rewriting.`
+        : `Could not read media mapping at ${mappingPath}: ${error.message}`;
+    console.warn(message);
+  }
+  return {};
+}
+
+async function uploadFile(client, filePath, mediaMap, useRelativeUrls = true) {
   try {
     const raw = await readFile(filePath, "utf8");
     const { payload } = await convertMarkdownToPost(raw, {
       sourcePath: filePath,
+      mediaMap,
+      useRelativeUrls,
     });
     const response = await upsertPostToWordpress(client, payload); // Use upsert function
     const action = response.id === payload.id ? "Updated" : "Uploaded"; // Differentiate update/create
@@ -45,6 +69,17 @@ async function uploadFile(client, filePath) {
 async function main() {
   const argv = await yargs(hideBin(process.argv))
     .usage("Usage: $0 <paths...>")
+    .option("mapping", {
+      alias: "m",
+      type: "string",
+      describe: "Path to uploadMediaMap.json for rewriting image links",
+      default: DEFAULT_MAPPING_PATH,
+    })
+    .option("absolute-media-urls", {
+      type: "boolean",
+      default: false,
+      describe: "Use absolute media URLs instead of relative paths when rewriting content.",
+    })
     .demandCommand(1, "You must provide at least one file or directory path.")
     .help().argv;
 
@@ -63,8 +98,16 @@ async function main() {
 
   console.log(`Found ${filePaths.length} markdown file(s) to upload.`);
 
+  const mappingPath = path.resolve(argv.mapping);
+  const mediaMap = await loadMediaMap(mappingPath);
+  if (mediaMap && Object.keys(mediaMap).length > 0) {
+    console.log(
+      `Loaded ${Object.keys(mediaMap).length} media mapping entries from ${mappingPath}.`,
+    );
+  }
+
   for (const filePath of filePaths) {
-    await uploadFile(client, filePath);
+    await uploadFile(client, filePath, mediaMap, !argv["absolute-media-urls"]);
   }
 }
 
