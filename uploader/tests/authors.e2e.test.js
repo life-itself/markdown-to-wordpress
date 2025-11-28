@@ -32,46 +32,42 @@ describe("WordPress author relationship", () => {
     });
   });
 
-  it(
-    "creates or updates a post with the custom authors array set",
-    async () => {
-      const slug = "wpapi-author-e2e-test";
-      const payload = {
-        title: "Author E2E test post",
-        content: "<p>Testing the Pods-driven authors relationship via REST.</p>",
-        status: "draft",
-        slug,
-        // Pods exposes authors as a top-level field; it appears to accept IDs.
-        authors: MOCK_AUTHORS.map((author) => author.id),
-        // Keep meta present so the post mirrors our usual upload shape.
-        meta: {
-          raw_markdown:
-            "Author test placeholder content; real markdown lives elsewhere.",
-        },
-      };
+  it("creates or updates a post with the custom authors array set", async () => {
+    const slug = "wpapi-author-e2e-test";
+    const payload = {
+      title: "Author E2E test post",
+      content: "<p>Testing the Pods-driven authors relationship via REST.</p>",
+      status: "publish",
+      slug,
+      // Pods exposes authors as a top-level field; it appears to accept IDs.
+      authors: MOCK_AUTHORS.map((author) => author.id),
+      // Keep meta present so the post mirrors our usual upload shape.
+      meta: {
+        raw_markdown:
+          "Author test placeholder content; real markdown lives elsewhere.",
+      },
+    };
 
-      const created = await upsertPostToWordpress(client, payload);
-      expect(created).toBeDefined();
-      expect(created.slug).toBe(slug);
+    const created = await upsertPostToWordpress(client, payload);
+    expect(created).toBeDefined();
+    expect(created.slug).toBe(slug);
 
-      const fetched = await findPostBySlug(client, slug);
-      expect(fetched).toBeTruthy();
+    const fetched = await findPostBySlug(client, slug);
+    expect(fetched).toBeTruthy();
 
-      const authorIds =
-        Array.isArray(fetched.authors) && fetched.authors.length > 0
-          ? fetched.authors
-              .map((author) =>
-                typeof author === "number"
-                  ? author
-                  : Number(author?.id ?? author?.ID),
-              )
-              .filter(Boolean)
-          : [];
+    const authorIds =
+      Array.isArray(fetched.authors) && fetched.authors.length > 0
+        ? fetched.authors
+            .map((author) =>
+              typeof author === "number"
+                ? author
+                : Number(author?.id ?? author?.ID),
+            )
+            .filter(Boolean)
+        : [];
 
-      expect(authorIds).toEqual(
-        expect.arrayContaining(MOCK_AUTHORS.map((author) => author.id)),
-      );
-    },
-    30000,
-  );
+    expect(authorIds).toEqual(
+      expect.arrayContaining(MOCK_AUTHORS.map((author) => author.id)),
+    );
+  }, 30000);
 });

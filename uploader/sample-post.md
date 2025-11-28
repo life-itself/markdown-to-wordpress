@@ -1,7 +1,7 @@
 ---
 title: "Experimental Gardens"
 slug: experimental-gardens
-status: draft
+status: publish
 date: 2024-05-11
 tags:
   - 3

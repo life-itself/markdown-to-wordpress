@@ -26,6 +26,8 @@ Set up the simple Node script in this repo to convert Markdown and upload to Wor
     Your post content here, written in GitHub-Flavored Markdown.
     ```
 
+    Date handling: include a `date` to set the publish time, or `created` if you only have that field; if both are missing the uploader assigns today's date during upload.
+
 4.  **Run the Uploader**: Execute the script from your terminal, passing one or more paths to your Markdown files or directories containing them.
 
     *   **Upload a single file**:

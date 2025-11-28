@@ -242,7 +242,8 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
     meta,
   };
 
-  if (frontmatter.date) payload.date = frontmatter.date;
+  const postDate = frontmatter.date || frontmatter.created;
+  if (postDate) payload.date = postDate;
   if (frontmatter.excerpt) payload.excerpt = frontmatter.excerpt;
   const tags = normalizeTags(frontmatter.tags);
   if (tags) payload.tags = tags;
@@ -285,14 +286,18 @@ export async function upsertPostToWordpress(client, payload) {
   if (!payload.slug)
     throw new Error("Payload must contain a slug for idempotent upload.");
 
+  const payloadWithDate = payload.date
+    ? payload
+    : { ...payload, date: new Date().toISOString() };
+
   const existingPost = await findPostBySlug(client, payload.slug);
 
   if (existingPost) {
     // Update existing post
     // Make sure to include the ID for updates
-    return client.posts().id(existingPost.id).update(payload);
+    return client.posts().id(existingPost.id).update(payloadWithDate);
   } else {
     // Create new post, ensuring slug is explicitly set
-    return client.posts().create(payload);
+    return client.posts().create(payloadWithDate);
   }
 }

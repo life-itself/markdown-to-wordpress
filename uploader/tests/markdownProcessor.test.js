@@ -85,6 +85,54 @@ describe("convertMarkdownToPost", () => {
     expect(payload.content).toContain('src="/wp-content/uploads/second-body.jpg"');
     expect(payload.content).toContain('href="/wp-content/uploads/report.pdf"');
   });
+
+  it("prefers front matter date when present", async () => {
+    const markdown = `---
+title: Has Date
+date: 2024-03-15
+---
+
+Body`;
+
+    const { payload } = await convertMarkdownToPost(markdown, {
+      sourcePath: path.join(fixturesDir, "date-primary.md"),
+    });
+
+    expect(new Date(payload.date).toISOString()).toBe(
+      "2024-03-15T00:00:00.000Z",
+    );
+  });
+
+  it("falls back to created when date is absent", async () => {
+    const markdown = `---
+title: Created Only
+created: 2020-12-31
+---
+
+Body`;
+
+    const { payload } = await convertMarkdownToPost(markdown, {
+      sourcePath: path.join(fixturesDir, "created-fallback.md"),
+    });
+
+    expect(new Date(payload.date).toISOString()).toBe(
+      "2020-12-31T00:00:00.000Z",
+    );
+  });
+
+  it("leaves date undefined when both date and created are missing", async () => {
+    const markdown = `---
+title: No Date Fields
+---
+
+Body`;
+
+    const { payload } = await convertMarkdownToPost(markdown, {
+      sourcePath: path.join(fixturesDir, "no-dates.md"),
+    });
+
+    expect(payload.date).toBeUndefined();
+  });
 });
 
 describe("normalizeTags", () => {
@@ -124,9 +172,13 @@ describe("upsertPostToWordpress", () => {
 
     expect(mockPostsChain.get).toHaveBeenCalledWith(); // Called by slug().get()
     expect(mockPostsChain.slug).toHaveBeenCalledWith(payload.slug);
-    expect(mockPostsChain.create).toHaveBeenCalledWith(payload);
+    expect(mockPostsChain.create).toHaveBeenCalled();
     expect(mockPostsChain.update).not.toHaveBeenCalled();
     expect(result).toEqual({ id: 1, link: "new-post-link" });
+
+    const createCallPayload = mockPostsChain.create.mock.calls[0][0];
+    expect(createCallPayload.date).toEqual(expect.any(String));
+    expect(Date.parse(createCallPayload.date)).not.toBeNaN();
   });
 
   it("should update an existing post if a post with the slug is found", async () => {
@@ -147,9 +199,13 @@ describe("upsertPostToWordpress", () => {
     expect(mockPostsChain.get).toHaveBeenCalledWith();
     expect(mockPostsChain.slug).toHaveBeenCalledWith(payload.slug);
     expect(mockPostsChain.id).toHaveBeenCalledWith(existingPost.id);
-    expect(mockPostsChain.update).toHaveBeenCalledWith(payload);
+    expect(mockPostsChain.update).toHaveBeenCalled();
     expect(mockPostsChain.create).not.toHaveBeenCalled();
     expect(result).toEqual({ id: 123, link: "updated-post-link" });
+
+    const updateCallPayload = mockPostsChain.update.mock.calls[0][0];
+    expect(updateCallPayload.date).toEqual(expect.any(String));
+    expect(Date.parse(updateCallPayload.date)).not.toBeNaN();
   });
 
   it("should throw an error if payload is missing slug", async () => {
@@ -157,5 +213,21 @@ describe("upsertPostToWordpress", () => {
     await expect(upsertPostToWordpress(mockWpClient, payload)).rejects.toThrow(
       "Payload must contain a slug for idempotent upload.",
     );
+  });
+
+  it("should respect a provided date on the payload", async () => {
+    const existingPost = { id: 555, title: "Old Post", slug: "dated-post" };
+    mockPostsChain.get.mockResolvedValue([existingPost]);
+    const payload = {
+      title: "Has Date",
+      content: "...",
+      slug: "dated-post",
+      date: "2021-01-01T12:00:00Z",
+    };
+
+    await upsertPostToWordpress(mockWpClient, payload);
+
+    const updateCallPayload = mockPostsChain.update.mock.calls[0][0];
+    expect(updateCallPayload.date).toBe(payload.date);
   });
 });
