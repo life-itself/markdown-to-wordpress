@@ -65,8 +65,8 @@ Use `uploadMedia.js` to push local images to WordPress before wiring their URLs 
     ```sh
     node uploadMedia.js path/to/image.png another/folder/
     ```
-    *Use `-m custom-mapping.json` to override the mapping file location.*
-3.  **Idempotent uploads**: The script records each upload in `media-mapping.json` (path → hash → destination URL). Identical files are skipped automatically; changed files are re-uploaded and the mapping is updated.
+    *Use `-m custom-map.json` to override the mapping file location (`uploadMediaMap.json` by default).* 
+3.  **Idempotent uploads**: The script records each upload in `uploadMediaMap.json` (path → hash → destination URL). Identical files are skipped automatically; changed files are re-uploaded and the mapping is updated.
 4.  **WordPress metadata**: Each media item receives the original local path and file hash inside `meta[original_local_path]` / `meta[original_local_hash]`, letting WordPress keep track of the source asset.
 
-`media-mapping.json` is committed to this repo so later steps (e.g., rewriting Markdown image references) can reference already-uploaded assets.
+`uploadMediaMap.json` is committed to this repo so later steps (e.g., rewriting Markdown image references) can reference already-uploaded assets.

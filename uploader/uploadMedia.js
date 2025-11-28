@@ -42,7 +42,7 @@ const MIME_TYPES = {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DEFAULT_MAPPING_PATH = path.join(__dirname, "media-mapping.json");
+const DEFAULT_MAPPING_PATH = path.join(__dirname, "uploadMediaMap.json");
 
 function sanitizeBaseUrl(url) {
   if (!url) return url;
@@ -171,7 +171,7 @@ async function main() {
     .option("mapping", {
       alias: "m",
       type: "string",
-      describe: "Path to media-mapping.json",
+      describe: "Path to uploadMediaMap.json",
       default: DEFAULT_MAPPING_PATH,
     })
     .demandCommand(1, "Provide at least one file or directory path.")
