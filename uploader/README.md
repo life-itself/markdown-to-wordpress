@@ -55,3 +55,18 @@ Set up the simple Node script in this repo to convert Markdown and upload to Wor
     ```sh
     npm test
     ```
+
+### Upload Media Files
+
+Use `uploadMedia.js` to push local images to WordPress before wiring their URLs into Markdown posts:
+
+1.  **Prepare images**: Pass file and/or directory paths pointing at images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.bmp`, `.tif`, `.tiff`, `.avif`, `.heic`, `.heif`). Directories are scanned recursively.
+2.  **Run the media uploader**:
+    ```sh
+    node uploadMedia.js path/to/image.png another/folder/
+    ```
+    *Use `-m custom-mapping.json` to override the mapping file location.*
+3.  **Idempotent uploads**: The script records each upload in `media-mapping.json` (path → hash → destination URL). Identical files are skipped automatically; changed files are re-uploaded and the mapping is updated.
+4.  **WordPress metadata**: Each media item receives the original local path and file hash inside `meta[original_local_path]` / `meta[original_local_hash]`, letting WordPress keep track of the source asset.
+
+`media-mapping.json` is committed to this repo so later steps (e.g., rewriting Markdown image references) can reference already-uploaded assets.

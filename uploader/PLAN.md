@@ -182,3 +182,35 @@ Modify uploader library to store the original markdown in `raw_markdown` field i
 this means the original markdown process code should have an additional metadata key for the raw markdown and this should be be used by uploader code.
 
 By raw markdown i mean the literal content of the file whatever it is in pure format including the frontmatter.
+
+## Substack no 6: image uploading command line tool and script
+
+This extends are library and adds a new command line script uploadMedia.js to handle the uploading of image files to WordPress. The script must accept a single file path or a directory path. It will utilize a local JSON file, `media-mapping.json`, to store key-value pairs of local file paths (and optionally their hash) against their final WordPress destination URLs, enabling **idempotent uploads** (skipping already processed files).
+
+I want the media-mapping.json so it can be used in subsequent steps to rewrite links in markdown files ahead of their uploading.
+
+To test this out you can use the content in `next.lifeitself.org` subdirectory relative to this file.
+
+I would test out by just uploading a single file.
+
+### Acceptance Criteria
+
+1. **Command:** A new CLI script must be created.
+2. **Input:** The script must accept arguments of either file(s) or directory(ies).all contained **image files** must be scanned and selected for upload.
+3. **Idempotency & Mapping:**
+    * The script must read the existing mapping data from a file named **`media-mapping.json`**.
+    * This file stores pairs of `[local_file_path]` (and optionally a file hash) and the `[destination_url]`.
+    * **Skip Logic:** Before uploading a file, the script must check `media-mapping.json`. If a match is found, the file must be **skipped**, and this action must be noted.
+    * **Update Logic:** If the file is uploaded successfully, its local path/hash and destination URL must be added to the mapping data.
+      * Store the local file path used for uploading in the wordpress metadata of the uploaded file
+    * The **`media-mapping.json`** file must be rewritten/updated after all successful uploads.
+4. **Logging:** The script must provide **terminal output** indicating which files were uploaded and which were skipped.
+
+### Implementation Notes
+
+* **File Filtering:** The script needs logic to specifically filter for common image file extensions when processing a directory.
+* **Idempotency Key:** Consider using a combination of the local file path and a **file hash** (e.g., MD5 or SHA) as the key in `media-mapping.json` to ensure a file isn't re-uploaded if it has changed locally but retained the same path.
+* **WordPress API:** The tool will rely on the WordPress REST API, specifically the `/wp/v2/media` endpoint, for file uploads.
+  * use wordpress login info in the `.env` file. See README.md in this directory for how that works (and example of usage in `upload.js`)
+* **Metadata:** To set custom metadata, you may need to utilize the `meta` fields within the API request during upload, or potentially use a custom endpoint/plugin if the standard API is too restrictive for setting arbitrary metadata fields like the local path.
+* **CLI Progress:** (nice to have). show progress e.g. how many files to upload, how many uploaded so far.
