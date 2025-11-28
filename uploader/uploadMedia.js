@@ -1,7 +1,7 @@
 import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFile, writeFile, stat } from "node:fs/promises";
+import { readFile, writeFile, stat, appendFile } from "node:fs/promises";
 import crypto from "node:crypto";
 import { Blob } from "node:buffer";
 import { glob } from "glob";
@@ -46,6 +46,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEFAULT_MAPPING_PATH = path.join(__dirname, "uploadMediaMap.json");
 const DEFAULT_CONCURRENCY = 5;
+const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+const IS_TTY = Boolean(process.stdout && process.stdout.isTTY);
+let spinnerTimer = null;
+let spinnerIndex = 0;
+let lastRenderLength = 0;
+let lastLine2Length = 0;
+let lastLine3Length = 0;
 
 function sanitizeBaseUrl(url) {
   if (!url) return url;
@@ -127,10 +134,93 @@ function createSerializedSaver(mappingPath, mapping) {
   };
 }
 
+function createErrorLogger(errorPath) {
+  let chain = Promise.resolve();
+  return function logErrorLine(line) {
+    chain = chain
+      .then(() => appendFile(errorPath, `${line}\n`, "utf8"))
+      .catch((err) =>
+        console.error(`Failed to append to error log: ${err.message}`),
+      );
+    return chain;
+  };
+}
+
 async function readFileBufferAndHash(filePath) {
   const buffer = await readFile(filePath);
   const hash = crypto.createHash("sha256").update(buffer).digest("hex");
   return { buffer, hash };
+}
+
+function clearSpinnerLines() {
+  if (!IS_TTY) return;
+  const maxLen = Math.max(lastRenderLength, lastLine2Length, lastLine3Length);
+  const blank = " ".repeat(maxLen || 0);
+  process.stdout.write(`\r${blank}\r`);
+  process.stdout.write(`\n${blank}\r`);
+  process.stdout.write(`\n${blank}\r`);
+  process.stdout.write("\x1b[3A"); // move cursor up 3 lines
+  lastRenderLength = 0;
+  lastLine2Length = 0;
+  lastLine3Length = 0;
+}
+
+function renderSpinner(state) {
+  if (!IS_TTY) return;
+  const frame = SPINNER_FRAMES[spinnerIndex % SPINNER_FRAMES.length];
+  spinnerIndex += 1;
+  const percent =
+    state.total > 0 ? Math.round((state.processed / state.total) * 100) : 0;
+  const activeList =
+    state.active.size > 0
+      ? Array.from(state.active).slice(0, 3).join(", ")
+      : "-";
+
+  const line1 = `${frame} uploading ${state.processed}/${state.total} (${percent}%) | uploaded:${state.uploaded} skipped:${state.skipped} failed:${state.failed}`;
+  const line2 = `current: ${activeList}`;
+  const line3 = `last: ${state.last || "-"}`;
+
+  const pad1 =
+    lastRenderLength > line1.length ? lastRenderLength - line1.length : 0;
+  const pad2 =
+    lastLine2Length > line2.length ? lastLine2Length - line2.length : 0;
+  const pad3 =
+    lastLine3Length > line3.length ? lastLine3Length - line3.length : 0;
+
+  process.stdout.write(`\r${line1}${" ".repeat(pad1)}\n`);
+  process.stdout.write(`${line2}${" ".repeat(pad2)}\n`);
+  process.stdout.write(`${line3}${" ".repeat(pad3)}`);
+  process.stdout.write("\x1b[3A"); // move cursor back up
+
+  lastRenderLength = line1.length;
+  lastLine2Length = line2.length;
+  lastLine3Length = line3.length;
+}
+
+function startSpinner(state) {
+  if (!IS_TTY) return;
+  spinnerTimer = setInterval(() => renderSpinner(state), 80);
+}
+
+function stopSpinner(state) {
+  if (!IS_TTY) return;
+  if (spinnerTimer) clearInterval(spinnerTimer);
+  renderSpinner(state);
+  process.stdout.write("\n\n\n");
+  spinnerTimer = null;
+  lastRenderLength = 0;
+  lastLine2Length = 0;
+  lastLine3Length = 0;
+}
+
+function logWithSpinnerPause(state, message) {
+  if (!IS_TTY) {
+    console.log(message);
+    return;
+  }
+  clearSpinnerLines();
+  console.log(message);
+  renderSpinner(state);
 }
 
 function getWordpressConfig() {
@@ -172,9 +262,11 @@ async function uploadMediaFile({ buffer, filePath, hash, config }) {
 
   const bodyText = await response.text();
   if (!response.ok) {
-    throw new Error(
+    const error = new Error(
       `Failed to upload ${fileName} (status ${response.status}): ${bodyText}`,
     );
+    error.status = response.status;
+    throw error;
   }
 
   return JSON.parse(bodyText);
@@ -194,34 +286,6 @@ async function runWithConcurrency(items, limit, worker) {
     next(),
   );
   await Promise.all(runners);
-}
-
-function formatPercent(numerator, denominator) {
-  if (!denominator) return 100;
-  return Math.round((numerator / denominator) * 100);
-}
-
-function renderStatus({
-  processed,
-  total,
-  uploads,
-  skipped,
-  failures,
-  active,
-  last,
-}) {
-  const percent = formatPercent(processed, total);
-  const activeList = active.size > 0 ? Array.from(active).join(", ") : "-";
-  const line = `Progress ${processed}/${total} (${percent}%) | uploads:${uploads} skipped:${skipped} failed:${failures} | active: ${activeList} | last: ${last || "-"}`;
-  renderStatus.lastLength = Math.max(renderStatus.lastLength || 0, line.length);
-  const padded = line.padEnd(renderStatus.lastLength, " ");
-  process.stdout.write(`\r${padded}`);
-}
-
-function finishStatusLine() {
-  if (renderStatus.lastLength) {
-    process.stdout.write("\n");
-  }
 }
 
 async function main() {
@@ -254,59 +318,60 @@ async function main() {
 
   const mapping = await loadMapping(mappingPath);
   const saveMappingSafely = createSerializedSaver(mappingPath, mapping);
+  const errorLogPath = `${mappingPath}.errors.txt`;
+  const logErrorLine = createErrorLogger(errorLogPath);
   const active = new Set();
-  let uploads = 0;
-  let skipped = 0;
-  let failures = 0;
-  let processed = 0;
-  let lastMessage = "-";
+  const state = {
+    total: mediaFiles.length,
+    processed: 0,
+    uploaded: 0,
+    skipped: 0,
+    failed: 0,
+    active,
+    last: "",
+  };
 
   console.log(
     `Found ${mediaFiles.length} media file(s) to process. Running with concurrency ${concurrency}.`,
   );
 
-  const updateStatus = () => {
-    renderStatus({
-      processed,
-      total: mediaFiles.length,
-      uploads,
-      skipped,
-      failures,
-      active,
-      last: lastMessage,
-    });
-  };
+  startSpinner(state);
 
   const processFile = async (filePath) => {
     const absPath = path.resolve(filePath);
     const key = path.basename(absPath);
-    active.add(path.basename(absPath));
-    updateStatus();
+    const activeLabel = path.basename(absPath);
+    active.add(activeLabel);
+    renderSpinner(state);
     let buffer;
     let hash;
     try {
       ({ buffer, hash } = await readFileBufferAndHash(absPath));
     } catch (error) {
-      failures += 1;
-      lastMessage = `[fail] ${absPath}: ${error.message}`;
-      active.delete(path.basename(absPath));
-      processed += 1;
-      updateStatus();
+      state.failed += 1;
+      logWithSpinnerPause(
+        state,
+        `[fail] ${absPath}: ${error.message}`,
+      );
+      await logErrorLine(`${absPath} 0`);
+      active.delete(activeLabel);
+      state.processed += 1;
       return;
     }
 
     const existing = mapping[key];
     if (existing && existing.hash === hash && existing.url) {
-      skipped += 1;
-      lastMessage = `[skip] ${absPath} -> ${existing.url}`;
-      active.delete(path.basename(absPath));
-      processed += 1;
-      updateStatus();
+      state.skipped += 1;
+      state.last = `[skip] ${path.basename(absPath)}`;
+      active.delete(activeLabel);
+      state.processed += 1;
+      renderSpinner(state);
       return;
     }
 
     if (existing && existing.hash !== hash) {
-      lastMessage = `[reupload] ${absPath} (hash changed)`;
+      state.last = `[reupload] ${path.basename(absPath)} (hash changed)`;
+      renderSpinner(state);
     }
 
     try {
@@ -322,16 +387,22 @@ async function main() {
         uploadedAt: new Date().toISOString(),
       };
       await saveMappingSafely();
-      uploads += 1;
-      lastMessage = `[upload] ${absPath} -> ${destinationUrl ?? media.id}`;
+      state.uploaded += 1;
+      state.last = `[upload] ${path.basename(absPath)}`;
     } catch (error) {
-      failures += 1;
-      lastMessage = `[fail] ${absPath}: ${error.message}`;
-      console.error(`Failed to upload ${absPath}: ${error.message}`);
+      state.failed += 1;
+      logWithSpinnerPause(
+        state,
+        `[fail] ${absPath}: ${error.message}`,
+      );
+      state.last = `[fail] ${path.basename(absPath)}`;
+      const statusCode =
+        typeof error.status === "number" ? error.status : "0";
+      await logErrorLine(`${absPath} ${statusCode}`);
     } finally {
-      active.delete(path.basename(absPath));
-      processed += 1;
-      updateStatus();
+      active.delete(activeLabel);
+      state.processed += 1;
+      renderSpinner(state);
     }
   };
 
@@ -342,31 +413,31 @@ async function main() {
   process.on("SIGINT", async () => {
     console.warn("\nReceived SIGINT, saving mapping before exit...");
     await finalSaveOnExit();
-    finishStatusLine();
+    stopSpinner(state);
     process.exit(1);
   });
   process.on("uncaughtException", async (error) => {
     console.error("\nUncaught exception:", error);
     await finalSaveOnExit();
-    finishStatusLine();
+    stopSpinner(state);
     process.exit(1);
   });
   process.on("unhandledRejection", async (reason) => {
     console.error("\nUnhandled rejection:", reason);
     await finalSaveOnExit();
-    finishStatusLine();
+    stopSpinner(state);
     process.exit(1);
   });
 
   await runWithConcurrency(mediaFiles, concurrency, processFile);
   await finalSaveOnExit();
-  finishStatusLine();
+  stopSpinner(state);
 
   console.log(
-    `Done. Uploaded: ${uploads}, Skipped: ${skipped}, Failed: ${failures}. Mapping saved to ${mappingPath}.`,
+    `Done. Uploaded: ${state.uploaded}, Skipped: ${state.skipped}, Failed: ${state.failed}. Mapping saved to ${mappingPath}.`,
   );
 
-  if (failures > 0) {
+  if (state.failed > 0) {
     process.exitCode = 1;
   }
 }
