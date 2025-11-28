@@ -12,6 +12,13 @@ Complication
 
 ---
 
+# 2025-11-28
+
+Things we'll need to fix at the end
+
+- [ ] svgs that are missing.
+- [ ] images that are now missing in next
+
 # 2025-11-24
 
 # Common
