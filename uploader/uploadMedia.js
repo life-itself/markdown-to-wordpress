@@ -45,6 +45,7 @@ const MIME_TYPES = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEFAULT_MAPPING_PATH = path.join(__dirname, "uploadMediaMap.json");
+const DEFAULT_CONCURRENCY = 5;
 
 function sanitizeBaseUrl(url) {
   if (!url) return url;
@@ -114,6 +115,18 @@ async function saveMapping(mappingPath, mapping) {
   await writeFile(mappingPath, `${JSON.stringify(sorted, null, 2)}\n`, "utf8");
 }
 
+function createSerializedSaver(mappingPath, mapping) {
+  let chain = Promise.resolve();
+  return function scheduleSave() {
+    chain = chain
+      .then(() => saveMapping(mappingPath, mapping))
+      .catch((error) => {
+        console.error(`Failed to persist mapping: ${error.message}`);
+      });
+    return chain;
+  };
+}
+
 async function readFileBufferAndHash(filePath) {
   const buffer = await readFile(filePath);
   const hash = crypto.createHash("sha256").update(buffer).digest("hex");
@@ -167,6 +180,50 @@ async function uploadMediaFile({ buffer, filePath, hash, config }) {
   return JSON.parse(bodyText);
 }
 
+async function runWithConcurrency(items, limit, worker) {
+  let index = 0;
+
+  async function next() {
+    const currentIndex = index++;
+    if (currentIndex >= items.length) return;
+    await worker(items[currentIndex]);
+    return next();
+  }
+
+  const runners = Array.from({ length: Math.min(limit, items.length) }, () =>
+    next(),
+  );
+  await Promise.all(runners);
+}
+
+function formatPercent(numerator, denominator) {
+  if (!denominator) return 100;
+  return Math.round((numerator / denominator) * 100);
+}
+
+function renderStatus({
+  processed,
+  total,
+  uploads,
+  skipped,
+  failures,
+  active,
+  last,
+}) {
+  const percent = formatPercent(processed, total);
+  const activeList = active.size > 0 ? Array.from(active).join(", ") : "-";
+  const line = `Progress ${processed}/${total} (${percent}%) | uploads:${uploads} skipped:${skipped} failed:${failures} | active: ${activeList} | last: ${last || "-"}`;
+  renderStatus.lastLength = Math.max(renderStatus.lastLength || 0, line.length);
+  const padded = line.padEnd(renderStatus.lastLength, " ");
+  process.stdout.write(`\r${padded}`);
+}
+
+function finishStatusLine() {
+  if (renderStatus.lastLength) {
+    process.stdout.write("\n");
+  }
+}
+
 async function main() {
   const argv = await yargs(hideBin(process.argv))
     .usage("Usage: $0 <files-or-directories...>")
@@ -176,12 +233,19 @@ async function main() {
       describe: "Path to uploadMediaMap.json",
       default: DEFAULT_MAPPING_PATH,
     })
+    .option("concurrency", {
+      alias: "c",
+      type: "number",
+      describe: "How many uploads to run in parallel",
+      default: DEFAULT_CONCURRENCY,
+    })
     .demandCommand(1, "Provide at least one file or directory path.")
     .help().argv;
 
   const config = getWordpressConfig();
   const mappingPath = path.resolve(argv.mapping);
   const mediaFiles = await collectMediaFiles(argv._);
+  const concurrency = Math.max(1, Math.floor(argv.concurrency || 1));
 
   if (mediaFiles.length === 0) {
     console.log("No media files found to upload.");
@@ -189,36 +253,60 @@ async function main() {
   }
 
   const mapping = await loadMapping(mappingPath);
+  const saveMappingSafely = createSerializedSaver(mappingPath, mapping);
+  const active = new Set();
   let uploads = 0;
   let skipped = 0;
   let failures = 0;
+  let processed = 0;
+  let lastMessage = "-";
 
-  console.log(`Found ${mediaFiles.length} media file(s) to process.`);
+  console.log(
+    `Found ${mediaFiles.length} media file(s) to process. Running with concurrency ${concurrency}.`,
+  );
 
-  for (const filePath of mediaFiles) {
+  const updateStatus = () => {
+    renderStatus({
+      processed,
+      total: mediaFiles.length,
+      uploads,
+      skipped,
+      failures,
+      active,
+      last: lastMessage,
+    });
+  };
+
+  const processFile = async (filePath) => {
     const absPath = path.resolve(filePath);
     const key = path.basename(absPath);
+    active.add(path.basename(absPath));
+    updateStatus();
     let buffer;
     let hash;
     try {
       ({ buffer, hash } = await readFileBufferAndHash(absPath));
     } catch (error) {
-      console.error(`Failed to read ${absPath}: ${error.message}`);
       failures += 1;
-      continue;
+      lastMessage = `[fail] ${absPath}: ${error.message}`;
+      active.delete(path.basename(absPath));
+      processed += 1;
+      updateStatus();
+      return;
     }
 
     const existing = mapping[key];
     if (existing && existing.hash === hash && existing.url) {
-      console.log(`[skip] ${absPath} already uploaded -> ${existing.url}`);
       skipped += 1;
-      continue;
+      lastMessage = `[skip] ${absPath} -> ${existing.url}`;
+      active.delete(path.basename(absPath));
+      processed += 1;
+      updateStatus();
+      return;
     }
 
     if (existing && existing.hash !== hash) {
-      console.log(
-        `[reupload] ${absPath} changed since last upload (hash mismatch).`,
-      );
+      lastMessage = `[reupload] ${absPath} (hash changed)`;
     }
 
     try {
@@ -233,15 +321,46 @@ async function main() {
         originalPath: absPath,
         uploadedAt: new Date().toISOString(),
       };
-      console.log(`[upload] ${absPath} -> ${destinationUrl ?? media.id}`);
+      await saveMappingSafely();
       uploads += 1;
+      lastMessage = `[upload] ${absPath} -> ${destinationUrl ?? media.id}`;
     } catch (error) {
-      console.error(`Failed to upload ${absPath}: ${error.message}`);
       failures += 1;
+      lastMessage = `[fail] ${absPath}: ${error.message}`;
+      console.error(`Failed to upload ${absPath}: ${error.message}`);
+    } finally {
+      active.delete(path.basename(absPath));
+      processed += 1;
+      updateStatus();
     }
-  }
+  };
 
-  await saveMapping(mappingPath, mapping);
+  const finalSaveOnExit = async () => {
+    await saveMappingSafely();
+  };
+
+  process.on("SIGINT", async () => {
+    console.warn("\nReceived SIGINT, saving mapping before exit...");
+    await finalSaveOnExit();
+    finishStatusLine();
+    process.exit(1);
+  });
+  process.on("uncaughtException", async (error) => {
+    console.error("\nUncaught exception:", error);
+    await finalSaveOnExit();
+    finishStatusLine();
+    process.exit(1);
+  });
+  process.on("unhandledRejection", async (reason) => {
+    console.error("\nUnhandled rejection:", reason);
+    await finalSaveOnExit();
+    finishStatusLine();
+    process.exit(1);
+  });
+
+  await runWithConcurrency(mediaFiles, concurrency, processFile);
+  await finalSaveOnExit();
+  finishStatusLine();
 
   console.log(
     `Done. Uploaded: ${uploads}, Skipped: ${skipped}, Failed: ${failures}. Mapping saved to ${mappingPath}.`,
