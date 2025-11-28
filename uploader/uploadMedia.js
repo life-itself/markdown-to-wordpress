@@ -195,6 +195,7 @@ async function main() {
 
   for (const filePath of imageFiles) {
     const absPath = path.resolve(filePath);
+    const key = path.basename(absPath);
     let buffer;
     let hash;
     try {
@@ -205,7 +206,7 @@ async function main() {
       continue;
     }
 
-    const existing = mapping[absPath];
+    const existing = mapping[key];
     if (existing && existing.hash === hash && existing.url) {
       console.log(`[skip] ${absPath} already uploaded -> ${existing.url}`);
       skipped += 1;
@@ -222,11 +223,12 @@ async function main() {
       const media = await uploadMediaFile({ buffer, filePath: absPath, hash, config });
       const destinationUrl =
         media?.source_url || media?.guid?.rendered || media?.link || null;
-      mapping[absPath] = {
+      mapping[key] = {
         hash,
         url: destinationUrl,
         id: media.id,
         fileName: path.basename(absPath),
+        originalPath: absPath,
         uploadedAt: new Date().toISOString(),
       };
       console.log(`[upload] ${absPath} -> ${destinationUrl ?? media.id}`);

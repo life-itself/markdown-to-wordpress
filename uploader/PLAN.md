@@ -10,34 +10,35 @@ Summary: Create a minimal Node.js script that takes a Markdown file or files wit
 
 Given a Markdown file(s) or directories of files successfully create or update posts in wordpress with:
 
-* Correct title, slug, status, date, content.
-* Featured image properly uploaded and linked.
-* Team mapping correctly filled based on front matter authors.
+* Images and media properly uploaded and linked.
+* Author mapping correctly filled based on front matter authors.
 * Running the tool twice on the same file is idempotent (no duplicate posts).
 
-## Notes
-
-For each Markdown file:
-
-1. Handle content:
-   * Put rendered HTML (Markdown → HTML) into the WordPress `content` field.
-   * Store original Markdown in post meta (`raw_markdown`).
-2. Determine target post:
-   * If a `slug` exists and a post with that slug already exists, update that post; otherwise create a new post.
-   * Slug determiend by file path if no slug field or frontmatter in the post.
-3. Handle media:
-   * If `featured_image` is given and is a local file, upload it to `/wp/v2/media` using multipart/form-data and get back its ID. ([WordPress Developer Resources][1])
-   * Use that ID as `featured_media` on the post.
-   * (Optional later: scan Markdown body for local image references, upload each, and rewrite the Markdown/HTML accordingly.)
-4. Handle authors / team mapping:
+- [ ] Upload posts
+  - [x] Correct title
+  - [x] content
+    - [x] Put rendered HTML (Markdown → HTML) into the WordPress `content` field.
+      - [ ] check footnotes and other non-standard markdown
+    - [x] Store original Markdown in post meta (`raw_markdown`).
+  - [x] slug **✅2025-11-27 this is working**
+    * If a `slug` exists and a post with that slug already exists, update that post; otherwise create a new post.
+    * Slug determiend by file path if no slug field or frontmatter in the post.
+  - [ ] date
+    * Set `date` if provided; otherwise use “now”.
+  - [ ] status (?? ❓)
+  - [ ] images and media - see handle media item as preliminary for this to work
+    - [ ] featured image
+      * ❓ Use that ID as `featured_media` on the post.
+    - [ ] Images and media (e.g. pdfs) in body. Need to support obsidian and markdown links etc
+  - [ ] Handle tags and taxonomies: **💬2025-11-28 ❓ not sure this is needed.**
+    * Map front-matter tags/categories to WordPress taxonomies; create terms on demand if they don’t exist.
+    * Set `status` based on config or front-matter override. ❓ what is status?
+- [ ] Upload pages
+- [ ] 3. Handle media:
+- [ ] 4. Handle authors / team mapping:
    * Look up each front-matter author key in `team_mapping`.
    * Write the corresponding team IDs into a custom field on the post (e.g. `team_members`), assuming that field is registered with `show_in_rest` or handled by Pods’ REST integration. ([WordPress Development Stack Exchange][8])
-
-6. Handle other metadata:
-   * Map front-matter tags/categories to WordPress taxonomies; create terms on demand if they don’t exist.
-   * Set `status` based on config or front-matter override.
-   * Set `date` if provided; otherwise use “now”.
-7. Idempotency / safety:
+- [ ] Idempotency / safety:
    * Dry-run mode that prints what would be done without actually calling the API.
    * Support `--update-only` and `--create-only` modes (optional).
 8. Output:
@@ -185,9 +186,9 @@ By raw markdown i mean the literal content of the file whatever it is in pure fo
 
 ## Substack no 6: image uploading command line tool and script
 
-This extends are library and adds a new command line script uploadMedia.js to handle the uploading of image files to WordPress. The script must accept a single file path or a directory path. It will utilize a local JSON file, `media-mapping.json`, to store key-value pairs of local file paths (and optionally their hash) against their final WordPress destination URLs, enabling **idempotent uploads** (skipping already processed files).
+This extends are library and adds a new command line script uploadMedia.js to handle the uploading of image files to WordPress. The script must accept a single file path or a directory path. It will utilize a local JSON file, `uploadMediaMap.json`, to store key-value pairs of local file paths (and optionally their hash) against their final WordPress destination URLs, enabling **idempotent uploads** (skipping already processed files).
 
-I want the media-mapping.json so it can be used in subsequent steps to rewrite links in markdown files ahead of their uploading.
+I want the `uploadMediaMap.json` so it can be used in subsequent steps to rewrite links in markdown files ahead of their uploading.
 
 To test this out you can use the content in `next.lifeitself.org` subdirectory relative to this file.
 
@@ -198,19 +199,45 @@ I would test out by just uploading a single file.
 1. **Command:** A new CLI script must be created.
 2. **Input:** The script must accept arguments of either file(s) or directory(ies).all contained **image files** must be scanned and selected for upload.
 3. **Idempotency & Mapping:**
-    * The script must read the existing mapping data from a file named **`media-mapping.json`**.
+    * The script must read the existing mapping data from a file named **`uploadMediaMap.json`**.
     * This file stores pairs of `[local_file_path]` (and optionally a file hash) and the `[destination_url]`.
-    * **Skip Logic:** Before uploading a file, the script must check `media-mapping.json`. If a match is found, the file must be **skipped**, and this action must be noted.
+    * **Skip Logic:** Before uploading a file, the script must check `uploadMediaMap.json`. If a match is found, the file must be **skipped**, and this action must be noted.
     * **Update Logic:** If the file is uploaded successfully, its local path/hash and destination URL must be added to the mapping data.
       * Store the local file path used for uploading in the wordpress metadata of the uploaded file
-    * The **`media-mapping.json`** file must be rewritten/updated after all successful uploads.
+    * The **`uploadMediaMap.json`** file must be rewritten/updated after all successful uploads.
 4. **Logging:** The script must provide **terminal output** indicating which files were uploaded and which were skipped.
 
 ### Implementation Notes
 
 * **File Filtering:** The script needs logic to specifically filter for common image file extensions when processing a directory.
-* **Idempotency Key:** Consider using a combination of the local file path and a **file hash** (e.g., MD5 or SHA) as the key in `media-mapping.json` to ensure a file isn't re-uploaded if it has changed locally but retained the same path.
+* **Idempotency Key:** Consider using a combination of the local file path and a **file hash** (e.g., MD5 or SHA) as the key in `uploadMediaMap.json` to ensure a file isn't re-uploaded if it has changed locally but retained the same path.
 * **WordPress API:** The tool will rely on the WordPress REST API, specifically the `/wp/v2/media` endpoint, for file uploads.
   * use wordpress login info in the `.env` file. See README.md in this directory for how that works (and example of usage in `upload.js`)
 * **Metadata:** To set custom metadata, you may need to utilize the `meta` fields within the API request during upload, or potentially use a custom endpoint/plugin if the standard API is too restrictive for setting arbitrary metadata fields like the local path.
 * **CLI Progress:** (nice to have). show progress e.g. how many files to upload, how many uploaded so far.
+
+### Unique image file names?
+
+Are image file names unique so we can use them as the idempotency key?
+
+Yes, for our purposes.
+
+- Ran a quick scan over assets/** with a Python script; filenames are not unique.
+- Duplicate basenames found: catherine-bio.png (assets/images/..., assets/site/team/...), cecile-cropped.png, lauren-wigmore-profile-image.jpg, lifeitself-landingpage.webp, profile-pic-boaz.jpg, profile-pic-matthew.jpg.
+- Each duplicate pair lives under different subfolders (assets/images, assets/site/team, or root assets), confirming same filenames on different paths.
+
+Then asked: Are the images themselves different?
+
+- Checked SHA-256 hashes for each duplicate filename pair under assets/**.
+- catherine-bio.png, cecile-cropped.png, lauren-wigmore-profile-image.jpg, profile-pic-matthew.jpg, and lifeitself-landingpage.webp are byte-for-byte identical across their duplicate paths.
+- profile-pic-boaz.jpg differs: assets/images/... hash b2f2289…64688, while assets/site/team/... hash 05c7ad2…a2b4, so these two files are distinct versions.
+
+Checked boaz picture by eye and this is the same.
+
+### UPDATE: update to store only image filename in media upload
+
+use only image filename as the key in uploadMediaMap.json when building the upload info dictionary.
+
+### UPDATE: upload pdfs as well as images and store in same way
+
+As it says: let's upload pdfs too.
