@@ -8,7 +8,7 @@ import { glob } from "glob";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-const SUPPORTED_IMAGE_EXTENSIONS = [
+const SUPPORTED_MEDIA_EXTENSIONS = [
   "jpg",
   "jpeg",
   "png",
@@ -21,9 +21,10 @@ const SUPPORTED_IMAGE_EXTENSIONS = [
   "avif",
   "heic",
   "heif",
+  "pdf",
 ];
-const IMAGE_EXTENSION_SET = new Set(
-  SUPPORTED_IMAGE_EXTENSIONS.map((ext) => `.${ext}`),
+const MEDIA_EXTENSION_SET = new Set(
+  SUPPORTED_MEDIA_EXTENSIONS.map((ext) => `.${ext}`),
 );
 const MIME_TYPES = {
   jpg: "image/jpeg",
@@ -38,6 +39,7 @@ const MIME_TYPES = {
   avif: "image/avif",
   heic: "image/heic",
   heif: "image/heif",
+  pdf: "application/pdf",
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,13 +51,13 @@ function sanitizeBaseUrl(url) {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
-function isImageFile(filePath) {
-  return IMAGE_EXTENSION_SET.has(path.extname(filePath).toLowerCase());
+function isSupportedMediaFile(filePath) {
+  return MEDIA_EXTENSION_SET.has(path.extname(filePath).toLowerCase());
 }
 
-async function collectImageFiles(inputs) {
+async function collectMediaFiles(inputs) {
   const files = new Set();
-  const pattern = `**/*.{${SUPPORTED_IMAGE_EXTENSIONS.join(",")}}`;
+  const pattern = `**/*.{${SUPPORTED_MEDIA_EXTENSIONS.join(",")}}`;
 
   for (const rawInput of inputs) {
     const targetPath = path.resolve(String(rawInput));
@@ -76,8 +78,8 @@ async function collectImageFiles(inputs) {
       });
       matches.forEach((match) => files.add(path.resolve(match)));
     } else if (stats.isFile()) {
-      if (!isImageFile(targetPath)) {
-        console.warn(`Skipping ${targetPath}: not a supported image type.`);
+      if (!isSupportedMediaFile(targetPath)) {
+        console.warn(`Skipping ${targetPath}: not a supported media type.`);
         continue;
       }
       files.add(targetPath);
@@ -179,10 +181,10 @@ async function main() {
 
   const config = getWordpressConfig();
   const mappingPath = path.resolve(argv.mapping);
-  const imageFiles = await collectImageFiles(argv._);
+  const mediaFiles = await collectMediaFiles(argv._);
 
-  if (imageFiles.length === 0) {
-    console.log("No image files found to upload.");
+  if (mediaFiles.length === 0) {
+    console.log("No media files found to upload.");
     return;
   }
 
@@ -191,9 +193,9 @@ async function main() {
   let skipped = 0;
   let failures = 0;
 
-  console.log(`Found ${imageFiles.length} image file(s) to process.`);
+  console.log(`Found ${mediaFiles.length} media file(s) to process.`);
 
-  for (const filePath of imageFiles) {
+  for (const filePath of mediaFiles) {
     const absPath = path.resolve(filePath);
     const key = path.basename(absPath);
     let buffer;
