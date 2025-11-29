@@ -77,3 +77,96 @@ By investigating the structure of `investigating-api-for-pods.js` and what you c
 - Added `tests/authors.e2e.test.js` which loads `.env.test` (matching the upload e2e test) to create a WP client.
 - Uses mocked author IDs pulled from the investigation output (`103` Rufus Pollock, `107` Sylvie Barbier) and submits them as the `authors` array.
 - Posts to slug `wpapi-author-e2e-test` with a simple draft payload plus placeholder `meta.raw_markdown`, then re-fetches the post and asserts the returned `authors` list contains the mocked IDs.
+
+## Task 3: get a list of all author names used in local markdown repo
+
+Scan all markdown posts in `next.lifeitself.org` (excluding `people/`), extract unique author IDs from `author`/`authors` front matter, resolve each ID to a full name via the matching file in `people`, and print `id name` pairs. (if no match in people print out the id anyway). (don't bother listing items in people where id not used in any posts).
+
+### Acceptance
+
+- [ ] Traverses markdown posts under `next.lifeitself.org` except `people/`.
+- [ ] Extracts `author`/`authors` values, handles string or array, and de-dupes IDs.
+- [ ] Reads corresponding `people/<id>.md` (or equivalent) to obtain full names.
+- [ ] Outputs unique `id name` list as a simple json file `research/authors.json` where `id` is the key and value is an object with `fullname` key (which can be empty if not found)
+
+### Notes
+
+Added list-local-authors.js to scan next.lifeitself.org markdown (excluding people/), extract/de-dupe author/authors front matter, resolve names from matching people/<id>.md, and flag missing or name-less entries.
+
+Run with node list-local-authors.js. Current output: 40 unique IDs; missing people files include 
+
+- author-id-here
+- Eilidh Ross
+- Geoff Mulgan
+- Jamie Bristow
+- liamkavanagh
+- liu bauer
+- matt-osborn
+- Oren Slozberg
+- Rufus Pollock
+- Simon Grant
+- zaib-nisa.
+
+Here are the markdown files with author IDs not found in next.lifeitself.org/people, one per line with missing IDs after a space:
+
+next.lifeitself.org/blog/2020/02/20/contemplative-activism-event.md liamkavanagh
+next.lifeitself.org/blog/2023/06/11/placemaking_blog_research.md liu bauer
+next.lifeitself.org/blog/can-new-social-and-digital-technologies-transform-governance.md Geoff Mulgan
+next.lifeitself.org/blog/developmental-spaces-for-an-age-of-transition.md Oren Slozberg
+next.lifeitself.org/blog/ecosystem-mapping-of-contemplative-approaches-to-transformative-social-change.md Jamie Bristow
+next.lifeitself.org/blog/intentional-coming-together.md Simon Grant
+next.lifeitself.org/blog/second-renaissance-mapping-and-sensemaking.md matt-osborn
+next.lifeitself.org/blog/visualisation-ideas.md matt-osborn
+next.lifeitself.org/podcast/A-Macroeconomics-Perspective-on-Cryptocurrencies.md Rufus Pollock
+next.lifeitself.org/podcast/Are-Cryptocurrencies-Securities--The-Nature-of-Securities--Their-Relation-to-Crypto-Tokens-with-Stephen-Diehl.md Rufus Pollock
+next.lifeitself.org/podcast/Bitcoin-as-an-Anti-Authoritarian-Force.md Rufus Pollock
+next.lifeitself.org/podcast/Collective-Action-Problems--Climate-Change.md Rufus Pollock
+next.lifeitself.org/podcast/Cory-Doctorow-on-Blockchain--Crypto--Web3.md Rufus Pollock
+next.lifeitself.org/podcast/Crypto--Traders-and-Unfettered-Financial-Markets-with-Stephen-Diehl.md Rufus Pollock
+next.lifeitself.org/podcast/Embodying-Collective-Transformation-with-Karl-Steyaert.md Rufus Pollock
+next.lifeitself.org/podcast/Exploring-Social-Transformation-Series-Wrap-Up.md Rufus Pollock
+next.lifeitself.org/podcast/Fintech-Incrementalism-and-Responsible-Innovation.md Rufus Pollock
+next.lifeitself.org/podcast/Geoff-Mulgan-on-Reigniting-Social-and-Political-Imagination.md Rufus Pollock
+next.lifeitself.org/podcast/Hypha-DAO--Life-Itself-in-Conversation.md Rufus Pollock
+next.lifeitself.org/podcast/Jordan-Hall-on-the-Potential-of-DAOs.md Rufus Pollock
+next.lifeitself.org/podcast/KlimaDAO--Life-Itself-In-Conversation-Part-One.md Rufus Pollock
+next.lifeitself.org/podcast/Liam-Kavanagh-on-Introduction-to-Sustainable-Wellbeing.md Rufus Pollock
+next.lifeitself.org/podcast/Meet-the-MetaModerns-Emerging-Movement-with-Alternative-Approach-to-Social-Change-with-Rufus-Pollock.md Rufus Pollock
+next.lifeitself.org/podcast/On-Web3-and-Post-State-Technocracy-with-Stephen-Diehl--Rufus-Pollock.md Rufus Pollock
+next.lifeitself.org/podcast/Open-Collective--Steward-Ownership--Exit-to-Community-with-Pia-Mancini.md Rufus Pollock
+next.lifeitself.org/podcast/Post-FTX-collapse-reflections-on-crypto-with-Stephen-Diehl.md Rufus Pollock
+next.lifeitself.org/podcast/Richard-D--Bartlett--Stephen-Reid-on-Critical-Exploration-of-Web3.md Rufus Pollock
+next.lifeitself.org/podcast/Rufus-Pollock-and-Jeff-Emmett-on-Regenerative-Finance-and-Web3-for-Public-Goods.md Rufus Pollock
+next.lifeitself.org/podcast/Samer-Hassan--Rufus-Pollock-on-Decentralization--Platform-Monopolies-and-Web3.md Rufus Pollock
+next.lifeitself.org/podcast/Stephen-Diehl-on-Web3--Bitcoin--Neometalism.md Rufus Pollock
+next.lifeitself.org/podcast/Stephen-Reid--Rufus-Pollock-on-Worker-Cooperatives-and-DAOs.md Rufus Pollock
+next.lifeitself.org/podcast/a-scientific-approach-to-awakening-and-fundamental-wellbeing-part-2-jeffery-martin.md zaib-nisa
+next.lifeitself.org/podcast/a-scientific-approach-to-awakening-and-fundamental-wellbeing-part-3-jeffery-martin.md Rufus Pollock
+next.lifeitself.org/podcast/a-scientific-approach-to-awakening-and-fundamental-wellbeing-podcast.md Rufus Pollock
+next.lifeitself.org/podcast/brendan-graham-dempsey-nathen-fitchen-on-the-meaning-crisis-metamodern-spirituality.md Rufus Pollock
+next.lifeitself.org/podcast/collective-practice-and-the-life-itself-open-residency-with-valerie-duvauchelle.md Rufus Pollock
+next.lifeitself.org/podcast/esther-montmany-on-conscious-parenting-part-1.md Eilidh Ross
+next.lifeitself.org/podcast/esther-montmany-on-conscious-parenting-part-2.md Eilidh Ross
+next.lifeitself.org/podcast/esther-montmany-on-conscious-parenting-part-3.md Eilidh Ross
+next.lifeitself.org/podcast/exploring-social-transformation-life-itself-labs.md Rufus Pollock
+next.lifeitself.org/podcast/hannah-close-on-animism-kinship-and-the-social-change-ecosystem.md Rufus Pollock
+next.lifeitself.org/podcast/jeremy-lent-on-interconnection-shifting-worldviews.md Rufus Pollock
+next.lifeitself.org/podcast/joseph-henrich-and-the-emergence-of-culturology.md Eilidh Ross
+next.lifeitself.org/podcast/sen-zhan-and-liam-kavanagh.md Eilidh Ross
+next.lifeitself.org/podcast/sen-zhan-and-sylvie-barbier.md Eilidh Ross
+next.lifeitself.org/podcast/thomas-steininger-on-emergent-dialogue.md Eilidh Ross
+next.lifeitself.org/templates/blog.md author-id-here
+
+## Task 4: get a list of all the authors and their names and ids from wordpress (so that we can use that when we set authors when doing uploading - see PLAN.md)
+
+We want to try and find the list of authors or team members that are defined on our WordPress website.
+It's using the Pods system for creating custom node or post types.
+
+First, we want to understand how Pods identifies posts which are a certain node type, in this case, like team node type. I want to then get a list of all team members and their IDs. For example, the people I know who are currently in the team, Valerie Duchauvelle, Liam Kavanagh, Rufus Pollock and Sylvie Barbier, just as a hint.
+
+I want to work out from the rest API. I want to first work out how I find posts of that post type and then I want to get the kind of IDs or the author IDs associated to them so that I can use that when I set the authors the rest of the context in this issue.
+
+Basically, I think you want to write a script. My guess is to query the rest of the API to get all the posts because there aren't that many. Then try and work out which ones are to do with these team author members. Then extract that list and look at how to get the author IDs and then print that out.
+
+- You can use the outputs I've already gotten in the research directory from doing this work to help you do this.
+- We are doing research so store scripts and outputs in `research` subdirectory.

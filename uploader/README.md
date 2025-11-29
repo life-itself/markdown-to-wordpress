@@ -1,3 +1,5 @@
+🚩 For most of this to work you need `next.lifeitself.org` subdirectory with the next.lifeitself.org markdown repo contents there.
+
 ## Usage
 
 Set up the simple Node script in this repo to convert Markdown and upload to WordPress:
