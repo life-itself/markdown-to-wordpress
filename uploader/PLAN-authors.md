@@ -170,3 +170,28 @@ Basically, I think you want to write a script. My guess is to query the rest of 
 
 - You can use the outputs I've already gotten in the research directory from doing this work to help you do this.
 - We are doing research so store scripts and outputs in `research` subdirectory.
+
+### Acceptance
+
+- [x] Create a script to do this in `research`
+- [x] Dump some sample output in `research`
+- [x] Produce a list of author names and their IDs (from wordpress) in a txt file called e.g. `wordpress-authors.txt`
+
+### Outputs
+
+> Question: should I also query a specific Pods/custom post type (e.g., a “team”/“people” post type) to capture members not currently attached to posts?
+
+Yes, please do that. In fact, let's focus on that. i.e. searching by that post type - if there is a way to do that.
+
+- Added research/list-wordpress-team.js to discover relevant custom types (team/people/author/pod markers), fetch their entries via the WP REST API, and write outputs.
+- Generated research/wordpress-team-authors.txt (TSV) and research/wordpress-team-authors.json (types + entries). Current Team entries:
+    - 124 Boaz B. Feldman (boaz-b-feldman) — Deliberately Developmental Space Researcher
+    - 128 Catherine Tran (catherine-tran) — Generalist / Researcher
+    - 132 Lauren Wigmore (lauren-wigmore) — Communications
+    - 826 Liam Kavanagh (liam-kavanagh) — Researcher and Co-founder
+    - 136 Nathen Fitchen (nathen-fitchen) — Communications
+    - 103 Rufus Pollock (rufus-pollock) — Technologist and Co-founder
+    - 107 Sylvie Barbier (sylvie-barbier) — Artist and Co-founder
+    - 829 Valerie Duvauchelle (valerie-duvauchelle) — Conscious Food Designer
+
+Files: research/list-wordpress-team.js, research/wordpress-team-authors.txt, research/wordpress-team-authors.json.

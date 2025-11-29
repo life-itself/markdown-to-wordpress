@@ -1,0 +1,167 @@
+{
+  "types": [
+    {
+      "capabilities": {
+        "edit_post": "edit_post",
+        "read_post": "read_post",
+        "delete_post": "delete_post",
+        "edit_posts": "edit_posts",
+        "edit_others_posts": "edit_others_posts",
+        "delete_posts": "delete_posts",
+        "publish_posts": "publish_posts",
+        "read_private_posts": "read_private_posts",
+        "read": "read",
+        "delete_private_posts": "delete_private_posts",
+        "delete_published_posts": "delete_published_posts",
+        "delete_others_posts": "delete_others_posts",
+        "edit_private_posts": "edit_private_posts",
+        "edit_published_posts": "edit_published_posts",
+        "create_posts": "edit_posts"
+      },
+      "description": "",
+      "hierarchical": false,
+      "has_archive": false,
+      "visibility": {
+        "show_in_nav_menus": true,
+        "show_ui": true
+      },
+      "viewable": true,
+      "labels": {
+        "name": "Team",
+        "singular_name": "Team Member",
+        "add_new": "Add New Team Member",
+        "add_new_item": "Add New Team Member",
+        "edit_item": "Edit Team Member",
+        "new_item": "New Team Member",
+        "view_item": "View Team Member",
+        "view_items": "View Team",
+        "search_items": "Search Team",
+        "not_found": "No Team Found",
+        "not_found_in_trash": "No Team Found in Trash",
+        "parent_item_colon": "Parent Team Member:",
+        "all_items": "All Team",
+        "archives": "Team Member Archives",
+        "attributes": "Team Member Attributes",
+        "insert_into_item": "Insert into Team Member",
+        "uploaded_to_this_item": "Uploaded to this Team Member",
+        "featured_image": "Featured Image",
+        "set_featured_image": "Set Photo",
+        "remove_featured_image": "Remove Photo",
+        "use_featured_image": "Use Photo",
+        "filter_items_list": "Filter Team lists",
+        "filter_by_date": "Filter by date",
+        "items_list_navigation": "Team navigation",
+        "items_list": "Team list",
+        "item_published": "Team Member published",
+        "item_published_privately": "Team Member published privately",
+        "item_reverted_to_draft": "Team Member reverted to draft",
+        "item_trashed": "Post trashed.",
+        "item_scheduled": "Team Member scheduled",
+        "item_updated": "Team Member updated",
+        "item_link": "Post Link",
+        "item_link_description": "A link to a post.",
+        "menu_name": "Team",
+        "name_admin_bar": "Team Member",
+        "edit": "Edit",
+        "view": "View Team Member",
+        "parent": "Parent Team Member",
+        "template_name": "Single item: Team Member"
+      },
+      "name": "Team",
+      "slug": "team",
+      "icon": "dashicons-groups",
+      "supports": {
+        "title": true,
+        "editor": true,
+        "thumbnail": true,
+        "revisions": true,
+        "quick-edit": true,
+        "autosave": true
+      },
+      "taxonomies": [
+        "group"
+      ],
+      "rest_base": "team",
+      "rest_namespace": "wp/v2",
+      "template": [],
+      "template_lock": false,
+      "_links": {
+        "collection": [
+          {
+            "href": "https://app-689360d2c1ac1829f80cac86.closte.com/wp-json/wp/v2/types"
+          }
+        ],
+        "wp:items": [
+          {
+            "href": "https://app-689360d2c1ac1829f80cac86.closte.com/wp-json/wp/v2/team"
+          }
+        ],
+        "curies": [
+          {
+            "name": "wp",
+            "href": "https://api.w.org/{rel}",
+            "templated": true
+          }
+        ]
+      }
+    }
+  ],
+  "entries": [
+    {
+      "id": 124,
+      "slug": "boaz-b-feldman",
+      "title": "Boaz B. Feldman",
+      "job_title": "Deliberately Developmental Space Researcher",
+      "type": "team"
+    },
+    {
+      "id": 128,
+      "slug": "catherine-tran",
+      "title": "Catherine Tran",
+      "job_title": "Generalist / Researcher",
+      "type": "team"
+    },
+    {
+      "id": 132,
+      "slug": "lauren-wigmore",
+      "title": "Lauren Wigmore",
+      "job_title": "Communications",
+      "type": "team"
+    },
+    {
+      "id": 826,
+      "slug": "liam-kavanagh",
+      "title": "Liam Kavanagh",
+      "job_title": "Researcher and Co-founder",
+      "type": "team"
+    },
+    {
+      "id": 136,
+      "slug": "nathen-fitchen",
+      "title": "Nathen Fitchen",
+      "job_title": "Communications",
+      "type": "team"
+    },
+    {
+      "id": 103,
+      "slug": "rufus-pollock",
+      "title": "Rufus Pollock",
+      "job_title": "Technologist and Co-founder",
+      "type": "team"
+    },
+    {
+      "id": 107,
+      "slug": "sylvie-barbier",
+      "title": "Sylvie Barbier",
+      "job_title": "Artist and Co-founder",
+      "type": "team"
+    },
+    {
+      "id": 829,
+      "slug": "valerie-duvauchelle",
+      "title": "Valerie Duvauchelle",
+      "job_title": "Conscious Food Designer",
+      "type": "team"
+    }
+  ]
+}
