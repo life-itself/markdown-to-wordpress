@@ -274,3 +274,11 @@ Notes:
 * **Regular Expressions/Parsing:** Robust parsing tools (e.g., regex, dedicated Markdown parsers) are necessary to accurately identify and extract the three different reference formats (Front Matter keys, HTML attributes, and Markdown/Obsidian syntax).
 * **Front Matter Library:** A library to safely parse YAML/TOML Front Matter is recommended for the first priority check.
 * **WordPress API:** The final Featured Image URL must be linked to the post during the main post creation/update API call (typically using the media item's WordPress ID).
+
+## ✅ Task 8a: strip blog prefix from slug if it exists
+
+> why do uploaded posts get blog prefixed to their slug? is this due to our code or to do with configuration of wordpress server?
+
+Ans: The uploader never adds blog to slugs. In src/lib.js the slug sent to WordPress is just frontmatter.slug or the filename basename (no prefix), and api-output-for-sample-blog-post.json shows the stored slug is second-renaissance-name-why while the returned link is …/blog/second-renaissance-name-why/. That blog segment comes from the WordPress site’s permalink/site configuration (e.g., WP installed under /blog or permalink structure /blog/%postname%/). If you want it gone, change the WordPress permalink/base path; no code changes here are needed.
+
+Ok, that suggests we should make some change to our uploader code ... which is that if the slug starts with blog prefix (because it came from a directory /blog/xxx) then we should strip that from the slug before uploading (otherwise we will end up with blog prefix duplicated). please implement that. this should go in the wordpress uploading code not in the markdown processing btw.

@@ -280,24 +280,32 @@ export async function findPostBySlug(client, slug) {
   return response.length > 0 ? response[0] : null;
 }
 
+function stripBlogPrefix(slug) {
+  if (typeof slug !== "string") return slug;
+  return slug.replace(/^\/?blog\//i, "");
+}
+
 export async function upsertPostToWordpress(client, payload) {
   if (!client) throw new Error("A configured WPAPI client is required.");
   if (!payload) throw new Error("No payload provided to upload.");
   if (!payload.slug)
     throw new Error("Payload must contain a slug for idempotent upload.");
 
+  // WordPress permalinks already add /blog/; avoid duplicating it in the slug we send.
+  const sanitizedSlug = stripBlogPrefix(payload.slug);
   const payloadWithDate = payload.date
     ? payload
     : { ...payload, date: new Date().toISOString() };
+  const payloadWithSlug = { ...payloadWithDate, slug: sanitizedSlug };
 
-  const existingPost = await findPostBySlug(client, payload.slug);
+  const existingPost = await findPostBySlug(client, sanitizedSlug);
 
   if (existingPost) {
     // Update existing post
     // Make sure to include the ID for updates
-    return client.posts().id(existingPost.id).update(payloadWithDate);
+    return client.posts().id(existingPost.id).update(payloadWithSlug);
   } else {
     // Create new post, ensuring slug is explicitly set
-    return client.posts().create(payloadWithDate);
+    return client.posts().create(payloadWithSlug);
   }
 }
