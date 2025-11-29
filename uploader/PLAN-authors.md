@@ -195,3 +195,7 @@ Yes, please do that. In fact, let's focus on that. i.e. searching by that post t
     - 829 Valerie Duvauchelle (valerie-duvauchelle) — Conscious Food Designer
 
 Files: research/list-wordpress-team.js, research/wordpress-team-authors.txt, research/wordpress-team-authors.json.
+
+## Task 5: Add WordPress IDs and Names to authors.json
+
+Ok, now go through research/authors.json and use the data in research/wordpress-team-authors.json to add `wordpress_id` and `wordpress_name` wherever you can. So if you have an exact or close match on id or name between value in authors.json and that in wordpress-team-authors you can add the worpress stuff based on info in wordpress-team-authors.json

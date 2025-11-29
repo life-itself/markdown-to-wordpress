@@ -9,10 +9,14 @@
     "name": null
   },
   "boaz-feldman": {
-    "name": "Boaz B. Feldman"
+    "name": "Boaz B. Feldman",
+    "wordpress_id": 124,
+    "wordpress_name": "Boaz B. Feldman"
   },
   "catherine-tran": {
-    "name": "Catherine Tran"
+    "name": "Catherine Tran",
+    "wordpress_id": 128,
+    "wordpress_name": "Catherine Tran"
   },
   "charley-lee": {
     "name": "Charley Lee"
@@ -48,13 +52,19 @@
     "name": "Khalil Ali"
   },
   "lauren-wigmore": {
-    "name": "Lauren Wigmore"
+    "name": "Lauren Wigmore",
+    "wordpress_id": 132,
+    "wordpress_name": "Lauren Wigmore"
   },
   "liamaet": {
-    "name": "Liam Kavanagh"
+    "name": "Liam Kavanagh",
+    "wordpress_id": 826,
+    "wordpress_name": "Liam Kavanagh"
   },
   "liamkavanagh": {
-    "name": null
+    "name": null,
+    "wordpress_id": 826,
+    "wordpress_name": "Liam Kavanagh"
   },
   "lifexitself": {
     "name": "Life Itself"
@@ -81,7 +91,9 @@
     "name": "Naresh Giangrande"
   },
   "nathen-fitchen": {
-    "name": "Nathen Fitchen"
+    "name": "Nathen Fitchen",
+    "wordpress_id": 136,
+    "wordpress_name": "Nathen Fitchen"
   },
   "Oren Slozberg": {
     "name": null
@@ -90,10 +102,14 @@
     "name": "Petronella Tyson"
   },
   "Rufus Pollock": {
-    "name": null
+    "name": null,
+    "wordpress_id": 103,
+    "wordpress_name": "Rufus Pollock"
   },
   "rufuspollock": {
-    "name": "Rufus Pollock"
+    "name": "Rufus Pollock",
+    "wordpress_id": 103,
+    "wordpress_name": "Rufus Pollock"
   },
   "sen-zhan": {
     "name": "Sen Zhan"
@@ -105,13 +121,17 @@
     "name": "Sophie Kirkham"
   },
   "sylvieshiweibarbier": {
-    "name": "Sylvie Shiwei Barbier"
+    "name": "Sylvie Shiwei Barbier",
+    "wordpress_id": 107,
+    "wordpress_name": "Sylvie Barbier"
   },
   "theo-cox": {
     "name": "Theo Cox"
   },
   "valerie": {
-    "name": "Valerie Duvauchelle"
+    "name": "Valerie Duvauchelle",
+    "wordpress_id": 829,
+    "wordpress_name": "Valerie Duvauchelle"
   },
   "zaib-nisa": {
     "name": null
