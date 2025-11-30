@@ -137,6 +137,12 @@ function stripQueryAndHash(value) {
   return value.split("#")[0].split("?")[0];
 }
 
+function isPdfReference(value) {
+  if (!value) return false;
+  const ext = path.extname(stripQueryAndHash(value)).toLowerCase();
+  return ext === ".pdf";
+}
+
 function hasSupportedMediaExtension(value) {
   if (!value) return false;
   const clean = stripQueryAndHash(value);
@@ -193,19 +199,27 @@ function rewriteMarkdownAndObsidianMedia(
     const [targetRaw, altRaw] = inner.split("|");
     const target = targetRaw?.trim();
     if (!target) return match;
+    const isPdf = isPdfReference(target);
     const resolved = resolveMediaReference(target, mediaMap, useRelativeUrls);
     if (!resolved) return match;
-    if (!featuredRef.value) featuredRef.value = resolved;
+    if (!featuredRef.value && !isPdf) featuredRef.value = resolved;
     const alt = altRaw ? altRaw.trim() : "";
+    if (isPdf) {
+      return `[Download PDF](${resolved.url})`;
+    }
     return `![${alt}](${resolved.url})`;
   });
 
   content = content.replace(
     /!\[([^\]]*)\]\(([^)]+)\)/g,
     (match, alt, target) => {
+      const isPdf = isPdfReference(target);
       const resolved = resolveMediaReference(target, mediaMap, useRelativeUrls);
       if (!resolved) return match;
-      if (!featuredRef.value) featuredRef.value = resolved;
+      if (!featuredRef.value && !isPdf) featuredRef.value = resolved;
+      if (isPdf) {
+        return `[Download PDF](${resolved.url})`;
+      }
       return `![${alt}](${resolved.url})`;
     },
   );

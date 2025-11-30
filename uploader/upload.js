@@ -973,108 +973,118 @@ async function main() {
       (argv) => handleUploadPosts(argv),
     )
     .command(
-      "people list",
-      "List existing WordPress team entries (id | name | slug | job title).",
-      (y) => y,
-      () => handlePeopleList(),
-    )
-    .command(
-      "people create <paths...>",
-      "Create or update WordPress team entries from markdown files.",
+      "people <subcommand>",
+      "People-related commands (list, create, listlocal, mergeremote, build).",
       (y) =>
         y
-          .positional("paths", {
-            describe: "Markdown file(s) or directories of people content.",
-            type: "string",
-            array: true,
-          })
-          .option("override", {
-            alias: "o",
-            type: "boolean",
-            default: false,
-            describe: "Update an existing team entry if it already exists.",
-          })
-          .option("mapping", {
-            alias: "m",
-            type: "string",
-            default: () => defaultMappingPath(),
-            describe:
-              "Path to uploadMediaMap.json for resolving avatar images (required).",
-          })
-          .option("authors", {
-            alias: "a",
-            type: "string",
-            describe:
-              "Optional path to authors mapping JSON to check for existing IDs and update with new WordPress IDs.",
-            default: undefined,
-          }),
-      (argv) => handlePeopleCreate(argv),
-    )
-    .command(
-      "people listlocal",
-      "Scan local content to produce authors.json (counts + names from people/*).",
-      (y) =>
-        y
-          .option("content", {
-            type: "string",
-            default: DEFAULT_CONTENT_ROOT,
-            describe: "Path to local content root (defaults to next.lifeitself.org).",
-          })
-          .option("output", {
-            alias: "o",
-            type: "string",
-            default: DEFAULT_AUTHORS_PATH,
-            describe: "Path to write authors.json.",
-          }),
-      (argv) => handlePeopleListLocal(argv),
-    )
-    .command(
-      "people mergeremote",
-      "Merge remote WordPress author IDs/names into an existing authors.json.",
-      (y) =>
-        y.option("authors", {
-          alias: "a",
-          type: "string",
-          default: DEFAULT_AUTHORS_PATH,
-          describe: "Path to authors.json to update.",
-        }),
-      (argv) => handlePeopleMergeRemote(argv),
-    )
-    .command(
-      "people build <paths...>",
-      "Build authors.json (local + remote merge) then run people create.",
-      (y) =>
-        y
-          .positional("paths", {
-            describe: "Markdown file(s) or directories of people content.",
-            type: "string",
-            array: true,
-          })
-          .option("content", {
-            type: "string",
-            default: DEFAULT_CONTENT_ROOT,
-            describe: "Path to local content root (defaults to next.lifeitself.org).",
-          })
-          .option("mapping", {
-            alias: "m",
-            type: "string",
-            default: () => defaultMappingPath(),
-            describe:
-              "Path to uploadMediaMap.json for resolving avatar images (required).",
-          })
-          .option("authors", {
-            alias: "a",
-            type: "string",
-            default: DEFAULT_AUTHORS_PATH,
-            describe: "Path to authors.json to build and use.",
-          })
-          .option("override", {
-            alias: "o",
-            type: "boolean",
-            default: false,
-            describe: "Update an existing team entry if it already exists.",
-          }),
-      (argv) => handlePeopleBuild(argv),
+          .command(
+            "list",
+            "List existing WordPress team entries (id | name | slug | job title).",
+            (yy) => yy,
+            () => handlePeopleList(),
+          )
+          .command(
+            "create <paths...>",
+            "Create or update WordPress team entries from markdown files.",
+            (yy) =>
+              yy
+                .positional("paths", {
+                  describe: "Markdown file(s) or directories of people content.",
+                  type: "string",
+                  array: true,
+                })
+                .option("override", {
+                  alias: "o",
+                  type: "boolean",
+                  default: false,
+                  describe: "Update an existing team entry if it already exists.",
+                })
+                .option("mapping", {
+                  alias: "m",
+                  type: "string",
+                  default: () => defaultMappingPath(),
+                  describe:
+                    "Path to mediamap.json for resolving avatar images (required).",
+                })
+                .option("authors", {
+                  alias: "a",
+                  type: "string",
+                  describe:
+                    "Optional path to authors mapping JSON to check for existing IDs and update with new WordPress IDs.",
+                  default: undefined,
+                }),
+            (argv) => handlePeopleCreate(argv),
+          )
+          .command(
+            "listlocal",
+            "Scan local content to produce authors.json (counts + names from people/*).",
+            (yy) =>
+              yy
+                .option("content", {
+                  type: "string",
+                  default: DEFAULT_CONTENT_ROOT,
+                  describe:
+                    "Path to local content root (defaults to next.lifeitself.org).",
+                })
+                .option("output", {
+                  alias: "o",
+                  type: "string",
+                  default: DEFAULT_AUTHORS_PATH,
+                  describe: "Path to write authors.json.",
+                }),
+            (argv) => handlePeopleListLocal(argv),
+          )
+          .command(
+            "mergeremote",
+            "Merge remote WordPress author IDs/names into an existing authors.json.",
+            (yy) =>
+              yy.option("authors", {
+                alias: "a",
+                type: "string",
+                default: DEFAULT_AUTHORS_PATH,
+                describe: "Path to authors.json to update.",
+              }),
+            (argv) => handlePeopleMergeRemote(argv),
+          )
+          .command(
+            "build <paths...>",
+            "Build authors.json (local + remote merge) then run people create.",
+            (yy) =>
+              yy
+                .positional("paths", {
+                  describe: "Markdown file(s) or directories of people content.",
+                  type: "string",
+                  array: true,
+                })
+                .option("content", {
+                  type: "string",
+                  default: DEFAULT_CONTENT_ROOT,
+                  describe:
+                    "Path to local content root (defaults to next.lifeitself.org).",
+                })
+                .option("mapping", {
+                  alias: "m",
+                  type: "string",
+                  default: () => defaultMappingPath(),
+                  describe:
+                    "Path to mediamap.json for resolving avatar images (required).",
+                })
+                .option("authors", {
+                  alias: "a",
+                  type: "string",
+                  default: DEFAULT_AUTHORS_PATH,
+                  describe: "Path to authors.json to build and use.",
+                })
+                .option("override", {
+                  alias: "o",
+                  type: "boolean",
+                  default: false,
+                  describe: "Update an existing team entry if it already exists.",
+                }),
+            (argv) => handlePeopleBuild(argv),
+          )
+          .demandCommand(1, "Please specify a people subcommand."),
+      (argv) => argv,
     )
     .command(
       "media <paths...>",

@@ -88,6 +88,21 @@ describe("convertMarkdownToPost", () => {
     expect(payload.content).toContain('href="/wp-content/uploads/report.pdf"');
   });
 
+  it("converts obsidian PDF embeds into download links", async () => {
+    const fixturePath = path.join(fixturesDir, "obsidian-pdf.md");
+    const raw = await readFile(fixturePath, "utf8");
+    const mediaMap = JSON.parse(await readFile(mediaMapPath, "utf8"));
+
+    const { payload } = await convertMarkdownToPost(raw, {
+      sourcePath: fixturePath,
+      mediaMap,
+    });
+
+    expect(payload.content).toContain('href="/wp-content/uploads/report.pdf"');
+    expect(payload.content).toContain(">Download PDF<");
+    expect(payload.content).not.toContain("<img");
+  });
+
   it("prefers front matter date when present", async () => {
     const markdown = `---
 title: Has Date
