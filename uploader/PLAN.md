@@ -241,15 +241,50 @@ Ans: The uploader never adds blog to slugs. In src/lib.js the slug sent to WordP
 
 Ok, that suggests we should make some change to our uploader code ... which is that if the slug starts with blog prefix (because it came from a directory /blog/xxx) then we should strip that from the slug before uploading (otherwise we will end up with blog prefix duplicated). please implement that. this should go in the wordpress uploading code not in the markdown processing btw.
 
-## Task 9: integrate author mapping in doing the author setting on uploading
+## ✅ Task 9a: Create people / team on the server based on local markdown files
 
-From our work with in PLAN-authors.md we have obtained a `authors.json` which maps local 
+I want a new cli `uploadPerson.js` and corresponding library code that:
+
+- [ ] given a markdown file like those inside of next.life.org/people
+  - NB: you might want to investigate that to look at the standard structure of those files and document that
+- [ ] It creates an entry on the WordPress instance of the team kind of post type
+  - or whatever type that is (? the author’s type) for that person.
+  - You can research what the structure should look like by getting an existing author - you can find that information I think in `research/list-wordpress-team.js`.
+  - BONUS: also add a cli to `uploadPerson.js` to list existing team members on the server (maybe with `--list` option)
+- [ ] I want to exit if there is an existing team member of the same name.
+  - [ ] I want an --override flag that will update the existing entry if it exists
+- [ ] I can pass a single file or files or a directory. I think in the best case I even just want to pass it the people folder. In general, it should test whether there is an existing team member with that name.
+- Let's create some unit tests for this functionality
+- [ ] and an e2e test against the WordPress instance.
+- [ ] Let's update README.md with some info about this command (and put relevant info in the command cli help etc)
+
+## Task 9b: integrate author mapping in doing the author setting on uploading
+
+From our work with in PLAN-authors.md we have obtained a `authors.json` which maps local author names to WordPress author IDs. We need to use this mapping to set the author on the uploaded post.
+
+We also have authors.e2e.test.js which shows how to set authors on a wordpress post.
+
+We want to update the wordpress library code that does uploading to set authors using the `authors.json` file and set the author on the uploaded post.
+
+### Acceptance
+
+- [ ] Update the wordpress library code to use the authors.json file to set the author on the uploaded post
+  - [ ] Create a fixtures authors file (can just copy the authors.json) and have e2e tests to use it
+  - [ ] Probably split out a sub-function now (if not there already) that given the output from markdown layer prepares the json structure for uploading to wordpress (so we can unit test it)
+  - [ ] Add unit tests for the sub-function that prepares the json structure for uploading to wordpress
+- [ ] Update the e2e tests as well for authors mapping
+- [ ] update `upload.js` to have an `authors` option to point to authors file default to `authors.json` in current directory.
+
+What do i do about authors that aren't existing on wordpress?
 
 ## Task 10: overall migration
 
 - [ ] How do i set .env differently for dev and prod and use that in upload scripts
   - [ ] Can i run the upload scripts from a different directory
-- [ ] Let's tidy up before we begin
-  - [ ] ❓ why? 😉
-  - [ ] Remove stuff in uploader we don't need
-  - [ ] Get rid of filestotests.js and just move the sample files into fixtures and run off those.
+
+Qu
+
+- [ ] Do i want to automate all of this end to end and have it able to restart if necessary? I'm guessing yes ...
+  - [ ] i want a cache directory or somesuch
+  - [ ] I need to provide the authors list
+    - [ ] would be kind of cool to automated this ... (but that's an exercise for later)

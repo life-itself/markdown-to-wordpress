@@ -2,12 +2,14 @@
   "alexia": {
     "name": "Alexia Netcu",
     "posts_count": 2,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "artearthtech": {
     "name": "artearthtech",
     "posts_count": 28,
-    "pages_count": 4
+    "pages_count": 4,
+    "exists_local": true
   },
   "author-id-here": {
     "name": null,
@@ -19,19 +21,22 @@
     "wordpress_id": 124,
     "wordpress_name": "Boaz B. Feldman",
     "posts_count": 1,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "catherine-tran": {
     "name": "Catherine Tran",
     "wordpress_id": 128,
     "wordpress_name": "Catherine Tran",
     "posts_count": 10,
-    "pages_count": 2
+    "pages_count": 2,
+    "exists_local": true
   },
   "charley-lee": {
     "name": "Charley Lee",
     "posts_count": 1,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "Eilidh Ross": {
     "name": null,
@@ -41,12 +46,14 @@
   "eilidhross": {
     "name": "Eilidh Ross",
     "posts_count": 35,
-    "pages_count": 3
+    "pages_count": 3,
+    "exists_local": true
   },
   "elisalifeitself": {
     "name": "Elisa Paka",
     "posts_count": 5,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "Geoff Mulgan": {
     "name": null,
@@ -56,12 +63,14 @@
   "iljad20a2d59ebb": {
     "name": "Ilja Maiber",
     "posts_count": 14,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "james-davies-warner": {
     "name": "James Davies-Warner",
     "posts_count": 1,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "Jamie Bristow": {
     "name": null,
@@ -71,31 +80,36 @@
   "joe-hughes": {
     "name": "Joe Hughes",
     "posts_count": 4,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "julie-dayot": {
     "name": "Julie Dayot",
     "posts_count": 1,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "khalil-ali": {
     "name": "Khalil Ali",
     "posts_count": 0,
-    "pages_count": 2
+    "pages_count": 2,
+    "exists_local": true
   },
   "lauren-wigmore": {
     "name": "Lauren Wigmore",
     "wordpress_id": 132,
     "wordpress_name": "Lauren Wigmore",
     "posts_count": 24,
-    "pages_count": 4
+    "pages_count": 4,
+    "exists_local": true
   },
   "liamaet": {
     "name": "Liam Kavanagh",
     "wordpress_id": 826,
     "wordpress_name": "Liam Kavanagh",
     "posts_count": 31,
-    "pages_count": 6
+    "pages_count": 6,
+    "exists_local": true
   },
   "liamkavanagh": {
     "name": null,
@@ -107,7 +121,8 @@
   "lifexitself": {
     "name": "Life Itself",
     "posts_count": 4,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "liu bauer": {
     "name": null,
@@ -117,12 +132,14 @@
   "liu-bauer": {
     "name": "Liu Bauer",
     "posts_count": 1,
-    "pages_count": 1
+    "pages_count": 1,
+    "exists_local": true
   },
   "marc-santolini": {
     "name": "Marc Santolini",
     "posts_count": 0,
-    "pages_count": 1
+    "pages_count": 1,
+    "exists_local": true
   },
   "matt-osborn": {
     "name": null,
@@ -132,24 +149,28 @@
   "matthew-mccarthy": {
     "name": "Matthew McCarthy",
     "posts_count": 6,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "moon-immisch": {
     "name": "Moon Immisch",
     "posts_count": 5,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "nareshgg7": {
     "name": "Naresh Giangrande",
     "posts_count": 7,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "nathen-fitchen": {
     "name": "Nathen Fitchen",
     "wordpress_id": 136,
     "wordpress_name": "Nathen Fitchen",
     "posts_count": 20,
-    "pages_count": 1
+    "pages_count": 1,
+    "exists_local": true
   },
   "Oren Slozberg": {
     "name": null,
@@ -159,7 +180,8 @@
   "petronellac3ecd0923b": {
     "name": "Petronella Tyson",
     "posts_count": 18,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "Rufus Pollock": {
     "name": null,
@@ -173,12 +195,14 @@
     "wordpress_id": 103,
     "wordpress_name": "Rufus Pollock",
     "posts_count": 106,
-    "pages_count": 22
+    "pages_count": 22,
+    "exists_local": true
   },
   "sen-zhan": {
     "name": "Sen Zhan",
     "posts_count": 1,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   },
   "Simon Grant": {
     "name": null,
@@ -188,26 +212,30 @@
   "sophie84d503f875": {
     "name": "Sophie Kirkham",
     "posts_count": 5,
-    "pages_count": 1
+    "pages_count": 1,
+    "exists_local": true
   },
   "sylvieshiweibarbier": {
     "name": "Sylvie Shiwei Barbier",
     "wordpress_id": 107,
     "wordpress_name": "Sylvie Barbier",
     "posts_count": 36,
-    "pages_count": 7
+    "pages_count": 7,
+    "exists_local": true
   },
   "theo-cox": {
     "name": "Theo Cox",
     "posts_count": 22,
-    "pages_count": 4
+    "pages_count": 4,
+    "exists_local": true
   },
   "valerie": {
     "name": "Valerie Duvauchelle",
     "wordpress_id": 829,
     "wordpress_name": "Valerie Duvauchelle",
     "posts_count": 23,
-    "pages_count": 8
+    "pages_count": 8,
+    "exists_local": true
   },
   "zaib-nisa": {
     "name": null,
@@ -217,6 +245,7 @@
   "zaibul-nisa": {
     "name": "Zaibul Nisa",
     "posts_count": 2,
-    "pages_count": 0
+    "pages_count": 0,
+    "exists_local": true
   }
 }

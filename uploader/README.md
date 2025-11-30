@@ -78,3 +78,23 @@ Use `uploadMedia.js` to push local images to WordPress before wiring their URLs 
 4.  **Progress + metadata**: Live progress shows total processed/percent, active uploads, and the latest result. Each media item receives the original local path and file hash inside `meta[original_local_path]` / `meta[original_local_hash]`, letting WordPress keep track of the source asset.
 
 `uploadMediaMap.json` is committed to this repo so later steps (e.g., rewriting Markdown image references) can reference already-uploaded assets.
+
+### Upload Team Members
+
+Use `uploadPerson.js` to create/update entries in the WordPress `team` post type from the markdown files in `next.lifeitself.org/people`.
+
+1.  **List existing team entries**:
+    ```sh
+    node uploadPerson.js --list
+    ```
+2.  **Upload one or more people** (files or directories):
+    ```sh
+    node uploadPerson.js next.lifeitself.org/people/alexia.md
+    node uploadPerson.js next.lifeitself.org/people/
+    ```
+    *Slug is taken from `id`/`slug` in front matter, otherwise from the filename; name is required. Status defaults to `publish`.*
+3.  **Avoid duplicates**: by default the script exits if a team member with the same slug/name already exists. Pass `--override` (or `-o`) to update the existing entry instead of failing.
+
+`uploadPerson.js` also sets the avatar/featured image for a person when `avatar` is present in front matter by resolving it through `uploadMediaMap.json` (default location: current directory). Use `-m custom-map.json` to point to a different mapping file; the mapping file must exist.
+
+After a successful upload, the script updates your authors mapping (default: `research/authors.json`, override with `-a path/to/authors.json`) with the WordPress ID and name so the person is no longer marked missing.
