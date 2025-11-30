@@ -73,7 +73,6 @@ const IS_TTY = Boolean(process.stdout && process.stdout.isTTY);
 let spinnerTimer = null;
 let spinnerIndex = 0;
 let lastRenderLength = 0;
-let lastLine2Length = 0;
 
 async function fileExists(candidate) {
   try {
@@ -254,13 +253,11 @@ async function readFileBufferAndHash(filePath) {
 
 function clearSpinnerLines() {
   if (!IS_TTY) return;
-  const maxLen = Math.max(lastRenderLength, lastLine2Length);
+  const maxLen = lastRenderLength;
   const blank = " ".repeat(maxLen || 0);
   process.stdout.write(`\r${blank}\r`);
-  process.stdout.write(`\n${blank}\r`);
-  process.stdout.write("\x1b[2A");
+  process.stdout.write("\r");
   lastRenderLength = 0;
-  lastLine2Length = 0;
 }
 
 function renderSpinner(state) {
@@ -269,25 +266,14 @@ function renderSpinner(state) {
   spinnerIndex += 1;
   const percent =
     state.total > 0 ? Math.round((state.processed / state.total) * 100) : 0;
-  const activeList =
-    state.active.size > 0
-      ? Array.from(state.active).slice(0, 3).join(", ")
-      : "-";
-
   const line1 = `${frame} uploading ${state.processed}/${state.total} (${percent}%) | uploaded:${state.uploaded} skipped:${state.skipped} failed:${state.failed}`;
-  const line2 = `current: ${activeList}`;
 
   const pad1 =
     lastRenderLength > line1.length ? lastRenderLength - line1.length : 0;
-  const pad2 =
-    lastLine2Length > line2.length ? lastLine2Length - line2.length : 0;
 
-  process.stdout.write(`\r${line1}${" ".repeat(pad1)}\n`);
-  process.stdout.write(`${line2}${" ".repeat(pad2)}`);
-  process.stdout.write("\x1b[2A");
+  process.stdout.write(`\r${line1}${" ".repeat(pad1)}`);
 
   lastRenderLength = line1.length;
-  lastLine2Length = line2.length;
 }
 
 function startSpinner(state) {
@@ -299,10 +285,9 @@ function stopSpinner(state) {
   if (!IS_TTY) return;
   if (spinnerTimer) clearInterval(spinnerTimer);
   renderSpinner(state);
-  process.stdout.write("\n\n");
+  process.stdout.write("\n");
   spinnerTimer = null;
   lastRenderLength = 0;
-  lastLine2Length = 0;
 }
 
 function logWithSpinnerPause(state, message) {
