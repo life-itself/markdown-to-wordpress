@@ -19,22 +19,19 @@ Given a Markdown file(s) or directories of files successfully create or update p
   - [x] slug **✅2025-11-27 this is working**
     * If a `slug` exists and a post with that slug already exists, update that post; otherwise create a new post.
     * Slug determiend by file path if no slug field or frontmatter in the post.
-  - [ ] date
+  - [x] date **✅2025-11-28**
     * Set `date` if provided; otherwise use “now”.
-  - [ ] status (?? ❓)
-  - [ ] images and media - see handle media item as preliminary for this to work
-    - [ ] featured image
-      * ❓ Use that ID as `featured_media` on the post.
+  - [ ] status (?? ❓) - should be set to `publish`
+  - [x] images and media - see handle media item as preliminary for this to work
+    - [ ] set featured image using either `image:` in frontmatter or first image
     - [ ] Images and media (e.g. pdfs) in body. Need to support obsidian and markdown links etc
   - [ ] Handle tags and taxonomies: **💬2025-11-28 ❓ not sure this is needed.**
     * Map front-matter tags/categories to WordPress taxonomies; create terms on demand if they don’t exist.
     * Set `status` based on config or front-matter override. ❓ what is status?
-- [ ] Upload pages
-- [ ] 3. Handle media:
-- [ ] 4. Handle authors / team mapping:
-   * Look up each front-matter author key in `team_mapping`.
-   * Write the corresponding team IDs into a custom field on the post (e.g. `team_members`), assuming that field is registered with `show_in_rest` or handled by Pods’ REST integration. ([WordPress Development Stack Exchange][8])
-- [ ] 5. Idempotency / safety. **✅2025-11-28 given we use slugs and file names on media**
+- [x] Upload pages **✅2025-11-29 ❌ won't do for now. Not sure pages are so crucial.**
+- [x] 3. Handle media - see below **✅2025-11-28**
+- [x] 4. Handle authors / team mapping **🚧2025-11-29 this is working but we don't yet look up our mapping of names to team members.**
+- [x] 5. Idempotency / safety. **✅2025-11-28 given we use slugs and file names on media**
 - [ ] 6. Output:
    * Print new/updated post ID, slug, and URL.
    * On error, show HTTP status, response body and the file that failed.
@@ -55,12 +52,11 @@ See substacks below for details on each one
 
 # Subtasks
 
-
-## Subtask no 1
+## ✅ Subtask no 1
 
 * Convert Markdown → HTML using `remark` (including parsing frontmatter)
 * Produce a clean JS object containing whatever is needed for WordPress upload
-* Create a sample Markdown input file e.g. `sample-post.md`, with typical front matter fields such as `title`, `date`, `status`, `tags`.
+* Create a sample Markdown input file e.g. `tests/fixtures/sample-post.md`, with typical front matter fields such as `title`, `date`, `status`, `tags`.
 * Provide a basic Node script (e.g., `uploadPost.js`) that:
   * loads `.env`
   * reads a hardcoded Markdown file path for now
@@ -178,63 +174,25 @@ this means the original markdown process code should have an additional metadata
 
 By raw markdown i mean the literal content of the file whatever it is in pure format including the frontmatter.
 
-## Substack no 6: image uploading command line tool and script
+## Task 6: Support date extraction and fallback when uploading posts
 
-This extends are library and adds a new command line script uploadMedia.js to handle the uploading of media assets (images + PDFs) to WordPress. The script must accept a single file path or a directory path. It will utilize a local JSON file, `uploadMediaMap.json`, to store key-value pairs of local file paths (and optionally their hash) against their final WordPress destination URLs, enabling **idempotent uploads** (skipping already processed files).
+Add date parsing in the markdown layer: prefer `date`, fall back to `created`, otherwise leave unset for WordPress to default to today.
 
-I want the `uploadMediaMap.json` so it can be used in subsequent steps to rewrite links in markdown files ahead of their uploading.
+Ensure WordPress upload layer sets current date only when upstream did not supply one.
 
-To test this out you can use the content in `next.lifeitself.org` subdirectory relative to this file.
+Add tests in markdown layer to cover `date`, `created`, and missing date cases; add E2E test plan stub for the same scenarios.
 
-I would test out by just uploading a single file.
+### Acceptance Criteria:
 
-### Acceptance Criteria
+- [x] Markdown parsing returns the `date` value when present.
+- [x] Markdown parsing returns the `created` value when `date` is absent.
+- [x] When neither field exists, markdown layer leaves date undefined; WordPress layer assigns today's date on upload.
+- [x] Tests exist for markdown date extraction logic as unit test
+- [ ] Tests exist in E2E tests covering that case (inspect for date that should show up for at least one of the uploaded posts)
 
-1. **Command:** A new CLI script must be created.
-2. **Input:** The script must accept arguments of either file(s) or directory(ies).all contained **image files** must be scanned and selected for upload.
-3. **Idempotency & Mapping:**
-    * The script must read the existing mapping data from a file named **`uploadMediaMap.json`**.
-    * This file stores pairs of `[local_file_path]` (and optionally a file hash) and the `[destination_url]`.
-    * **Skip Logic:** Before uploading a file, the script must check `uploadMediaMap.json`. If a match is found, the file must be **skipped**, and this action must be noted.
-    * **Update Logic:** If the file is uploaded successfully, its local path/hash and destination URL must be added to the mapping data.
-      * Store the local file path used for uploading in the wordpress metadata of the uploaded file
-    * The **`uploadMediaMap.json`** file must be rewritten/updated after all successful uploads.
-4. **Logging:** The script must provide **terminal output** indicating which files were uploaded and which were skipped.
+Raw dictation
 
-### Implementation Notes
-
-* **File Filtering:** The script needs logic to specifically filter for common image file extensions when processing a directory.
-* **Idempotency Key:** Consider using a combination of the local file path and a **file hash** (e.g., MD5 or SHA) as the key in `uploadMediaMap.json` to ensure a file isn't re-uploaded if it has changed locally but retained the same path.
-* **WordPress API:** The tool will rely on the WordPress REST API, specifically the `/wp/v2/media` endpoint, for file uploads.
-  * use wordpress login info in the `.env` file. See README.md in this directory for how that works (and example of usage in `upload.js`)
-* **Metadata:** To set custom metadata, you may need to utilize the `meta` fields within the API request during upload, or potentially use a custom endpoint/plugin if the standard API is too restrictive for setting arbitrary metadata fields like the local path.
-* **CLI Progress:** (nice to have). show progress e.g. how many files to upload, how many uploaded so far.
-
-### Unique image file names?
-
-Are image file names unique so we can use them as the idempotency key?
-
-Yes, for our purposes.
-
-- Ran a quick scan over assets/** with a Python script; filenames are not unique.
-- Duplicate basenames found: catherine-bio.png (assets/images/..., assets/site/team/...), cecile-cropped.png, lauren-wigmore-profile-image.jpg, lifeitself-landingpage.webp, profile-pic-boaz.jpg, profile-pic-matthew.jpg.
-- Each duplicate pair lives under different subfolders (assets/images, assets/site/team, or root assets), confirming same filenames on different paths.
-
-Then asked: Are the images themselves different?
-
-- Checked SHA-256 hashes for each duplicate filename pair under assets/**.
-- catherine-bio.png, cecile-cropped.png, lauren-wigmore-profile-image.jpg, profile-pic-matthew.jpg, and lifeitself-landingpage.webp are byte-for-byte identical across their duplicate paths.
-- profile-pic-boaz.jpg differs: assets/images/... hash b2f2289…64688, while assets/site/team/... hash 05c7ad2…a2b4, so these two files are distinct versions.
-
-Checked boaz picture by eye and this is the same.
-
-### UPDATE: update to store only image filename in media upload
-
-use only image filename as the key in uploadMediaMap.json when building the upload info dictionary.
-
-### UPDATE 6.b: upload pdfs as well as images and store in same way
-
-As it says: let's upload pdfs too.
+> OK, I want to outline adding dates to your posts. So I want to make sure I mark down there extracts the date, which should be either in the date field or in the created field. Either one of if the date field use that field, if there's a creative field use that field. So what I mean, sorry, use the date field primarily if fall back to the created field. And if not, I guess you set today's date. Actually, don't set today's date. Let's do that the WordPress layer. So at the WordPress layer, if you don't set the date, let's set it to today when we do the uploading. And I want to suit a test for that in the markdown layer. And I think we could also set a test for that in the end to end tests, even though we can't run them. So please distill that. We're going to then out of that create like a small description of this issue and then the acceptance criteria for it as
 
 ## Task no 7: 🏞️ WordPress Post Uploader: Image Rewriting
 
@@ -282,3 +240,16 @@ Notes:
 Ans: The uploader never adds blog to slugs. In src/lib.js the slug sent to WordPress is just frontmatter.slug or the filename basename (no prefix), and api-output-for-sample-blog-post.json shows the stored slug is second-renaissance-name-why while the returned link is …/blog/second-renaissance-name-why/. That blog segment comes from the WordPress site’s permalink/site configuration (e.g., WP installed under /blog or permalink structure /blog/%postname%/). If you want it gone, change the WordPress permalink/base path; no code changes here are needed.
 
 Ok, that suggests we should make some change to our uploader code ... which is that if the slug starts with blog prefix (because it came from a directory /blog/xxx) then we should strip that from the slug before uploading (otherwise we will end up with blog prefix duplicated). please implement that. this should go in the wordpress uploading code not in the markdown processing btw.
+
+## Task 9: integrate author mapping in doing the author setting on uploading
+
+From our work with in PLAN-authors.md we have obtained a `authors.json` which maps local 
+
+## Task 10: overall migration
+
+- [ ] How do i set .env differently for dev and prod and use that in upload scripts
+  - [ ] Can i run the upload scripts from a different directory
+- [ ] Let's tidy up before we begin
+  - [ ] ❓ why? 😉
+  - [ ] Remove stuff in uploader we don't need
+  - [ ] Get rid of filestotests.js and just move the sample files into fixtures and run off those.
