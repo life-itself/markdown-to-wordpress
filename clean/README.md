@@ -86,3 +86,94 @@ DONE
 ## ✅ Task 2b: correct all relative links to absolute
 
  OK, can we also now update those relative links to be absolute links e.g. /assets/ rather `../assets/...` and `/excalidraw` rather than `../
+
+
+## Task 3: tidy up people / authors ...
+
+- [x] Remove khalil-ali overall
+- [x] Remove jamesredenbaugh
+- [x] merge artearthtech with lifexitself  
+  - [x]  Rename lifexitself to lifeitselfteam
+  - [x] Change artearthtech to lifeitselfteam
+- [x] Fix `liu bauer` to `liu-bauer`
+- [x] Fix `Eilidh Ross` to `eilidhross`
+
+### People entries missing an avatar in frontmatter:
+
+```
+people/artearthtech.md XX
+people/charley-lee.md
+people/elisalifeitself.md
+people/jamesredenbaugh.md XX
+people/joe-hughes.md
+people/julie-dayot.md
+people/lifexitself.md
+people/nareshgg7.md
+people/sophie84d503f875.md
+```
+
+### Research
+
+Which authors need creating on server (if we want to map all authors)?
+
+#### Which authors exist locally and need creating on wordpress?
+
+> OK, get a me a list of authors with post counts who don't exist on server (no wordpress_id) but do existing in people directory in next.lifeitself.org (add a flag on authors.json exists_local: true if there is local info on them.
+
+id, name, posts, pages, example
+eilidhross, Eilidh Ross, 35, 3,
+artearthtech, artearthtech, 28, 4,
+theo-cox, Theo Cox, 22, 4,
+petronellac3ecd0923b, Petronella Tyson, 18, 0,
+iljad20a2d59ebb, Ilja Maiber, 14, 0,
+nareshgg7, Naresh Giangrande, 7, 0,
+matthew-mccarthy, Matthew McCarthy, 6, 0,
+sophie84d503f875, Sophie Kirkham, 5, 1,
+elisalifeitself, Elisa Paka, 5, 0,
+moon-immisch, Moon Immisch, 5, 0,
+joe-hughes, Joe Hughes, 4, 0,
+lifexitself, Life Itself, 4, 0,
+alexia, Alexia Netcu, 2, 0,
+zaibul-nisa, Zaibul Nisa, 2, 0,
+liu-bauer, Liu Bauer, 1, 1,
+charley-lee, Charley Lee, 1, 0, blog/life-itself-community-hangouts.md
+james-davies-warner, James Davies-Warner, 1, 0, blog/renewal-and-renovation-petit-bois-martin.md
+julie-dayot, Julie Dayot, 1, 0, blog/we-are-not-here-to-change-the-world.md
+sen-zhan, Sen Zhan, 1, 0, blog/hubbook-a-collective-evolution.md
+khalil-ali, Khalil Ali, 0, 2,
+marc-santolini, Marc Santolini, 0, 1, learn/praxis-ecology.md
+
+#### Which would need creating locally *and* remote (i.e. don't exist locally either in people folder?)
+
+9 authors in research/authors.json with some posts/pages without:
+
+- mapping to wordpress (no wordpress_id)
+- no next.lifeitself.org/people entry; counted posts by scanning author/authors front matter across next.lifeitself.org/**/*.md:
+
+```
+Geoff Mulgan 1
+Jamie Bristow 1
+matt-osborn 2
+Oren Slozberg 1
+Simon Grant 1
+
+# No longer relevant
+zaib-nisa 1 XX (dupe of zaibulnisa)
+liu bauer 1 XX (dupe of liubauer)
+author-id-here 1 XX
+Eilidh Ross 7 XX (dupe of eilidhross)
+```
+
+Which have posts?
+
+```
+Geoff Mulgan 1 next.lifeitself.org/blog/can-new-social-and-digital-technologies-transform-governance.md
+
+Jamie Bristow 1 next.lifeitself.org/blog/ecosystem-mapping-of-contemplative-approaches-to-transformative-social-change.md
+
+matt-osborn 2 next.lifeitself.org/blog/visualisation-ideas.md next.lifeitself.org/blog/second-renaissance-mapping-and-sensemaking.md
+
+Oren Slozberg 1 next.lifeitself.org/blog/developmental-spaces-for-an-age-of-transition.md
+
+Simon Grant 1 next.lifeitself.org/blog/intentional-coming-together.md
+```
