@@ -111,6 +111,16 @@ function parseJsonObject(raw, label) {
   return parsed;
 }
 
+function normalizeUrlForComparison(url) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url, "http://placeholder");
+    return parsed.pathname || parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 async function loadJsonStrict(targetPath, label) {
   const absPath = path.resolve(targetPath);
   const raw = await readFile(absPath, "utf8");
@@ -311,8 +321,15 @@ async function prefillMediaMapping(config, mapping, mediaFiles, hashCache) {
       .map((item) => [item.file.toLowerCase(), item]),
   );
 
+  // Build set for pruning by URL
+  const remoteUrls = new Set();
+  remoteMedia.forEach((item) => {
+    if (item.url) remoteUrls.add(item.url);
+  });
+
   let matched = 0;
   let added = 0;
+  let removed = 0;
   for (const filePath of mediaFiles) {
     const fileName = path.basename(filePath);
     const remote = remoteByFile.get(fileName.toLowerCase());
@@ -334,10 +351,25 @@ async function prefillMediaMapping(config, mapping, mediaFiles, hashCache) {
     }
   }
 
+  // Remove mapping entries for files no longer present remotely
+  for (const key of Object.keys(mapping)) {
+    const entry = mapping[key];
+    const urlMissing =
+      entry?.url &&
+      !remoteUrls.has(entry.url) &&
+      !remoteUrls.has(normalizeUrlForComparison(entry.url));
+
+    if (urlMissing) {
+      delete mapping[key];
+      removed += 1;
+    }
+  }
+
   return {
     remoteCount: remoteMedia.length,
     matched,
     added,
+    removed,
   };
 }
 
@@ -1262,7 +1294,7 @@ async function main() {
                 hashCache,
               );
               console.log(
-                `Media pull: fetched ${prefill.remoteCount} remote media items; matched ${prefill.matched} local files; added ${prefill.added} new mapping entries.`,
+                `Media pull: fetched ${prefill.remoteCount} remote media items; matched ${prefill.matched} local files; added ${prefill.added} new mapping entries; removed ${prefill.removed} missing entries.`,
               );
               if (prefill.added > 0) {
                 await saveMapping(mappingPath, mapping);
