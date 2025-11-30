@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import {
   convertMarkdownToPost,
   createWpClient,
+  findPostBySlug,
   upsertPostToWordpress,
 } from "../src/lib.js";
 
@@ -18,6 +19,30 @@ const fixturePostPaths = existsSync(FIXTURE_BLOG_DIR)
       .filter((entry) => entry.endsWith(".md"))
       .map((entry) => path.join(FIXTURE_BLOG_DIR, entry))
   : [];
+
+async function deriveSlug(filePath) {
+  const raw = await fs.readFile(filePath, "utf8");
+  const { data: frontmatter } = matter(raw);
+  return (
+    frontmatter.slug ||
+    path.basename(filePath, path.extname(filePath))
+  );
+}
+
+async function removeExistingPosts(client, filePaths) {
+  for (const filePath of filePaths) {
+    const slug = await deriveSlug(filePath);
+    try {
+      const existing = await findPostBySlug(client, slug);
+      if (existing?.id) {
+        await client.posts().id(existing.id).delete({ force: true });
+        console.log(`Deleted pre-existing post for slug "${slug}" before test run.`);
+      }
+    } catch (error) {
+      console.warn(`Could not delete pre-existing post for slug "${slug}": ${error.message}`);
+    }
+  }
+}
 
 // Integration tests for uploading to WordPress using the library functions
 describe("WordPress Upload Integration", () => {
@@ -35,6 +60,8 @@ describe("WordPress Upload Integration", () => {
       username: WP_USERNAME,
       appPassword: WP_APP_PASSWORD,
     });
+
+    await removeExistingPosts(client, fixturePostPaths);
   });
 
   // If no test files were found, create a dummy test to avoid "No tests found" error
