@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import path from "path";
-import { promises as fs, existsSync, readFileSync } from "fs";
+import { promises as fs, existsSync, readFileSync, readdirSync } from "fs";
 import matter from "gray-matter";
 import dotenv from "dotenv";
-import { blogPostPaths } from "../filestotest.js";
 import {
   convertMarkdownToPost,
   createWpClient,
@@ -13,15 +12,12 @@ import {
 // Load test-specific environment variables
 const testEnv = dotenv.parse(readFileSync(".env.test"));
 
-// Filter the list of posts to only include files that actually exist.
-const existingPostPaths = blogPostPaths.filter((filePath) => {
-  const fullPath = path.join("next.lifeitself.org", filePath);
-  const exists = existsSync(fullPath);
-  if (!exists) {
-    console.warn(`Warning: Test file not found, skipping: ${filePath}`);
-  }
-  return exists;
-});
+const FIXTURE_BLOG_DIR = path.join(process.cwd(), "tests", "fixtures", "e2e-blog");
+const fixturePostPaths = existsSync(FIXTURE_BLOG_DIR)
+  ? readdirSync(FIXTURE_BLOG_DIR)
+      .filter((entry) => entry.endsWith(".md"))
+      .map((entry) => path.join(FIXTURE_BLOG_DIR, entry))
+  : [];
 
 // Integration tests for uploading to WordPress using the library functions
 describe("WordPress Upload Integration", () => {
@@ -42,22 +38,21 @@ describe("WordPress Upload Integration", () => {
   });
 
   // If no test files were found, create a dummy test to avoid "No tests found" error
-  if (existingPostPaths.length === 0) {
+  if (fixturePostPaths.length === 0) {
     it("skips tests as no valid test files were found", () => {
       console.warn(
-        "All specified test files in filestotest.js were not found.",
+        `No test fixtures found in ${FIXTURE_BLOG_DIR}.`,
       );
       expect(true).toBe(true);
     });
     return;
   }
 
-  it.each(existingPostPaths)(
+  it.each(fixturePostPaths)(
     'should upload %s as "publish" and be accessible online',
     async (filePath) => {
-      const originalPath = path.join("next.lifeitself.org", filePath);
       // Read original file, set status to 'publish'
-      const originalContent = await fs.readFile(originalPath, "utf8");
+      const originalContent = await fs.readFile(filePath, "utf8");
       const { data: frontmatter, content } = matter(originalContent);
       frontmatter.status = "publish";
       const newContent = matter.stringify(content, frontmatter);
@@ -66,7 +61,7 @@ describe("WordPress Upload Integration", () => {
       let uploadResponse;
       try {
         const { payload } = await convertMarkdownToPost(newContent, {
-          sourcePath: originalPath,
+          sourcePath: filePath,
         });
         uploadResponse = await upsertPostToWordpress(client, payload);
       } catch (error) {
