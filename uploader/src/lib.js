@@ -70,6 +70,65 @@ export function normalizeAuthors(raw) {
   return unique.length > 0 ? unique : undefined;
 }
 
+function findAuthorRecord(authorName, authorsMap) {
+  if (!authorName || !authorsMap || typeof authorsMap !== "object") return null;
+  const normalized = String(authorName).trim();
+  if (!normalized) return null;
+  if (normalized in authorsMap) return authorsMap[normalized];
+
+  const lowered = normalized.toLowerCase();
+  if (lowered in authorsMap) return authorsMap[lowered];
+
+  const fuzzyKey = Object.keys(authorsMap).find(
+    (key) => key.toLowerCase() === lowered,
+  );
+  return fuzzyKey ? authorsMap[fuzzyKey] : null;
+}
+
+function extractAuthorId(record) {
+  if (!record) return undefined;
+  if (typeof record === "number") return record;
+  if (typeof record === "object") {
+    if (typeof record.wordpress_id === "number") return record.wordpress_id;
+    if (typeof record.wordpressId === "number") return record.wordpressId;
+    if (typeof record.id === "number") return record.id;
+    if (typeof record.ID === "number") return record.ID;
+  }
+  return undefined;
+}
+
+export function mapAuthorsToWordpressIds(authors, authorsMap, logger = console) {
+  if (!Array.isArray(authors) || authors.length === 0) return undefined;
+
+  if (!authorsMap || typeof authorsMap !== "object") {
+    logger?.warn?.(
+      "Author mapping not provided; skipping author assignment on upload.",
+    );
+    return undefined;
+  }
+
+  const missing = [];
+  const ids = authors
+    .map((author) => {
+      const record = findAuthorRecord(author, authorsMap);
+      const id = extractAuthorId(record);
+      if (!id) missing.push(String(author).trim());
+      return id;
+    })
+    .filter((id) => typeof id === "number" && !Number.isNaN(id));
+
+  if (missing.length > 0) {
+    logger?.warn?.(
+      `No wordpress_id for author(s): ${missing.join(
+        ", ",
+      )}. Skipping these entries.`,
+    );
+  }
+
+  const unique = Array.from(new Set(ids));
+  return unique.length > 0 ? unique : undefined;
+}
+
 function isRemoteUrl(value) {
   return /^https?:\/\//i.test(value) || value.startsWith("//");
 }
@@ -284,6 +343,31 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
 
 function sanitizeBaseUrl(url) {
   return url.endsWith("/") ? url.slice(0, -1) : url;
+}
+
+export function prepareWordpressPayload(basePayload, options = {}) {
+  if (!basePayload || typeof basePayload !== "object") {
+    throw new Error("prepareWordpressPayload requires a payload object.");
+  }
+
+  const payload = { ...basePayload };
+  const { authorsMap, logger = console } = options;
+
+  if (Array.isArray(basePayload.authors) && basePayload.authors.length > 0) {
+    const mappedAuthors = mapAuthorsToWordpressIds(
+      basePayload.authors,
+      authorsMap,
+      logger,
+    );
+
+    if (mappedAuthors && mappedAuthors.length > 0) {
+      payload.authors = mappedAuthors;
+    } else {
+      delete payload.authors;
+    }
+  }
+
+  return payload;
 }
 
 export function createWpClient({ baseUrl, username, appPassword }) {

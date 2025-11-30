@@ -9,11 +9,13 @@ import {
   convertMarkdownToPost,
   createWpClient,
   upsertPostToWordpress,
+  prepareWordpressPayload,
 } from "./src/lib.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DEFAULT_MAPPING_PATH = path.join(__dirname, "uploadMediaMap.json");
+const DEFAULT_AUTHORS_PATH = path.join(__dirname, "authors.json");
 
 async function getMarkdownFiles(paths) {
   const filePaths = new Set();
@@ -48,7 +50,30 @@ async function loadMediaMap(mappingPath) {
   return {};
 }
 
-async function uploadFile(client, filePath, mediaMap, useRelativeUrls = true) {
+async function loadAuthorsMap(authorsPath) {
+  try {
+    const raw = await readFile(authorsPath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    const message =
+      error.code === "ENOENT"
+        ? `Author mapping not found at ${authorsPath}. Skipping author assignment.`
+        : `Could not read author mapping at ${authorsPath}: ${error.message}`;
+    console.warn(message);
+  }
+  return {};
+}
+
+async function uploadFile(
+  client,
+  filePath,
+  mediaMap,
+  authorsMap,
+  useRelativeUrls = true,
+) {
   try {
     const raw = await readFile(filePath, "utf8");
     const { payload } = await convertMarkdownToPost(raw, {
@@ -56,7 +81,11 @@ async function uploadFile(client, filePath, mediaMap, useRelativeUrls = true) {
       mediaMap,
       useRelativeUrls,
     });
-    const response = await upsertPostToWordpress(client, payload); // Use upsert function
+    const preparedPayload = prepareWordpressPayload(payload, {
+      authorsMap,
+      logger: console,
+    });
+    const response = await upsertPostToWordpress(client, preparedPayload); // Use upsert function
     const action = response.id === payload.id ? "Updated" : "Uploaded"; // Differentiate update/create
     console.log(`${action} ${path.basename(filePath)}: ${response.link}`);
   } catch (error) {
@@ -74,6 +103,13 @@ async function main() {
       type: "string",
       describe: "Path to uploadMediaMap.json for rewriting image links",
       default: DEFAULT_MAPPING_PATH,
+    })
+    .option("authors", {
+      alias: "a",
+      type: "string",
+      describe:
+        "Path to authors.json mapping file (defaults to authors.json in this directory)",
+      default: DEFAULT_AUTHORS_PATH,
     })
     .option("absolute-media-urls", {
       type: "boolean",
@@ -106,8 +142,22 @@ async function main() {
     );
   }
 
+  const authorsPath = path.resolve(argv.authors);
+  const authorsMap = await loadAuthorsMap(authorsPath);
+  if (authorsMap && Object.keys(authorsMap).length > 0) {
+    console.log(
+      `Loaded ${Object.keys(authorsMap).length} author mapping entries from ${authorsPath}.`,
+    );
+  }
+
   for (const filePath of filePaths) {
-    await uploadFile(client, filePath, mediaMap, !argv["absolute-media-urls"]);
+    await uploadFile(
+      client,
+      filePath,
+      mediaMap,
+      authorsMap,
+      !argv["absolute-media-urls"],
+    );
   }
 }
 

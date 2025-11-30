@@ -275,7 +275,10 @@ We want to update the wordpress library code that does uploading to set authors 
 - [ ] Update the e2e tests as well for authors mapping
 - [ ] update `upload.js` to have an `authors` option to point to authors file default to `authors.json` in current directory.
 
-What do i do about authors that aren't existing on wordpress?
+Notes
+
+- [ ] What do i do about authors that aren't existing on wordpress? (i.e. no `wordpress_id`)
+  - In this case skip setting authors and console log a warning
 
 ## Task 10: overall migration
 
@@ -288,3 +291,12 @@ Qu
   - [ ] i want a cache directory or somesuch
   - [ ] I need to provide the authors list
     - [ ] would be kind of cool to automated this ... (but that's an exercise for later)
+
+To run:
+
+- [ ] Media upload (use media mapping if already exists)
+  - [ ] Cache the result media mapping 
+- [x] Get authors mapping (should have already)
+  - [ ] TODO: how to get existing authors and map those again
+  - [ ] Update with local ones: `node uploadPerson.js --mapping ../sandbox/mediamap-staging.json --authors research/authors.json "next.lifeitself.org/people"`  
+- [ ] Upload all blog posts using media mapping and authors mapping

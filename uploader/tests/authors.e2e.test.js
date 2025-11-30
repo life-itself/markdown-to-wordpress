@@ -1,14 +1,24 @@
 import { describe, it, expect, beforeAll } from "vitest";
+import path from "node:path";
 import { readFileSync } from "node:fs";
 import dotenv from "dotenv";
 import {
   createWpClient,
   findPostBySlug,
   upsertPostToWordpress,
+  prepareWordpressPayload,
 } from "../src/lib.js";
 
 // Borrow the same env-loading approach as other e2e tests
 const testEnv = dotenv.parse(readFileSync(".env.test"));
+
+const authorsFixturePath = path.join(
+  process.cwd(),
+  "tests",
+  "fixtures",
+  "authors.json",
+);
+const AUTHORS_MAP = JSON.parse(readFileSync(authorsFixturePath, "utf8"));
 
 // Snapshot of known author IDs from investigate-api-for-pods.js output
 const MOCK_AUTHORS = [
@@ -34,19 +44,24 @@ describe("WordPress author relationship", () => {
 
   it("creates or updates a post with the custom authors array set", async () => {
     const slug = "wpapi-author-e2e-test";
-    const payload = {
+    const basePayload = {
       title: "Author E2E test post",
       content: "<p>Testing the Pods-driven authors relationship via REST.</p>",
       status: "publish",
       slug,
-      // Pods exposes authors as a top-level field; it appears to accept IDs.
-      authors: MOCK_AUTHORS.map((author) => author.id),
+      // Pass names and rely on the mapping layer to resolve IDs.
+      authors: ["rufuspollock", "sylvieshiweibarbier"],
       // Keep meta present so the post mirrors our usual upload shape.
       meta: {
         raw_markdown:
           "Author test placeholder content; real markdown lives elsewhere.",
       },
     };
+
+    const payload = prepareWordpressPayload(basePayload, {
+      authorsMap: AUTHORS_MAP,
+      logger: console,
+    });
 
     const created = await upsertPostToWordpress(client, payload);
     expect(created).toBeDefined();

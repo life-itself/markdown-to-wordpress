@@ -7,12 +7,14 @@ import {
   normalizeTags,
   findPostBySlug,
   upsertPostToWordpress,
+  prepareWordpressPayload,
 } from "../src/lib.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const fixturesDir = path.join(__dirname, "fixtures");
 const mediaMapPath = path.join(fixturesDir, "uploadMediaMap.json");
+const authorsMapPath = path.join(fixturesDir, "authors.json");
 
 describe("convertMarkdownToPost", () => {
   it("parses front matter and converts markdown to HTML with gfm support", async () => {
@@ -150,6 +152,42 @@ Body`;
     });
 
     expect(payload.authors).toEqual(["primary-author", "co-author"]);
+  });
+});
+
+describe("prepareWordpressPayload", () => {
+  it("maps author names to WordPress IDs and deduplicates", async () => {
+    const authorsMap = JSON.parse(await readFile(authorsMapPath, "utf8"));
+    const logger = { warn: vi.fn() };
+    const payload = {
+      title: "Mapped Authors",
+      content: "...",
+      slug: "mapped-authors",
+      authors: ["rufuspollock", "sylvieshiweibarbier", "rufuspollock"],
+    };
+
+    const result = prepareWordpressPayload(payload, { authorsMap, logger });
+
+    expect(result.authors).toEqual([103, 107]);
+    expect(logger.warn).not.toHaveBeenCalled();
+  });
+
+  it("warns and strips authors that lack a wordpress_id", async () => {
+    const authorsMap = JSON.parse(await readFile(authorsMapPath, "utf8"));
+    const logger = { warn: vi.fn() };
+    const payload = {
+      title: "Missing Author",
+      content: "...",
+      slug: "missing-author",
+      authors: ["unknown-on-wp"],
+    };
+
+    const result = prepareWordpressPayload(payload, { authorsMap, logger });
+
+    expect(result.authors).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining("unknown-on-wp"),
+    );
   });
 });
 

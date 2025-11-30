@@ -54,6 +54,8 @@ Set up the simple Node script in this repo to convert Markdown and upload to Wor
 
     On success, the script will log the URL of each uploaded post.
 
+`upload.js` can also set the WordPress author using a local mapping file: pass `--authors path/to/authors.json` (defaults to `authors.json` in this directory). The mapping should map local author names to objects with a `wordpress_id`; any authors not found in the map are skipped with a warning.
+
 5.  **(Optional) Run Tests**:
     To verify the Markdown processing module, run the tests:
     ```sh
