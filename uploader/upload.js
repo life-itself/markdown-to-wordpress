@@ -376,7 +376,8 @@ async function prefillMediaMapping(config, mapping, mediaFiles, hashCache) {
 async function fetchRemoteMedia(config) {
   const results = [];
   let page = 1;
-  while (true) {
+  let totalPages = Infinity;
+  while (page <= totalPages) {
     const response = await fetch(
       `${config.baseUrl}/wp-json/wp/v2/media?per_page=100&page=${page}&context=edit`,
       {
@@ -385,6 +386,10 @@ async function fetchRemoteMedia(config) {
         },
       },
     );
+
+    // WP returns 400 when page exceeds total_pages; stop gracefully
+    if (response.status === 400 && page > 1) break;
+
     const text = await response.text();
     if (!response.ok) {
       throw new Error(
@@ -396,14 +401,50 @@ async function fetchRemoteMedia(config) {
     results.push(
       ...batch.map((item) => ({
         id: item.id,
+        date: item.date_gmt || item.date || null,
         url: item.source_url || item.link || item.guid?.rendered || null,
         file: path.basename(item.source_url || item.guid?.rendered || ""),
       })),
     );
-    if (batch.length < 100) break;
+
+    const headerPages = Number(response.headers.get("x-wp-totalpages"));
+    if (!Number.isNaN(headerPages) && headerPages > 0) {
+      totalPages = headerPages;
+    }
     page += 1;
   }
   return results;
+}
+
+function reportDuplicateMedia(remoteMedia) {
+  const byFile = new Map();
+  remoteMedia.forEach((item) => {
+    if (!item.file) return;
+    const key = item.file.toLowerCase();
+    if (!byFile.has(key)) byFile.set(key, []);
+    byFile.get(key).push(item);
+  });
+
+  const dupes = Array.from(byFile.entries())
+    .filter(([, items]) => items.length > 1)
+    .map(([file, items]) => {
+      const sorted = [...items].sort((a, b) => {
+        const da = a.date ? Date.parse(a.date) : 0;
+        const db = b.date ? Date.parse(b.date) : 0;
+        if (db !== da) return db - da;
+        return (b.id || 0) - (a.id || 0);
+      });
+      return { file, items: sorted };
+    })
+    .sort((a, b) => b.items.length - a.items.length || a.file.localeCompare(b.file));
+
+  console.log(`Found ${dupes.length} duplicate filename group(s).`);
+  dupes.forEach(({ file, items }) => {
+    const summary = items
+      .map((item) => `${item.id || "?"}${item.date ? `@${item.date}` : ""}`)
+      .join(", ");
+    console.log(`${file} (${items.length}): ${summary}`);
+  });
 }
 
 function getWordpressConfig() {
@@ -1299,6 +1340,16 @@ async function main() {
               if (prefill.added > 0) {
                 await saveMapping(mappingPath, mapping);
               }
+            },
+          )
+          .command(
+            "dupes",
+            "List duplicate remote media by filename (most recent first).",
+            (yy) => yy,
+            async () => {
+              const config = getWordpressConfig();
+              const remoteMedia = await fetchRemoteMedia(config);
+              reportDuplicateMedia(remoteMedia);
             },
           )
           .demandCommand(1, "Please specify a media subcommand."),
