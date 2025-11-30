@@ -164,12 +164,18 @@ async function main() {
       const { result, action } = await upsertTeamMember(client, payload, {
         override: argv.override,
       });
-      const verb = action === "updated" ? "Updated" : "Created";
-      console.log(
-        `${verb} ${path.basename(filePath)} -> ${result.slug} (id ${result.id})`,
-      );
-      authors = updateAuthorsRecord(authors, payload, result);
-      authorsDirty = true;
+      if (action === "skipped") {
+        console.log(
+          `Skipped ${path.basename(filePath)}: team member already exists (slug ${result.slug || payload.slug}).`,
+        );
+      } else {
+        const verb = action === "updated" ? "Updated" : "Created";
+        console.log(
+          `${verb} ${path.basename(filePath)} -> ${result.slug} (id ${result.id})`,
+        );
+        authors = updateAuthorsRecord(authors, payload, result);
+        authorsDirty = true;
+      }
     } catch (error) {
       console.error(
         `Failed to upload ${path.basename(filePath)}: ${error.message}`,

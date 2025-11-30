@@ -218,24 +218,20 @@ export async function upsertTeamMember(client, payload, options = {}) {
 
   const existingBySlug = await findTeamMemberBySlug(client, payload.slug);
   if (existingBySlug) {
-    if (!override) {
-      throw new Error(
-        `Team member with slug "${payload.slug}" already exists (id ${existingBySlug.id}). Use --override to update.`,
-      );
+    if (override) {
+      const result = await team().id(existingBySlug.id).update(payloadWithDefaults);
+      return { result, action: "updated" };
     }
-    const result = await team().id(existingBySlug.id).update(payloadWithDefaults);
-    return { result, action: "updated" };
+    return { result: existingBySlug, action: "skipped" };
   }
 
   const existingByName = await findTeamMemberByName(client, payload.title);
   if (existingByName) {
-    if (!override) {
-      throw new Error(
-        `Team member named "${payload.title}" already exists (slug ${existingByName.slug || existingByName.id}). Use --override to update.`,
-      );
+    if (override) {
+      const result = await team().id(existingByName.id).update(payloadWithDefaults);
+      return { result, action: "updated" };
     }
-    const result = await team().id(existingByName.id).update(payloadWithDefaults);
-    return { result, action: "updated" };
+    return { result: existingByName, action: "skipped" };
   }
 
   const result = await team().create(payloadWithDefaults);

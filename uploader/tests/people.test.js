@@ -177,7 +177,7 @@ describe("upsertTeamMember", () => {
     expect(result.slug).toBe("new-person");
   });
 
-  it("blocks duplicate names unless override is true", async () => {
+  it("skips duplicate names unless override is true", async () => {
     const client = createMockTeamClient([
       { id: 2, slug: "alexia", title: "Alexia Netcu" },
     ]);
@@ -188,9 +188,9 @@ describe("upsertTeamMember", () => {
       status: "publish",
     };
 
-    await expect(
-      upsertTeamMember(client, payload, { override: false }),
-    ).rejects.toThrow(/already exists/);
+    const skipped = await upsertTeamMember(client, payload, { override: false });
+    expect(skipped.action).toBe("skipped");
+    expect(skipped.result.id).toBe(2);
 
     const { action, result } = await upsertTeamMember(client, payload, {
       override: true,
