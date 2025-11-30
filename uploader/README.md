@@ -30,26 +30,26 @@ Set up the simple Node script in this repo to convert Markdown and upload to Wor
 
     Date handling: include a `date` to set the publish time, or `created` if you only have that field; if both are missing the uploader assigns today's date during upload.
 
-4.  **Run the Uploader**: Execute the script from your terminal, passing one or more paths to your Markdown files or directories containing them.
+4.  **Run the Uploader**: Execute the script from your terminal with the `posts` command, passing one or more paths to your Markdown files or directories containing them.
 
     *   **Upload a single file**:
         ```sh
-        node upload.js path/to/my-post.md
+        node upload.js posts path/to/my-post.md
         ```
 
     *   **Upload multiple files**:
         ```sh
-        node upload.js file1.md file2.md
+        node upload.js posts file1.md file2.md
         ```
 
     *   **Upload all Markdown files in a directory (and its subdirectories)**:
         ```sh
-        node upload.js path/to/my/posts/
+        node upload.js posts path/to/my/posts/
         ```
 
     *   **Upload a combination of files and directories**:
         ```sh
-        node upload.js file1.md my-blog/
+        node upload.js posts file1.md my-blog/
         ```
 
     On success, the script will log the URL of each uploaded post.
@@ -83,20 +83,20 @@ Use `uploadMedia.js` to push local images to WordPress before wiring their URLs 
 
 ### Upload Team Members
 
-Use `uploadPerson.js` to create/update entries in the WordPress `team` post type from the markdown files in `next.lifeitself.org/people`.
+Use `upload.js` for team uploads too—pass a people command:
 
 1.  **List existing team entries**:
     ```sh
-    node uploadPerson.js --list
+    node upload.js people list
     ```
 2.  **Upload one or more people** (files or directories):
     ```sh
-    node uploadPerson.js next.lifeitself.org/people/alexia.md
-    node uploadPerson.js next.lifeitself.org/people/
+    node upload.js people create next.lifeitself.org/people/alexia.md
+    node upload.js people create next.lifeitself.org/people/
     ```
     *Slug is taken from `id`/`slug` in front matter, otherwise from the filename; name is required. Status defaults to `publish`.*
 3.  **Avoid duplicates**: by default the script exits if a team member with the same slug/name already exists. Pass `--override` (or `-o`) to update the existing entry instead of failing.
 
-`uploadPerson.js` also sets the avatar/featured image for a person when `avatar` is present in front matter by resolving it through `uploadMediaMap.json` (default location: current directory). Use `-m custom-map.json` to point to a different mapping file; the mapping file must exist.
+`people create` also sets the avatar/featured image for a person when `avatar` is present in front matter by resolving it through `uploadMediaMap.json` (default location: current directory). Use `-m custom-map.json` to point to a different mapping file; the mapping file must exist.
 
 If you provide an authors mapping (`-a path/to/authors.json` or the default `research/authors.json` when present) the script will skip entries already carrying a `wordpress_id` unless `--override` is set, and will update the mapping with any newly created/updated IDs.

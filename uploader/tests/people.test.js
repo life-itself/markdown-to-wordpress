@@ -4,8 +4,8 @@ import { readFileSync } from "node:fs";
 import {
   convertMarkdownToTeamMember,
   upsertTeamMember,
+  updateAuthorsRecord,
 } from "../src/people.js";
-import { updateAuthorsRecord } from "../uploadPerson.js";
 
 function createMockTeamClient(initialEntries = []) {
   const store = initialEntries.map((entry, index) => ({

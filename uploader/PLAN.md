@@ -243,14 +243,14 @@ Ok, that suggests we should make some change to our uploader code ... which is t
 
 ## ✅ Task 9a: Create people / team on the server based on local markdown files
 
-I want a new cli `uploadPerson.js` and corresponding library code that:
+I want a new cli command in `upload.js` for people and corresponding library code that:
 
 - [ ] given a markdown file like those inside of next.life.org/people
   - NB: you might want to investigate that to look at the standard structure of those files and document that
 - [ ] It creates an entry on the WordPress instance of the team kind of post type
   - or whatever type that is (? the author’s type) for that person.
   - You can research what the structure should look like by getting an existing author - you can find that information I think in `research/list-wordpress-team.js`.
-  - BONUS: also add a cli to `uploadPerson.js` to list existing team members on the server (maybe with `--list` option)
+  - BONUS: also add a cli command to list existing team members on the server (maybe with `people list` option)
 - [ ] I want to exit if there is an existing team member of the same name.
   - [ ] I want an --override flag that will update the existing entry if it exists
 - [ ] I can pass a single file or files or a directory. I think in the best case I even just want to pass it the people folder. In general, it should test whether there is an existing team member with that name.
@@ -296,7 +296,5 @@ To run:
 
 - [ ] Media upload (use media mapping if already exists)
   - [ ] Cache the result media mapping 
-- [x] Get authors mapping (should have already)
-  - [ ] TODO: how to get existing authors and map those again
-  - [ ] Update with local ones: `node uploadPerson.js --mapping ../sandbox/mediamap-staging.json --authors research/authors.json "next.lifeitself.org/people"`  
+- [x] Get authors mapping: `node upload.js people --mapping ../sandbox/mediamap-staging.json --authors authors.json "next.lifeitself.org/people"`  
 - [ ] Upload all blog posts using media mapping and authors mapping

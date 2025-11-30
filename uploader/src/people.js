@@ -238,4 +238,23 @@ export async function upsertTeamMember(client, payload, options = {}) {
   return { result, action: "created" };
 }
 
+export function updateAuthorsRecord(authorsMap, payload, wpEntry) {
+  if (!payload?.slug) return authorsMap;
+  const key = payload.slug;
+  const current =
+    authorsMap[key] && typeof authorsMap[key] === "object"
+      ? authorsMap[key]
+      : {};
+  const wordpressName = wpEntry?.title?.rendered || payload.title;
+  authorsMap[key] = {
+    ...current,
+    slug: current.slug || key,
+    name: current.name || payload.title,
+    wordpress_id: wpEntry?.id,
+    wordpress_name: wordpressName,
+    exists_local: true,
+  };
+  return authorsMap;
+}
+
 export { ensureTeamRoute };
