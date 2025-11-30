@@ -1,31 +1,37 @@
 Migrating markdown to wordpress for LifeItself.org
 
-## Analysis
+# PLAN (redone 2025-11-24)
 
-### Node vs Python
+Situation:
 
-**Let's go with NodeJS for now**
+- In an old version of Flowershow (self-hosted)
+- Options:
+    - Move to wordpress
+    - Move to Flowershow cloud
 
-Facts first:
+Complication
 
-* The WordPress REST API is language-agnostic; anything that can do HTTP+JSON works. ([WordPress Developer Resources][1])
-* The “first-class” client ecosystem is still strongest on the JavaScript side:
-  * Core ships with a JS client (Backbone-based wp-api) for REST. ([WordPress Developer Resources][2])
-  * There is a well-maintained Node client `node-wpapi`, and newer typed JS clients such as `wordpress-api-client`. ([wp-api.org][3])
-* Python also has decent wrappers (e.g. `wp-api-python`, `wp-api-client`, `wordpress-api-client`) built on `requests`. ([GitHub][4])
+- Not sure how to push markdown in lossless way to wordpress
+- If we stay in flowershow we may have problems making things easily editable (or at least w/o breaking things)
 
-Given your existing JS/Markdown tooling and the slightly richer JS ecosystem around WordPress, I would lean to:
+---
 
-* Default: Node.js (TypeScript if you like typing), with `node-wpapi` or a thin `fetch` wrapper. ([wp-api.org][3])
-* Use Python if you want tighter integration with other Python data tooling; the modern `wp-api-client` looks quite capable. ([wp-api-client.readthedocs.io][5])
+# Wordpress route
 
-Either way, the high-level spec is identical; only library details change.
+- [x] Create a staging site **✅2025-11-24 https://app-689360d2c1ac1829f80cac86.closte.com/**
+  - [ ] Research options **✅2025-11-24 it exists on closte https://closte.com/support/wordpress/staging-environment**
+  - [x] Setup the site
+  - [x] Check login credentials etc
+- [ ] Do a test upload ...
+- [ ] Start scripting this proper **🚧2025-11-30 see [uploader](uploader)**
 
-### Markdown in Wordpress
+# Flowershow route
 
-**Not possible. there is no way to upload markdown into a block in wordpress and have it rendered.*
+- [x] Push repo
+- [x] Create flowershow site and build **✅2025-11-24 https://my.flowershow.app/@rufuspollock/next.lifeitself.org**
+- [ ] Sort out home page (get it running) **✅2025-11-24 see [wp-to-markdown/PLAN.md](wp-to-markdown/PLAN.md) and https://my.flowershow.app/@rufuspollock/next.lifeitself.org**
 
-**=> we'll need to convert from markdown on the way in ...**
+🏆
 
-* Gutenberg does not natively “store” Markdown as Markdown; it converts typed Markdown syntax into blocks/HTML. ([WordPress.org][6])
-* Markdown blocks exist via plugins (Jetpack Markdown block, “Markdown Block”, etc.), but these still render to HTML/block markup internally; they are not a general “store raw .md and keep it forever” mechanism. ([Jetpack][7])
+- [ ] Sort out residencies
+- [ ] Sort out initiatives
