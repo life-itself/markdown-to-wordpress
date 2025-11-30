@@ -38,30 +38,17 @@ Set up the simple Node script in this repo to convert Markdown and upload to Wor
     # node upload.js all --people-dir team --blog-dir posts content-root/
     ```
 
-    Or run individual stages; for posts use the `posts` command with paths to Markdown files or directories.
+    Or run individual stages
 
-    *   **Upload a single file**:
-        ```sh
-        node upload.js posts path/to/my-post.md
-        ```
-
-    *   **Upload multiple files**:
-        ```sh
-        node upload.js posts file1.md file2.md
-        ```
-
-    *   **Upload all Markdown files in a directory (and its subdirectories)**:
-        ```sh
-        node upload.js posts path/to/my/posts/
-        ```
-
-    *   **Upload a combination of files and directories**:
-        ```sh
-        node upload.js posts file1.md my-blog/
-        ```
-
-    On success, the script will log the URL of each uploaded post.
-
+    ```sh
+    # Media upload (use media mapping if already exists)
+    node upload.js media --mapping mediamap.json
+    # Get authors mapping:
+    node upload.js people --mapping mediamap.json --authors authors.json next.lifeitself.org/people
+    # Upload all blog posts using media mapping and authors mapping
+    node upload.js posts --mapping mediamap.json --authors authors.json next.lifeitself.org/blog
+    ```
+    
 `upload.js` can also set the WordPress author using a local mapping file: pass `--authors path/to/authors.json` (defaults to `authors.json` in this directory). The mapping should map local author names to objects with a `wordpress_id`; any authors not found in the map are skipped with a warning.
 
 5.  **(Optional) Run Tests**:
