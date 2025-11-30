@@ -294,7 +294,6 @@ Qu
 
 To run:
 
-- [ ] Media upload (use media mapping if already exists)
-  - [ ] Cache the result media mapping 
+- [ ] Media upload (use media mapping if already exists) `node upload.js media --mapping mediamap.json`
 - [x] Get authors mapping: `node upload.js people --mapping ../sandbox/mediamap-staging.json --authors authors.json "next.lifeitself.org/people"`  
-- [ ] Upload all blog posts using media mapping and authors mapping
+- [ ] Upload all blog posts using media mapping and authors mapping `node upload.js posts --mapping mediamap.json --authors authors.json next.lifeitself.org/blog`

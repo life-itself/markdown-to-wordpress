@@ -100,3 +100,10 @@ Use `upload.js` for team uploads too—pass a people command:
 `people create` also sets the avatar/featured image for a person when `avatar` is present in front matter by resolving it through `uploadMediaMap.json` (default location: current directory). Use `-m custom-map.json` to point to a different mapping file; the mapping file must exist.
 
 If you provide an authors mapping (`-a path/to/authors.json` or the default `research/authors.json` when present) the script will skip entries already carrying a `wordpress_id` unless `--override` is set, and will update the mapping with any newly created/updated IDs.
+
+Extra helpers:
+```sh
+node upload.js people listlocal              # scan local markdown to build authors.json
+node upload.js people mergeremote            # merge remote WordPress IDs into authors.json
+node upload.js people build next.lifeitself.org/people/ -m uploadMediaMap.json
+```

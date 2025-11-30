@@ -84,78 +84,16 @@ Scan all markdown posts in `next.lifeitself.org` (excluding `people/`), extract 
 
 ### Acceptance
 
-- [ ] Traverses markdown posts under `next.lifeitself.org` except `people/`.
+- [ ] Traverse markdown posts under `next.lifeitself.org` except `people/`.
 - [ ] Extracts `author`/`authors` values, handles string or array, and de-dupes IDs.
 - [ ] Reads corresponding `people/<id>.md` (or equivalent) to obtain full names.
-- [ ] Outputs unique `id name` list as a simple json file `research/authors.json` where `id` is the key and value is an object with `fullname` key (which can be empty if not found)
+- [ ] Outputs a simple json file in file specified in `--authors` defaulting to `authors.json`
+  - [ ] key is `id` of author and value is an object with `name` key (which can be empty if not found)
+  - [ ] Also compute `posts_count` and `pages_count` for each author (posts being markdown posts in blog directory and pages everything else) and add these.
 
 ### Notes
 
 Added list-local-authors.js to scan next.lifeitself.org markdown (excluding people/), extract/de-dupe author/authors front matter, resolve names from matching people/<id>.md, and flag missing or name-less entries.
-
-Run with node list-local-authors.js. Current output: 40 unique IDs; missing people files include 
-
-- author-id-here
-- Eilidh Ross
-- Geoff Mulgan
-- Jamie Bristow
-- liamkavanagh
-- liu bauer
-- matt-osborn
-- Oren Slozberg
-- Rufus Pollock
-- Simon Grant
-- zaib-nisa.
-
-Here are the markdown files with author IDs not found in next.lifeitself.org/people, one per line with missing IDs after a space:
-
-next.lifeitself.org/blog/2020/02/20/contemplative-activism-event.md liamkavanagh
-next.lifeitself.org/blog/2023/06/11/placemaking_blog_research.md liu bauer
-next.lifeitself.org/blog/can-new-social-and-digital-technologies-transform-governance.md Geoff Mulgan
-next.lifeitself.org/blog/developmental-spaces-for-an-age-of-transition.md Oren Slozberg
-next.lifeitself.org/blog/ecosystem-mapping-of-contemplative-approaches-to-transformative-social-change.md Jamie Bristow
-next.lifeitself.org/blog/intentional-coming-together.md Simon Grant
-next.lifeitself.org/blog/second-renaissance-mapping-and-sensemaking.md matt-osborn
-next.lifeitself.org/blog/visualisation-ideas.md matt-osborn
-next.lifeitself.org/podcast/A-Macroeconomics-Perspective-on-Cryptocurrencies.md Rufus Pollock
-next.lifeitself.org/podcast/Are-Cryptocurrencies-Securities--The-Nature-of-Securities--Their-Relation-to-Crypto-Tokens-with-Stephen-Diehl.md Rufus Pollock
-next.lifeitself.org/podcast/Bitcoin-as-an-Anti-Authoritarian-Force.md Rufus Pollock
-next.lifeitself.org/podcast/Collective-Action-Problems--Climate-Change.md Rufus Pollock
-next.lifeitself.org/podcast/Cory-Doctorow-on-Blockchain--Crypto--Web3.md Rufus Pollock
-next.lifeitself.org/podcast/Crypto--Traders-and-Unfettered-Financial-Markets-with-Stephen-Diehl.md Rufus Pollock
-next.lifeitself.org/podcast/Embodying-Collective-Transformation-with-Karl-Steyaert.md Rufus Pollock
-next.lifeitself.org/podcast/Exploring-Social-Transformation-Series-Wrap-Up.md Rufus Pollock
-next.lifeitself.org/podcast/Fintech-Incrementalism-and-Responsible-Innovation.md Rufus Pollock
-next.lifeitself.org/podcast/Geoff-Mulgan-on-Reigniting-Social-and-Political-Imagination.md Rufus Pollock
-next.lifeitself.org/podcast/Hypha-DAO--Life-Itself-in-Conversation.md Rufus Pollock
-next.lifeitself.org/podcast/Jordan-Hall-on-the-Potential-of-DAOs.md Rufus Pollock
-next.lifeitself.org/podcast/KlimaDAO--Life-Itself-In-Conversation-Part-One.md Rufus Pollock
-next.lifeitself.org/podcast/Liam-Kavanagh-on-Introduction-to-Sustainable-Wellbeing.md Rufus Pollock
-next.lifeitself.org/podcast/Meet-the-MetaModerns-Emerging-Movement-with-Alternative-Approach-to-Social-Change-with-Rufus-Pollock.md Rufus Pollock
-next.lifeitself.org/podcast/On-Web3-and-Post-State-Technocracy-with-Stephen-Diehl--Rufus-Pollock.md Rufus Pollock
-next.lifeitself.org/podcast/Open-Collective--Steward-Ownership--Exit-to-Community-with-Pia-Mancini.md Rufus Pollock
-next.lifeitself.org/podcast/Post-FTX-collapse-reflections-on-crypto-with-Stephen-Diehl.md Rufus Pollock
-next.lifeitself.org/podcast/Richard-D--Bartlett--Stephen-Reid-on-Critical-Exploration-of-Web3.md Rufus Pollock
-next.lifeitself.org/podcast/Rufus-Pollock-and-Jeff-Emmett-on-Regenerative-Finance-and-Web3-for-Public-Goods.md Rufus Pollock
-next.lifeitself.org/podcast/Samer-Hassan--Rufus-Pollock-on-Decentralization--Platform-Monopolies-and-Web3.md Rufus Pollock
-next.lifeitself.org/podcast/Stephen-Diehl-on-Web3--Bitcoin--Neometalism.md Rufus Pollock
-next.lifeitself.org/podcast/Stephen-Reid--Rufus-Pollock-on-Worker-Cooperatives-and-DAOs.md Rufus Pollock
-next.lifeitself.org/podcast/a-scientific-approach-to-awakening-and-fundamental-wellbeing-part-2-jeffery-martin.md zaib-nisa
-next.lifeitself.org/podcast/a-scientific-approach-to-awakening-and-fundamental-wellbeing-part-3-jeffery-martin.md Rufus Pollock
-next.lifeitself.org/podcast/a-scientific-approach-to-awakening-and-fundamental-wellbeing-podcast.md Rufus Pollock
-next.lifeitself.org/podcast/brendan-graham-dempsey-nathen-fitchen-on-the-meaning-crisis-metamodern-spirituality.md Rufus Pollock
-next.lifeitself.org/podcast/collective-practice-and-the-life-itself-open-residency-with-valerie-duvauchelle.md Rufus Pollock
-next.lifeitself.org/podcast/esther-montmany-on-conscious-parenting-part-1.md Eilidh Ross
-next.lifeitself.org/podcast/esther-montmany-on-conscious-parenting-part-2.md Eilidh Ross
-next.lifeitself.org/podcast/esther-montmany-on-conscious-parenting-part-3.md Eilidh Ross
-next.lifeitself.org/podcast/exploring-social-transformation-life-itself-labs.md Rufus Pollock
-next.lifeitself.org/podcast/hannah-close-on-animism-kinship-and-the-social-change-ecosystem.md Rufus Pollock
-next.lifeitself.org/podcast/jeremy-lent-on-interconnection-shifting-worldviews.md Rufus Pollock
-next.lifeitself.org/podcast/joseph-henrich-and-the-emergence-of-culturology.md Eilidh Ross
-next.lifeitself.org/podcast/sen-zhan-and-liam-kavanagh.md Eilidh Ross
-next.lifeitself.org/podcast/sen-zhan-and-sylvie-barbier.md Eilidh Ross
-next.lifeitself.org/podcast/thomas-steininger-on-emergent-dialogue.md Eilidh Ross
-next.lifeitself.org/templates/blog.md author-id-here
 
 ## Task 4: get a list of all the authors and their names and ids from wordpress (so that we can use that when we set authors when doing uploading - see PLAN.md)
 
@@ -199,3 +137,17 @@ Files: research/list-wordpress-team.js, research/wordpress-team-authors.txt, res
 ## Task 5: Add WordPress IDs and Names to authors.json
 
 Ok, now go through research/authors.json and use the data in research/wordpress-team-authors.json to add `wordpress_id` and `wordpress_name` wherever you can. So if you have an exact or close match on id or name between value in authors.json and that in wordpress-team-authors you can add the worpress stuff based on info in wordpress-team-authors.json
+
+## ✅ Task 6: refactor to be called people.js
+
+rename uploadPerson.js to people.js and switch that first argument is a command and current action of uploading from markdown is called create
+
+## ✅ Task 7: refactor to multiple commands.
+
+OK, we want to make changes from where we are now ...
+
+We want to consolidate much of the above into the `upload.js` command.
+
+- [ ] We can to create a command on `people listlocal` that creates the authors.json as per task 3 above (note we already have `list-local-authors.js` that does quite a bit of this)
+- [ ] Then we want a command called `people mergeremote` which consolidates task 4 and task 5 above into a single command that updates the existing `authors.json` with `wordpress_id` and `wordpress_name` from remote. you can use existing work from `list-wordpress-team.js`
+- [ ] Create a `people` command like `node upload.js people build --mapping ../sandbox/mediamap-staging.json --authors authors.json "next.lifeitself.org/people` that builds the `authors.json` from scratch e.g. internally does in order `people listlocal`, then `people mergeremote` then `peoplecreate` (logging status as it goes at each step ...)
