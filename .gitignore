@@ -1,5 +1,4 @@
 .obsidian
 sandbox
-.env
-.env.test
+.env*
 uploader/next.lifeitself.org
