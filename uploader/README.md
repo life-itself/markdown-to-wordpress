@@ -97,4 +97,4 @@ Use `uploadPerson.js` to create/update entries in the WordPress `team` post type
 
 `uploadPerson.js` also sets the avatar/featured image for a person when `avatar` is present in front matter by resolving it through `uploadMediaMap.json` (default location: current directory). Use `-m custom-map.json` to point to a different mapping file; the mapping file must exist.
 
-After a successful upload, the script updates your authors mapping (default: `research/authors.json`, override with `-a path/to/authors.json`) with the WordPress ID and name so the person is no longer marked missing.
+If you provide an authors mapping (`-a path/to/authors.json` or the default `research/authors.json` when present) the script will skip entries already carrying a `wordpress_id` unless `--override` is set, and will update the mapping with any newly created/updated IDs.

@@ -51,14 +51,23 @@ async function loadJsonFile(requiredPath, label) {
   }
 }
 
+async function fileExists(candidate) {
+  try {
+    const stats = await stat(candidate);
+    return stats.isFile();
+  } catch {
+    return false;
+  }
+}
+
 async function getMarkdownFiles(paths) {
   const filePaths = new Set();
 
   for (const p of paths) {
     const stats = await stat(p);
     if (stats.isDirectory()) {
-      const files = await glob("**/*.md", { cwd: p, realpath: true });
-      files.forEach((file) => filePaths.add(file));
+      const files = await glob("**/*.md", { cwd: p, absolute: true });
+      files.forEach((file) => filePaths.add(path.resolve(file)));
     } else if (p.endsWith(".md")) {
       filePaths.add(path.resolve(p));
     }
@@ -105,9 +114,9 @@ async function main() {
     .option("authors", {
       alias: "a",
       type: "string",
-      default: DEFAULT_AUTHORS_PATH,
       describe:
-        "Path to authors mapping JSON to update with new WordPress IDs.",
+        "Optional path to authors mapping JSON to check for existing IDs and update with new WordPress IDs.",
+      default: undefined,
     })
     .epilogue(
       "Markdown expectations: front matter must include name; optional id/slug sets the slug (otherwise filename is used); status defaults to publish.\n\nUploads will create the WordPress `team` CPT entry; use --override to update when a matching slug/name exists. Avatar is resolved through the media map and set as featured image. Authors mapping is updated with the WordPress ID for the uploaded person.",
@@ -124,14 +133,27 @@ async function main() {
   }
 
   let mediaMap = {};
-  let authors = {};
-  let authorsPath;
+  let authors = null;
+  let authorsPath = null;
   if (!argv.list) {
     const mapping = await loadJsonFile(argv.mapping, "media mapping");
     mediaMap = mapping.data;
-    const authorsLoaded = await loadJsonFile(argv.authors, "authors mapping");
-    authors = authorsLoaded.data;
-    authorsPath = authorsLoaded.path;
+    if (argv.authors) {
+      const authorsLoaded = await loadJsonFile(argv.authors, "authors mapping");
+      authors = authorsLoaded.data;
+      authorsPath = authorsLoaded.path;
+    } else if (await fileExists(DEFAULT_AUTHORS_PATH)) {
+      try {
+        const authorsLoaded = await loadJsonFile(
+          DEFAULT_AUTHORS_PATH,
+          "authors mapping",
+        );
+        authors = authorsLoaded.data;
+        authorsPath = authorsLoaded.path;
+      } catch (error) {
+        console.warn(`Could not load default authors mapping: ${error.message}`);
+      }
+    }
   }
 
   const client = createWpClient({
@@ -161,6 +183,19 @@ async function main() {
         sourcePath: filePath,
         mediaMap,
       });
+
+      if (
+        authors &&
+        !argv.override &&
+        authors[payload.slug] &&
+        authors[payload.slug].wordpress_id
+      ) {
+        console.log(
+          `Skipped ${path.basename(filePath)}: authors mapping has wordpress_id ${authors[payload.slug].wordpress_id}.`,
+        );
+        continue;
+      }
+
       const { result, action } = await upsertTeamMember(client, payload, {
         override: argv.override,
       });
@@ -173,8 +208,10 @@ async function main() {
         console.log(
           `${verb} ${path.basename(filePath)} -> ${result.slug} (id ${result.id})`,
         );
-        authors = updateAuthorsRecord(authors, payload, result);
-        authorsDirty = true;
+        if (authors) {
+          authors = updateAuthorsRecord(authors, payload, result);
+          authorsDirty = true;
+        }
       }
     } catch (error) {
       console.error(
