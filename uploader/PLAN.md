@@ -294,6 +294,9 @@ Qu
 
 To run:
 
-- [ ] Media upload (use media mapping if already exists) `node upload.js media --mapping mediamap.json`
+- [x] Media upload (use media mapping if already exists) `node upload.js media --mapping mediamap.json`
 - [x] Get authors mapping: `node upload.js people --mapping ../sandbox/mediamap-staging.json --authors authors.json "next.lifeitself.org/people"`  
-- [ ] Upload all blog posts using media mapping and authors mapping `node upload.js posts --mapping mediamap.json --authors authors.json next.lifeitself.org/blog`
+- [x] Upload all blog posts using media mapping and authors mapping `node upload.js posts --mapping mediamap.json --authors authors.json next.lifeitself.org/blog`
+- [ ] Do it all command: `node upload.js all --mapping mediamap.json --authors authors.json markdown-directory`
+  - [ ] assume that people are in `markdown-directory/people` and blog posts are in `markdown-directory/blog`
+  - [ ] allow these to be configured with `--people-dir` and `--blog-dir`

@@ -768,6 +768,38 @@ async function handlePeopleBuild(argv) {
   });
 }
 
+async function handleAll(argv) {
+  const contentRoot = path.resolve(argv.contentRoot);
+  const peoplePath = path.resolve(contentRoot, argv.peopleDir);
+  const blogPath = path.resolve(contentRoot, argv.blogDir);
+  const mappingPath = argv.mapping ? path.resolve(argv.mapping) : defaultMappingPath();
+  const authorsPath = path.resolve(argv.authors);
+
+  console.log("=== All-in-one: media upload ===");
+  await handleMediaUpload({
+    paths: [contentRoot],
+    mapping: mappingPath,
+    concurrency: argv.concurrency || DEFAULT_MEDIA_CONCURRENCY,
+  });
+
+  console.log("=== All-in-one: people build/create ===");
+  await handlePeopleBuild({
+    paths: [peoplePath],
+    override: argv.override,
+    mapping: mappingPath,
+    authors: authorsPath,
+    content: contentRoot,
+  });
+
+  console.log("=== All-in-one: upload posts ===");
+  await handleUploadPosts({
+    paths: [blogPath],
+    mapping: mappingPath,
+    authors: authorsPath,
+    "absolute-media-urls": argv["absolute-media-urls"],
+  });
+}
+
 async function handleMediaUpload(argv) {
   const config = getWordpressConfig();
   const mappingPath = path.resolve(argv.mapping);
@@ -1067,6 +1099,56 @@ async function main() {
             describe: "How many uploads to run in parallel.",
           }),
       (argv) => handleMediaUpload(argv),
+    )
+    .command(
+      "all <contentRoot>",
+      "Run people build/create then upload posts. Expects people and blog subfolders by default.",
+      (y) =>
+        y
+          .positional("contentRoot", {
+            describe: "Root directory containing content (default subfolders: people/, blog/).",
+            type: "string",
+          })
+          .option("people-dir", {
+            type: "string",
+            default: "people",
+            describe: "Relative path under contentRoot for people markdown.",
+          })
+          .option("blog-dir", {
+            type: "string",
+            default: "blog",
+            describe: "Relative path under contentRoot for blog markdown.",
+          })
+          .option("mapping", {
+            alias: "m",
+            type: "string",
+            default: () => defaultMappingPath(),
+            describe: "Path to mediamap.json.",
+          })
+          .option("authors", {
+            alias: "a",
+            type: "string",
+            default: DEFAULT_AUTHORS_PATH,
+            describe: "Path to authors.json to build/merge/use.",
+          })
+          .option("override", {
+            alias: "o",
+            type: "boolean",
+            default: false,
+            describe: "Update existing people entries if they exist.",
+          })
+          .option("concurrency", {
+            alias: "c",
+            type: "number",
+            default: DEFAULT_MEDIA_CONCURRENCY,
+            describe: "Media upload concurrency for the initial stage.",
+          })
+          .option("absolute-media-urls", {
+            type: "boolean",
+            default: false,
+            describe: "Use absolute media URLs for post uploads.",
+          }),
+      (argv) => handleAll(argv),
     )
     .demandCommand(1, "Please specify a command.")
     .help()

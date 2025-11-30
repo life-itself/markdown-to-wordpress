@@ -30,7 +30,15 @@ Set up the simple Node script in this repo to convert Markdown and upload to Wor
 
     Date handling: include a `date` to set the publish time, or `created` if you only have that field; if both are missing the uploader assigns today's date during upload.
 
-4.  **Run the Uploader**: Execute the script from your terminal with the `posts` command, passing one or more paths to your Markdown files or directories containing them.
+4.  **Run the Uploader**: The simplest end-to-end is the `all` command, which uploads media, builds/merges authors, creates people, then uploads posts:
+
+    ```sh
+    node upload.js all --mapping mediamap.json --authors authors.json next.lifeitself.org
+    # customize directories if needed:
+    # node upload.js all --people-dir team --blog-dir posts content-root/
+    ```
+
+    Or run individual stages; for posts use the `posts` command with paths to Markdown files or directories.
 
     *   **Upload a single file**:
         ```sh
