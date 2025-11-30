@@ -1205,28 +1205,72 @@ async function main() {
       (argv) => argv,
     )
     .command(
-      "media <paths...>",
-      "Sync/Upload media and update mediamap.json (prefills from remote by filename).",
+      "media <subcommand>",
+      "Media commands (push uploads, pull mapping sync).",
       (y) =>
         y
-          .positional("paths", {
-            describe: "Media file(s) or directories to upload.",
-            type: "string",
-            array: true,
-          })
-          .option("mapping", {
-            alias: "m",
-            type: "string",
-            default: () => defaultMappingPath(),
-            describe: "Path to mediamap.json.",
-          })
-          .option("concurrency", {
-            alias: "c",
-            type: "number",
-            default: DEFAULT_MEDIA_CONCURRENCY,
-            describe: "How many uploads to run in parallel.",
-          }),
-      (argv) => handleMediaUpload(argv),
+          .command(
+            "push <paths...>",
+            "Upload media and update mediamap.json (prefills from remote by filename).",
+            (yy) =>
+              yy
+                .positional("paths", {
+                  describe: "Media file(s) or directories to upload.",
+                  type: "string",
+                  array: true,
+                })
+                .option("mapping", {
+                  alias: "m",
+                  type: "string",
+                  default: () => defaultMappingPath(),
+                  describe: "Path to mediamap.json.",
+                })
+                .option("concurrency", {
+                  alias: "c",
+                  type: "number",
+                  default: DEFAULT_MEDIA_CONCURRENCY,
+                  describe: "How many uploads to run in parallel.",
+                }),
+            (argv) => handleMediaUpload(argv),
+          )
+          .command(
+            "pull <paths...>",
+            "Prefill mediamap.json by matching local media against remote WordPress media (no uploads).",
+            (yy) =>
+              yy
+                .positional("paths", {
+                  describe: "Media file(s) or directories to scan locally.",
+                  type: "string",
+                  array: true,
+                })
+                .option("mapping", {
+                  alias: "m",
+                  type: "string",
+                  default: () => defaultMappingPath(),
+                  describe: "Path to mediamap.json to update.",
+                }),
+            async (argv) => {
+              const config = getWordpressConfig();
+              const mappingPath = path.resolve(argv.mapping);
+              const mediaFiles = await collectMediaFiles(argv.paths);
+              const mapping = await loadMapping(mappingPath);
+              const hashCache = new Map();
+              const prefill = await prefillMediaMapping(
+                config,
+                mapping,
+                mediaFiles,
+                hashCache,
+              );
+              console.log(
+                `Media pull: fetched ${prefill.remoteCount} remote media items; matched ${prefill.matched} local files; added ${prefill.added} new mapping entries.`,
+              );
+              if (prefill.added > 0) {
+                await saveMapping(mappingPath, mapping);
+              }
+            },
+          )
+          .demandCommand(1, "Please specify a media subcommand."),
+      (argv) => argv,
     )
     .command(
       "all <contentRoot>",
