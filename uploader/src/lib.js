@@ -46,6 +46,30 @@ export function normalizeTags(raw) {
   return undefined;
 }
 
+export function normalizeAuthors(raw) {
+  if (raw === undefined || raw === null) return undefined;
+  const values = [];
+  const add = (entry) => {
+    if (entry === undefined || entry === null) return;
+    if (Array.isArray(entry)) {
+      entry.forEach(add);
+      return;
+    }
+    const text =
+      typeof entry === "string" || typeof entry === "number"
+        ? String(entry)
+        : "";
+    text
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .forEach((part) => values.push(part));
+  };
+  add(raw);
+  const unique = Array.from(new Set(values));
+  return unique.length > 0 ? unique : undefined;
+}
+
 function isRemoteUrl(value) {
   return /^https?:\/\//i.test(value) || value.startsWith("//");
 }
@@ -247,6 +271,8 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
   if (frontmatter.excerpt) payload.excerpt = frontmatter.excerpt;
   const tags = normalizeTags(frontmatter.tags);
   if (tags) payload.tags = tags;
+  const authors = normalizeAuthors([frontmatter.author, frontmatter.authors]);
+  if (authors) payload.authors = authors;
   if (featuredRef.value?.id) payload.featured_media = featuredRef.value.id;
 
   return {

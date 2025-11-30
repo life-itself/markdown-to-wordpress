@@ -3,18 +3,10 @@
     "name": "Alexia Netcu",
     "posts_count": 2,
     "pages_count": 0,
-    "exists_local": true
-  },
-  "artearthtech": {
-    "name": "artearthtech",
-    "posts_count": 28,
-    "pages_count": 4,
-    "exists_local": true
-  },
-  "author-id-here": {
-    "name": null,
-    "posts_count": 0,
-    "pages_count": 1
+    "exists_local": true,
+    "slug": "alexia",
+    "wordpress_id": 2064,
+    "wordpress_name": "Alexia Netcu"
   },
   "boaz-feldman": {
     "name": "Boaz B. Feldman",
@@ -87,12 +79,6 @@
     "name": "Julie Dayot",
     "posts_count": 1,
     "pages_count": 0,
-    "exists_local": true
-  },
-  "khalil-ali": {
-    "name": "Khalil Ali",
-    "posts_count": 0,
-    "pages_count": 2,
     "exists_local": true
   },
   "lauren-wigmore": {

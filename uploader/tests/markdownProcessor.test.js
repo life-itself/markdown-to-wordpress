@@ -133,6 +133,24 @@ Body`;
 
     expect(payload.date).toBeUndefined();
   });
+
+  it("collects authors from author/authors front matter", async () => {
+    const markdown = `---
+title: Authors Test
+author: primary-author
+authors:
+  - co-author
+  - primary-author
+---
+
+Body`;
+
+    const { payload } = await convertMarkdownToPost(markdown, {
+      sourcePath: path.join(fixturesDir, "authors-test.md"),
+    });
+
+    expect(payload.authors).toEqual(["primary-author", "co-author"]);
+  });
 });
 
 describe("normalizeTags", () => {
