@@ -1,8 +1,0 @@
-124	Boaz B. Feldman	boaz-b-feldman	Deliberately Developmental Space Researcher	team
-128	Catherine Tran	catherine-tran	Generalist / Researcher	team
-132	Lauren Wigmore	lauren-wigmore	Communications	team
-826	Liam Kavanagh	liam-kavanagh	Researcher and Co-founder	team
-136	Nathen Fitchen	nathen-fitchen	Communications	team
-103	Rufus Pollock	rufus-pollock	Technologist and Co-founder	team
-107	Sylvie Barbier	sylvie-barbier	Artist and Co-founder	team
-829	Valerie Duvauchelle	valerie-duvauchelle	Conscious Food Designer	team
