@@ -300,3 +300,11 @@ To run:
 - [ ] Do it all command: `node upload.js all --mapping mediamap.json --authors authors.json markdown-directory`
   - [ ] assume that people are in `markdown-directory/people` and blog posts are in `markdown-directory/blog`
   - [ ] allow these to be configured with `--people-dir` and `--blog-dir`
+
+## Task 11: media deduplication on the server
+
+Create a command called `media dupes` that returns a list of media that is duplicated on the server.
+
+e.g. get a list of all media on the WordPress server and order by reverse insertion time (most recently created first). Then identify all duplicate file names—i.e., media items that have the same file name—and report them by file name with the count of duplicates.
+
+Then create another function called media dedupes that gets that list again and removes all of duplicates (so keeping one file of the same file name -- it should be the oldest one that is kept).

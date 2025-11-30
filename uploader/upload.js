@@ -404,6 +404,7 @@ async function fetchRemoteMedia(config) {
         date: item.date_gmt || item.date || null,
         url: item.source_url || item.link || item.guid?.rendered || null,
         file: path.basename(item.source_url || item.guid?.rendered || ""),
+        title: (item.title?.rendered || "").trim(),
       })),
     );
 
@@ -419,8 +420,9 @@ async function fetchRemoteMedia(config) {
 function reportDuplicateMedia(remoteMedia) {
   const byFile = new Map();
   remoteMedia.forEach((item) => {
-    if (!item.file) return;
-    const key = item.file.toLowerCase();
+    const keySource = item.title || item.file;
+    if (!keySource) return;
+    const key = keySource.toLowerCase();
     if (!byFile.has(key)) byFile.set(key, []);
     byFile.get(key).push(item);
   });
@@ -436,15 +438,51 @@ function reportDuplicateMedia(remoteMedia) {
       });
       return { file, items: sorted };
     })
-    .sort((a, b) => b.items.length - a.items.length || a.file.localeCompare(b.file));
+    .sort(
+      (a, b) => b.items.length - a.items.length || a.file.localeCompare(b.file),
+    );
 
   console.log(`Found ${dupes.length} duplicate filename group(s).`);
   dupes.forEach(({ file, items }) => {
     const summary = items
-      .map((item) => `${item.id || "?"}${item.date ? `@${item.date}` : ""}`)
+      .map(
+        (item) =>
+          `${item.id || "?"}${item.date ? `@${item.date}` : ""}${item.title ? `:${item.title}` : ""}`,
+      )
       .join(", ");
     console.log(`${file} (${items.length}): ${summary}`);
   });
+}
+
+function computeDuplicateGroups(remoteMedia) {
+  const byFile = new Map();
+  remoteMedia.forEach((item) => {
+    const keySource = item.title || item.file;
+    if (!keySource) return;
+    const key = keySource.toLowerCase();
+    if (!byFile.has(key)) byFile.set(key, []);
+    byFile.get(key).push(item);
+  });
+  return Array.from(byFile.entries()).filter(([, items]) => items.length > 1);
+}
+
+async function deleteRemoteMedia(config, id) {
+  const response = await fetch(
+    `${config.baseUrl}/wp-json/wp/v2/media/${id}?force=true`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${config.authHeader}`,
+      },
+    },
+  );
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      `Failed to delete media ${id} (status ${response.status}): ${text}`,
+    );
+  }
+  return response.json();
 }
 
 function getWordpressConfig() {
@@ -1344,12 +1382,48 @@ async function main() {
           )
           .command(
             "dupes",
-            "List duplicate remote media by filename (most recent first).",
+            "List duplicate remote media by title (most recent first).",
             (yy) => yy,
             async () => {
               const config = getWordpressConfig();
               const remoteMedia = await fetchRemoteMedia(config);
               reportDuplicateMedia(remoteMedia);
+            },
+          )
+          .command(
+            "dedupes",
+            "Delete duplicate remote media by title (keeps oldest per title).",
+            (yy) => yy,
+            async (argv) => {
+              const config = getWordpressConfig();
+              const remoteMedia = await fetchRemoteMedia(config);
+
+              const groups = computeDuplicateGroups(remoteMedia);
+              let deleted = 0;
+              for (const [, items] of groups) {
+                const sorted = [...items].sort((a, b) => {
+                  const da = a.date ? Date.parse(a.date) : 0;
+                  const db = b.date ? Date.parse(b.date) : 0;
+                  if (da !== db) return da - db; // oldest first to keep
+                  return (a.id || 0) - (b.id || 0);
+                });
+                const keep = sorted[0];
+                const toDelete = sorted.slice(1);
+                for (const item of toDelete) {
+                  try {
+                    await deleteRemoteMedia(config, item.id);
+                    console.log(`Deleted media ${item.id} (${item.file})`);
+                    deleted += 1;
+                  } catch (error) {
+                    console.warn(
+                      `Failed to delete media ${item.id} (${item.file}): ${error.message}`,
+                    );
+                  }
+                }
+              }
+              console.log(
+                `Media dedupes: inspected ${groups.length} duplicate groups; deleted ${deleted} remote items.`,
+              );
             },
           )
           .demandCommand(1, "Please specify a media subcommand."),
