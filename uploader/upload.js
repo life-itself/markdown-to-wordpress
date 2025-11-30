@@ -297,6 +297,83 @@ function logWithSpinnerPause(state, message) {
   renderSpinner(state);
 }
 
+async function prefillMediaMapping(config, mapping, mediaFiles, hashCache) {
+  let remoteMedia = [];
+  try {
+    remoteMedia = await fetchRemoteMedia(config);
+  } catch (error) {
+    console.warn(`Could not fetch remote media list: ${error.message}`);
+  }
+
+  const remoteByFile = new Map(
+    remoteMedia
+      .filter((item) => item.file)
+      .map((item) => [item.file.toLowerCase(), item]),
+  );
+
+  let matched = 0;
+  let added = 0;
+  for (const filePath of mediaFiles) {
+    const fileName = path.basename(filePath);
+    const remote = remoteByFile.get(fileName.toLowerCase());
+    if (!remote) continue;
+    matched += 1;
+    if (!mapping[fileName] || !mapping[fileName].url) {
+      const { hash } = await readFileBufferAndHash(filePath);
+      hashCache.set(path.resolve(filePath), hash);
+      mapping[fileName] = {
+        hash,
+        url: remote.url,
+        id: remote.id,
+        fileName,
+        originalPath: path.resolve(filePath),
+        uploadedAt: new Date().toISOString(),
+        source: "prefill",
+      };
+      added += 1;
+    }
+  }
+
+  return {
+    remoteCount: remoteMedia.length,
+    matched,
+    added,
+  };
+}
+
+async function fetchRemoteMedia(config) {
+  const results = [];
+  let page = 1;
+  while (true) {
+    const response = await fetch(
+      `${config.baseUrl}/wp-json/wp/v2/media?per_page=100&page=${page}&context=edit`,
+      {
+        headers: {
+          Authorization: `Basic ${config.authHeader}`,
+        },
+      },
+    );
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch remote media (status ${response.status}): ${text}`,
+      );
+    }
+    const batch = JSON.parse(text);
+    if (!Array.isArray(batch) || batch.length === 0) break;
+    results.push(
+      ...batch.map((item) => ({
+        id: item.id,
+        url: item.source_url || item.link || item.guid?.rendered || null,
+        file: path.basename(item.source_url || item.guid?.rendered || ""),
+      })),
+    );
+    if (batch.length < 100) break;
+    page += 1;
+  }
+  return results;
+}
+
 function getWordpressConfig() {
   const baseUrl = sanitizeBaseUrl(process.env.WP_BASE_URL);
   const username = process.env.WP_USERNAME;
@@ -795,6 +872,23 @@ async function handleMediaUpload(argv) {
   const saveMappingSafely = createSerializedSaver(mappingPath, mapping);
   const errorLogPath = `${mappingPath}.errors.txt`;
   const logErrorLine = createErrorLogger(errorLogPath);
+  const hashCache = new Map();
+
+  // Prefill mapping from remote media by filename
+  const prefill = await prefillMediaMapping(
+    config,
+    mapping,
+    mediaFiles,
+    hashCache,
+  );
+  if (prefill.remoteCount > 0) {
+    console.log(
+      `Prefill: fetched ${prefill.remoteCount} remote media items; matched ${prefill.matched} local files; added ${prefill.added} new mapping entries.`,
+    );
+    if (prefill.added > 0) {
+      await saveMappingSafely();
+    }
+  }
   const active = new Set();
   const state = {
     total: mediaFiles.length,
@@ -821,7 +915,13 @@ async function handleMediaUpload(argv) {
     let buffer;
     let hash;
     try {
-      ({ buffer, hash } = await readFileBufferAndHash(absPath));
+      if (hashCache.has(absPath)) {
+        hash = hashCache.get(absPath);
+        buffer = await readFile(absPath);
+      } else {
+        ({ buffer, hash } = await readFileBufferAndHash(absPath));
+        hashCache.set(absPath, hash);
+      }
     } catch (error) {
       state.failed += 1;
       const msg = error?.message || "Unknown error";
@@ -951,6 +1051,42 @@ async function main() {
       (argv) => handleUploadPosts(argv),
     )
     .command(
+      "mediasync <paths...>",
+      "Prefill mediamap.json by matching local media files against remote WordPress media (no uploads).",
+      (y) =>
+        y
+          .positional("paths", {
+            describe: "Media file(s) or directories to scan locally.",
+            type: "string",
+            array: true,
+          })
+          .option("mapping", {
+            alias: "m",
+            type: "string",
+            default: () => defaultMappingPath(),
+            describe: "Path to mediamap.json to update.",
+          }),
+      async (argv) => {
+        const config = getWordpressConfig();
+        const mappingPath = path.resolve(argv.mapping);
+        const mediaFiles = await collectMediaFiles(argv.paths);
+        const mapping = await loadMapping(mappingPath);
+        const hashCache = new Map();
+        const prefill = await prefillMediaMapping(
+          config,
+          mapping,
+          mediaFiles,
+          hashCache,
+        );
+        console.log(
+          `Mediasync: fetched ${prefill.remoteCount} remote media items; matched ${prefill.matched} local files; added ${prefill.added} new mapping entries.`,
+        );
+        if (prefill.added > 0) {
+          await saveMapping(mappingPath, mapping);
+        }
+      },
+    )
+    .command(
       "people <subcommand>",
       "People-related commands (list, create, listlocal, mergeremote, build).",
       (y) =>
@@ -1070,7 +1206,7 @@ async function main() {
     )
     .command(
       "media <paths...>",
-      "Upload media files and update mediamap.json.",
+      "Sync/Upload media and update mediamap.json (prefills from remote by filename).",
       (y) =>
         y
           .positional("paths", {
