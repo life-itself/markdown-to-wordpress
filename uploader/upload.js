@@ -74,7 +74,6 @@ let spinnerTimer = null;
 let spinnerIndex = 0;
 let lastRenderLength = 0;
 let lastLine2Length = 0;
-let lastLine3Length = 0;
 
 async function fileExists(candidate) {
   try {
@@ -255,15 +254,13 @@ async function readFileBufferAndHash(filePath) {
 
 function clearSpinnerLines() {
   if (!IS_TTY) return;
-  const maxLen = Math.max(lastRenderLength, lastLine2Length, lastLine3Length);
+  const maxLen = Math.max(lastRenderLength, lastLine2Length);
   const blank = " ".repeat(maxLen || 0);
   process.stdout.write(`\r${blank}\r`);
   process.stdout.write(`\n${blank}\r`);
-  process.stdout.write(`\n${blank}\r`);
-  process.stdout.write("\x1b[3A");
+  process.stdout.write("\x1b[2A");
   lastRenderLength = 0;
   lastLine2Length = 0;
-  lastLine3Length = 0;
 }
 
 function renderSpinner(state) {
@@ -279,23 +276,18 @@ function renderSpinner(state) {
 
   const line1 = `${frame} uploading ${state.processed}/${state.total} (${percent}%) | uploaded:${state.uploaded} skipped:${state.skipped} failed:${state.failed}`;
   const line2 = `current: ${activeList}`;
-  const line3 = `last: ${state.last || "-"}`;
 
   const pad1 =
     lastRenderLength > line1.length ? lastRenderLength - line1.length : 0;
   const pad2 =
     lastLine2Length > line2.length ? lastLine2Length - line2.length : 0;
-  const pad3 =
-    lastLine3Length > line3.length ? lastLine3Length - line3.length : 0;
 
   process.stdout.write(`\r${line1}${" ".repeat(pad1)}\n`);
-  process.stdout.write(`${line2}${" ".repeat(pad2)}\n`);
-  process.stdout.write(`${line3}${" ".repeat(pad3)}`);
-  process.stdout.write("\x1b[3A");
+  process.stdout.write(`${line2}${" ".repeat(pad2)}`);
+  process.stdout.write("\x1b[2A");
 
   lastRenderLength = line1.length;
   lastLine2Length = line2.length;
-  lastLine3Length = line3.length;
 }
 
 function startSpinner(state) {
@@ -307,18 +299,14 @@ function stopSpinner(state) {
   if (!IS_TTY) return;
   if (spinnerTimer) clearInterval(spinnerTimer);
   renderSpinner(state);
-  process.stdout.write("\n\n\n");
+  process.stdout.write("\n\n");
   spinnerTimer = null;
   lastRenderLength = 0;
   lastLine2Length = 0;
-  lastLine3Length = 0;
 }
 
 function logWithSpinnerPause(state, message) {
-  if (!IS_TTY) {
-    console.log(message);
-    return;
-  }
+  if (!IS_TTY) return;
   clearSpinnerLines();
   console.log(message);
   renderSpinner(state);
@@ -452,10 +440,7 @@ async function handlePeopleList() {
     const title = entry?.title?.rendered || entry?.name || "";
     const slug = entry.slug || entry.post_name || "";
     const jobTitle =
-      entry.job_title ||
-      entry.meta?.job_title ||
-      entry.pods?.job_title ||
-      "";
+      entry.job_title || entry.meta?.job_title || entry.pods?.job_title || "";
     console.log(
       [entry.id, title.trim(), slug, jobTitle].filter(Boolean).join(" | "),
     );
@@ -548,7 +533,11 @@ async function handlePeopleCreate(argv) {
   }
 
   if (authorsDirty && authorsPath) {
-    await writeFile(authorsPath, `${JSON.stringify(authors, null, 2)}\n`, "utf8");
+    await writeFile(
+      authorsPath,
+      `${JSON.stringify(authors, null, 2)}\n`,
+      "utf8",
+    );
     console.log(`Updated authors mapping at ${authorsPath}.`);
   }
 }
@@ -644,7 +633,10 @@ async function fetchWordpressTeamEntries() {
   const apiBase = `${sanitizeBaseUrl(baseUrl)}/wp-json/wp/v2`;
   const authHeader = `Basic ${Buffer.from(`${username}:${appPassword}`).toString("base64")}`;
 
-  const types = await fetchJsonWithAuth(`${apiBase}/types?context=edit`, authHeader);
+  const types = await fetchJsonWithAuth(
+    `${apiBase}/types?context=edit`,
+    authHeader,
+  );
   const ignored = new Set([
     "posts",
     "pages",
@@ -662,7 +654,8 @@ async function fetchWordpressTeamEntries() {
   const candidates = Object.values(types).filter((type) => {
     if (!type.rest_base) return false;
     if (ignored.has(type.rest_base)) return false;
-    const marker = `${type.slug || ""} ${type.rest_base || ""} ${type.name || ""}`.toLowerCase();
+    const marker =
+      `${type.slug || ""} ${type.rest_base || ""} ${type.name || ""}`.toLowerCase();
     return (
       marker.includes("team") ||
       marker.includes("people") ||
@@ -772,7 +765,9 @@ async function handleAll(argv) {
   const contentRoot = path.resolve(argv.contentRoot);
   const peoplePath = path.resolve(contentRoot, argv.peopleDir);
   const blogPath = path.resolve(contentRoot, argv.blogDir);
-  const mappingPath = argv.mapping ? path.resolve(argv.mapping) : defaultMappingPath();
+  const mappingPath = argv.mapping
+    ? path.resolve(argv.mapping)
+    : defaultMappingPath();
   const authorsPath = path.resolve(argv.authors);
 
   console.log("=== All-in-one: media upload ===");
@@ -844,8 +839,8 @@ async function handleMediaUpload(argv) {
       ({ buffer, hash } = await readFileBufferAndHash(absPath));
     } catch (error) {
       state.failed += 1;
-      logWithSpinnerPause(state, `[fail] ${absPath}: ${error.message}`);
-      await logErrorLine(`${absPath} 0`);
+      const msg = error?.message || "Unknown error";
+      await logErrorLine(`${absPath}\t${msg}`);
       active.delete(activeLabel);
       state.processed += 1;
       return;
@@ -888,11 +883,9 @@ async function handleMediaUpload(argv) {
       state.last = `[upload] ${path.basename(absPath)}`;
     } catch (error) {
       state.failed += 1;
-      logWithSpinnerPause(state, `[fail] ${absPath}: ${error.message}`);
+      const msg = error?.message || "Unknown error";
       state.last = `[fail] ${path.basename(absPath)}`;
-      const statusCode =
-        typeof error.status === "number" ? error.status : "0";
-      await logErrorLine(`${absPath} ${statusCode}`);
+      await logErrorLine(`${absPath}\t${msg}`);
     } finally {
       active.delete(activeLabel);
       state.processed += 1;
@@ -954,7 +947,7 @@ async function main() {
             alias: "m",
             type: "string",
             describe:
-              "Path to uploadMediaMap.json for rewriting image links (optional).",
+              "Path to mediamap.json for rewriting image links (optional).",
             default: () => defaultMappingPath(),
           })
           .option("authors", {
@@ -989,7 +982,8 @@ async function main() {
             (yy) =>
               yy
                 .positional("paths", {
-                  describe: "Markdown file(s) or directories of people content.",
+                  describe:
+                    "Markdown file(s) or directories of people content.",
                   type: "string",
                   array: true,
                 })
@@ -997,7 +991,8 @@ async function main() {
                   alias: "o",
                   type: "boolean",
                   default: false,
-                  describe: "Update an existing team entry if it already exists.",
+                  describe:
+                    "Update an existing team entry if it already exists.",
                 })
                 .option("mapping", {
                   alias: "m",
@@ -1052,7 +1047,8 @@ async function main() {
             (yy) =>
               yy
                 .positional("paths", {
-                  describe: "Markdown file(s) or directories of people content.",
+                  describe:
+                    "Markdown file(s) or directories of people content.",
                   type: "string",
                   array: true,
                 })
@@ -1079,7 +1075,8 @@ async function main() {
                   alias: "o",
                   type: "boolean",
                   default: false,
-                  describe: "Update an existing team entry if it already exists.",
+                  describe:
+                    "Update an existing team entry if it already exists.",
                 }),
             (argv) => handlePeopleBuild(argv),
           )
@@ -1088,7 +1085,7 @@ async function main() {
     )
     .command(
       "media <paths...>",
-      "Upload media files and update uploadMediaMap.json.",
+      "Upload media files and update mediamap.json.",
       (y) =>
         y
           .positional("paths", {
@@ -1100,7 +1097,7 @@ async function main() {
             alias: "m",
             type: "string",
             default: () => defaultMappingPath(),
-            describe: "Path to uploadMediaMap.json.",
+            describe: "Path to mediamap.json.",
           })
           .option("concurrency", {
             alias: "c",
@@ -1116,7 +1113,8 @@ async function main() {
       (y) =>
         y
           .positional("contentRoot", {
-            describe: "Root directory containing content (default subfolders: people/, blog/).",
+            describe:
+              "Root directory containing content (default subfolders: people/, blog/).",
             type: "string",
           })
           .option("people-dir", {
