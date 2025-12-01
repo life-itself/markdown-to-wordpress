@@ -14,17 +14,17 @@ Given a Markdown file(s) or directories of files successfully create or update p
   - [x] Correct title
   - [x] content
     - [x] Put rendered HTML (Markdown → HTML) into the WordPress `content` field.
-      - [ ] check footnotes and other non-standard markdown
+      - [x] check footnotes and other non-standard markdown
     - [x] Store original Markdown in post meta (`raw_markdown`).
   - [x] slug **✅2025-11-27 this is working**
     * If a `slug` exists and a post with that slug already exists, update that post; otherwise create a new post.
     * Slug determiend by file path if no slug field or frontmatter in the post.
   - [x] date **✅2025-11-28**
     * Set `date` if provided; otherwise use “now”.
-  - [ ] status (?? ❓) - should be set to `publish`
+  - [x] status (?? ❓) - should be set to `publish` **✅2025-12-01**
   - [x] images and media - see handle media item as preliminary for this to work
-    - [ ] set featured image using either `image:` in frontmatter or first image
-    - [ ] Images and media (e.g. pdfs) in body. Need to support obsidian and markdown links etc
+    - [x] set featured image using either `image:` in frontmatter or first image
+    - [x] Images and media (e.g. pdfs) in body. Need to support obsidian and markdown links etc
   - [ ] Handle tags and taxonomies: **💬2025-11-28 ❓ not sure this is needed.**
     * Map front-matter tags/categories to WordPress taxonomies; create terms on demand if they don’t exist.
     * Set `status` based on config or front-matter override. ❓ what is status?
@@ -32,9 +32,16 @@ Given a Markdown file(s) or directories of files successfully create or update p
 - [x] 3. Handle media - see below **✅2025-11-28**
 - [x] 4. Handle authors / team mapping **🚧2025-11-29 this is working but we don't yet look up our mapping of names to team members.**
 - [x] 5. Idempotency / safety. **✅2025-11-28 given we use slugs and file names on media**
-- [ ] 6. Output:
+- [x] 6. Output:
    * Print new/updated post ID, slug, and URL.
    * On error, show HTTP status, response body and the file that failed.
+   
+Prep for all of this ...
+
+- [x] Create a staging site **✅2025-11-24 https://app-689360d2c1ac1829f80cac86.closte.com/**
+  - [x] Research options **✅2025-11-24 it exists on closte https://closte.com/support/wordpress/staging-environment**
+  - [x] Setup the site
+  - [x] Check login credentials etc
 
 ## Tasks
 

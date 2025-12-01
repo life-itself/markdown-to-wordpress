@@ -9,7 +9,7 @@ Cleaning up original lifeitself.org markdown repo.
 - [x] Removed unused images **✅2025-11-24**
   - [ ] 🚩 but had some issues and some images may now be missing. See analysis in `debug-missing-images`. This may need some further debugging.
   - [ ] Need to re-add excalidraw svgs (either export as png (probably better) or support svgs in wordpress or host on another server)
-- [ ] Rename images to more meaningful names **✅2025-11-28 ❌ aborted. did this and realized it may cause issues especially if debugging missing images so reverted. Not really needed. See [image-renaming](image-renaming) **
+- [x] Rename images to more meaningful names **✅2025-11-28 ❌ aborted. did this and realized it may cause issues especially if debugging missing images so reverted. Not really needed. See [image-renaming](image-renaming) **
 - [x] Moved all blog files to base directory - see Task 2 below **✅2025-11-30**
 - [ ] Began prep for a more substantial refactor/cleanup of "pages" (non blog pages) **🚧2025-11-26 see [review.md](review.md)**
 - [ ] Check all broken links (e.g. saw at least one link to notes which are now removed)
@@ -25,25 +25,31 @@ Cleaning up original lifeitself.org markdown repo.
 
 ## Analysis of initial state
 
-TODO: copy from github issue
-
-- [ ] ❓ Rename images
+- [x] How many markdown files **751 markdown files total**
+  - [x] How many blog posts are there? **389 blog posts (51.8%)**
+  - [x] Other pages **40 root pages (5.3%)** and **117 notes (15.6%)**
+  - [x] Podcast pages **44 podcast episodes (5.9%)**
+  - [x] People pages **30 people profiles (4.0%)**
+- [x] How much media e.g. images **724 images successfully uploaded** of which **6 SVG files - WordPress doesn't support SVG by default (security restriction)**
+- [x] Are there any non-image assets e.g. pdfs to migrate (and where are they used)
+- [x] How many markdown non-blog pages (and can we get a sitemap for pages)?
+- [x] How many non-markdown pages?
 
 Analysis notes
 
 - [ ] Only 3 non-markdown pages: index (home), initiatives and residencies (and categories)
 
-## 📥 Notes on repo content
+### 📥 Notes on repo content
 
 - [ ] duplicated metacrisis.md files
 
-## Unused images
+## Task: find Unused images
 
 Make a list of all image files in content directory and then find out which markdown or jsx/html files they are used in (so that we can work out which images are unused).
 
 You should search just by basename of the image file (not full path).
 
-## Outputs
+### Outputs
 
 - [ ] Text file with a list of images
 - [ ] csv file of usage as per description below
