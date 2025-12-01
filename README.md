@@ -2,6 +2,71 @@ Migrating existing https://lifeitself.org/ that is in markdown and published wit
 
 TODO: explain the various subdirectories
 
+# 🎉
+
+2025-12-01T0130
+
+```sh
+rgrp@mac-23 uploader % node upload.js media push next.lifeitself.org                                                         
+Prefill: fetched 995 remote media items; matched 751 local files; added 0 new mapping entries.
+Found 886 media file(s) to process. Running with concurrency 5.
+⠦ uploading 886/886 (100%) | uploaded:5 skipped:881 failed:0
+Done. Uploaded: 5, Skipped: 881, Failed: 0. Mapping saved to /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/mediamap.json.
+rgrp@mac-23 uploader % node upload.js media missing next.lifeitself.org
+Missing: 0 file(s) not present in /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/mediamap.json
+# 🎉 all done!
+# NB: this was 4h of pain due to trying to debug why we kept getting duplicate uploading issues ...
+```
+
+And then the authors 🎉
+
+```sh
+rgrp@android-c0c553e9fddd64d8 uploader % node upload.js people build next.lifeitself.org/people
+Step 1/3: building local authors map...
+Wrote 33 author(s) to /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/authors.json.
+Step 2/3: merging remote WordPress author IDs...
+Merged remote WordPress IDs into /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/authors.json using 8 remote entries.
+Step 3/3: creating/updating people in WordPress...
+Created zaibul-nisa.md -> zaibul-nisa (id 2123)
+Skipped valerie.md: authors mapping has wordpress_id 829.
+Created theo-cox.md -> theo-cox (id 2124)
+Skipped sylvieshiweibarbier.md: authors mapping has wordpress_id 107.
+Created sophie84d503f875.md -> sophie84d503f875 (id 2125)
+Created sen-zhan.md -> sen-zhan (id 2126)
+Skipped rufuspollock.md: authors mapping has wordpress_id 103.
+Created petronellac3ecd0923b.md -> petronellac3ecd0923b (id 2127)
+Skipped nathen-fitchen.md: authors mapping has wordpress_id 136.
+Created nareshgg7.md -> nareshgg7 (id 2128)
+Created moon-immisch.md -> moon-immisch (id 2129)
+Created matthew-mccarthy.md -> matthew-maccarthy (id 2130)
+Created marc-santolini.md -> marc-santolini (id 2131)
+Created liu-bauer.md -> liu-bauer (id 2132)
+Created lifeitselfteam.md -> lifeitselfteam (id 2133)
+Skipped liamaet.md: authors mapping has wordpress_id 826.
+Skipped lauren-wigmore.md: authors mapping has wordpress_id 132.
+Created julie-dayot.md -> julie-dayot (id 2134)
+Created joe-hughes.md -> joe-hughes (id 2135)
+Created james-davies-warner.md -> james-davies-warner (id 2136)
+Created iljad20a2d59ebb.md -> iljad20a2d59ebb (id 2137)
+Created elisalifeitself.md -> elisalifeitself (id 2138)
+Created eilidhross.md -> eilidhross (id 2139)
+Skipped catherine-tran.md: authors mapping has wordpress_id 128.
+Skipped boaz-feldman.md: authors mapping has wordpress_id 124.
+Created alexia.md -> alexia (id 2140)
+Updated authors mapping at /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/authors.json.
+```
+
+Blog posts
+
+```sh
+Found 390 markdown file(s) to upload.
+Loaded 880 media mapping entries from /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/mediamap.json.
+Loaded 34 author mapping entries from /Users/rgrp/src/lifeitself/markdown-to-wordpress/uploader/authors.json.
+Uploaded write-your-autobiography.md: https://app-6893b532c1ac1829f80cae6e.closte.com/?p=2141
+Failed to upload word-laundrette-1-nirvana.md: Invalid parameter(s): tags
+Failed to upload wiser-policy-forum-launch-bulletin.md: Invalid parameter(s): tags
+```
+
 ## SCQA (short)
 
 *redone 2025-11-24*
@@ -49,6 +114,11 @@ More details:
   - [x] Check login credentials etc
 - [ ] Do a test upload ...
 - [ ] Start scripting this proper **🚧2025-11-30 see [uploader](uploader)**
+
+Next up ... 2025-12-01
+
+- [ ] podcasts
+- [ ] pages ...
 
 ---
 
