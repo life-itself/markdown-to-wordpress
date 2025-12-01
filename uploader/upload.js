@@ -315,11 +315,20 @@ async function prefillMediaMapping(config, mapping, mediaFiles, hashCache) {
     console.warn(`Could not fetch remote media list: ${error.message}`);
   }
 
-  const remoteByFile = new Map(
-    remoteMedia
-      .filter((item) => item.file)
-      .map((item) => [item.file.toLowerCase(), item]),
-  );
+  const remoteByFile = new Map();
+  remoteMedia
+    .filter((item) => item.file || item.title)
+    .forEach((item) => {
+      const keys = [
+        ...buildKeyVariants(item.file),
+        ...buildKeyVariants(item.title),
+      ];
+      keys.forEach((key) => {
+        if (key && !remoteByFile.has(key)) {
+          remoteByFile.set(key, item);
+        }
+      });
+    });
 
   // Build set for pruning by URL
   const remoteUrls = new Set();
@@ -332,7 +341,8 @@ async function prefillMediaMapping(config, mapping, mediaFiles, hashCache) {
   let removed = 0;
   for (const filePath of mediaFiles) {
     const fileName = path.basename(filePath);
-    const remote = remoteByFile.get(fileName.toLowerCase());
+    const localKeys = buildKeyVariants(fileName);
+    const remote = localKeys.map((k) => remoteByFile.get(k)).find(Boolean);
     if (!remote) continue;
     matched += 1;
     if (!mapping[fileName] || !mapping[fileName].url) {
@@ -464,6 +474,30 @@ function computeDuplicateGroups(remoteMedia) {
     byFile.get(key).push(item);
   });
   return Array.from(byFile.entries()).filter(([, items]) => items.length > 1);
+}
+
+function listMissingLocalMedia(mediaFiles, mapping) {
+  const missing = [];
+  const known = new Set(Object.keys(mapping).map((k) => k.toLowerCase()));
+  for (const filePath of mediaFiles) {
+    const base = path.basename(filePath).toLowerCase();
+    if (!known.has(base)) {
+      missing.push(filePath);
+    }
+  }
+  return missing;
+}
+
+function buildKeyVariants(value) {
+  const keys = new Set();
+  if (!value) return [];
+  const lower = value.toLowerCase();
+  keys.add(lower);
+  const stem = lower.replace(/\.[^.]+$/, "");
+  keys.add(stem);
+  const sizeStripped = stem.replace(/-\d+x\d+$/, "");
+  keys.add(sizeStripped);
+  return Array.from(keys).filter(Boolean);
 }
 
 async function deleteRemoteMedia(config, id) {
@@ -1424,6 +1458,33 @@ async function main() {
               console.log(
                 `Media dedupes: inspected ${groups.length} duplicate groups; deleted ${deleted} remote items.`,
               );
+            },
+          )
+          .command(
+            "missing <paths...>",
+            "List local media files not present in the mapping file.",
+            (yy) =>
+              yy
+                .positional("paths", {
+                  describe: "Media file(s) or directories to scan locally.",
+                  type: "string",
+                  array: true,
+                })
+                .option("mapping", {
+                  alias: "m",
+                  type: "string",
+                  default: () => defaultMappingPath(),
+                  describe: "Path to mediamap.json to check against.",
+                }),
+            async (argv) => {
+              const mappingPath = path.resolve(argv.mapping);
+              const mapping = await loadMapping(mappingPath);
+              const mediaFiles = await collectMediaFiles(argv.paths);
+              const missing = listMissingLocalMedia(mediaFiles, mapping);
+              console.log(
+                `Missing: ${missing.length} file(s) not present in ${mappingPath}`,
+              );
+              missing.forEach((file) => console.log(file));
             },
           )
           .demandCommand(1, "Please specify a media subcommand."),
