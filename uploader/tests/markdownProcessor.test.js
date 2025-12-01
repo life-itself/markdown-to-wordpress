@@ -42,7 +42,7 @@ describe("convertMarkdownToPost", () => {
       sourcePath: fixturePath,
     });
 
-    expect(payload.status).toBe("draft");
+    expect(payload.status).toBe("publish");
     expect(payload.slug).toBe("minimal"); // Slug derived from filename
     expect(payload.meta.raw_markdown).toBe(raw);
   });

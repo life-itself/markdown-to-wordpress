@@ -334,7 +334,7 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
   const payload = {
     title: frontmatter.title,
     content: htmlContent,
-    status: frontmatter.status || "draft",
+    status: frontmatter.status || "publish",
     slug: slug, // Always include slug in payload for idempotent uploads
     meta,
   };
@@ -342,8 +342,7 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
   const postDate = frontmatter.date || frontmatter.created;
   if (postDate) payload.date = postDate;
   if (frontmatter.excerpt) payload.excerpt = frontmatter.excerpt;
-  const tags = normalizeTags(frontmatter.tags);
-  if (tags) payload.tags = tags;
+  // Tags are currently omitted to avoid invalid parameter errors on certain WordPress setups.
   const authors = normalizeAuthors([frontmatter.author, frontmatter.authors]);
   if (authors) payload.authors = authors;
   if (featuredRef.value?.id) payload.featured_media = featuredRef.value.id;
