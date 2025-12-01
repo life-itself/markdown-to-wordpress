@@ -2,3 +2,5 @@
 sandbox
 .env*
 uploader/next.lifeitself.org
+uploader/*.json
+uploader/*.json.*
