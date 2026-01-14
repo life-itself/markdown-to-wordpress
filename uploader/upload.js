@@ -10,9 +10,11 @@ import crypto from "node:crypto";
 import { Blob } from "node:buffer";
 import {
   convertMarkdownToPost,
+  convertMarkdownToPage,
   createWpClient,
   prepareWordpressPayload,
   upsertPostToWordpress,
+  upsertPageToWordpress,
 } from "./src/lib.js";
 import {
   convertMarkdownToTeamMember,
@@ -20,6 +22,10 @@ import {
   updateAuthorsRecord,
   upsertTeamMember,
 } from "./src/people.js";
+import {
+  getMarkdownFiles,
+  loadExcludePatterns,
+} from "./src/fileDiscovery.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,26 +87,6 @@ async function fileExists(candidate) {
   } catch {
     return false;
   }
-}
-
-async function getMarkdownFiles(paths = []) {
-  const filePaths = new Set();
-
-  for (const p of paths) {
-    const stats = await stat(p);
-    if (stats.isDirectory()) {
-      const files = await glob("**/*.md", {
-        cwd: p,
-        absolute: true,
-        nodir: true,
-      });
-      files.forEach((file) => filePaths.add(file));
-    } else if (p.endsWith(".md")) {
-      filePaths.add(path.resolve(p));
-    }
-  }
-
-  return Array.from(filePaths);
 }
 
 function parseJsonObject(raw, label) {
@@ -632,6 +618,76 @@ async function handleUploadPosts(argv) {
       console.error(
         `Failed to upload ${path.basename(filePath)}: ${error.message}`,
       );
+    }
+  }
+}
+
+async function handleUploadPages(argv) {
+  const excludePatterns = argv["exclude-file"]
+    ? await loadExcludePatterns(argv["exclude-file"])
+    : [];
+
+  const filePaths = await getMarkdownFiles(argv.paths, {
+    recurse: Boolean(argv.recurse),
+    excludeGlobs: excludePatterns,
+  });
+
+  if (filePaths.length === 0) {
+    console.log("No markdown files found to upload.");
+    return;
+  }
+
+  const client = createWpClient({
+    baseUrl: process.env.WP_BASE_URL,
+    username: process.env.WP_USERNAME,
+    appPassword: process.env.WP_APP_PASSWORD,
+  });
+
+  console.log(`Found ${filePaths.length} markdown page(s) to upload.`);
+
+  const mediaMap = await loadJsonOptional(argv.mapping, "Media mapping");
+  if (mediaMap && Object.keys(mediaMap).length > 0) {
+    console.log(
+      `Loaded ${Object.keys(mediaMap).length} media mapping entries from ${path.resolve(argv.mapping)}.`,
+    );
+  }
+
+  const authorsMap = await loadJsonOptional(argv.authors, "Author mapping");
+  if (authorsMap && Object.keys(authorsMap).length > 0) {
+    console.log(
+      `Loaded ${Object.keys(authorsMap).length} author mapping entries from ${path.resolve(argv.authors)}.`,
+    );
+  }
+
+  for (const filePath of filePaths) {
+    try {
+      const raw = await readFile(filePath, "utf8");
+      const { payload } = await convertMarkdownToPage(raw, {
+        sourcePath: filePath,
+        mediaMap,
+        useRelativeUrls: !argv["absolute-media-urls"],
+      });
+      const preparedPayload = prepareWordpressPayload(payload, {
+        authorsMap,
+        logger: console,
+      });
+      const result = await upsertPageToWordpress(client, preparedPayload);
+      if (result.action === "skipped") {
+        const link =
+          result.page?.link || result.page?.guid?.rendered || "(existing)";
+        console.log(
+          `Skipped ${path.basename(filePath)}: page already exists (${link}).`,
+        );
+      } else {
+        const link =
+          result.page?.link || result.page?.guid?.rendered || "(no link)";
+        console.log(`Uploaded ${path.basename(filePath)}: ${link}`);
+      }
+    } catch (error) {
+      console.error(
+        `Failed to upload ${path.basename(filePath)}: ${error.message}`,
+      );
+      process.exitCode = 1;
     }
   }
 }
@@ -1194,6 +1250,51 @@ async function main() {
               "Use absolute media URLs instead of relative paths when rewriting content.",
           }),
       (argv) => handleUploadPosts(argv),
+    )
+    .command(
+      "pages <paths...>",
+      "Upload markdown pages to WordPress.",
+      (y) =>
+        y
+          .positional("paths", {
+            describe: "Markdown file(s) or directories.",
+            type: "string",
+            array: true,
+          })
+          .option("mapping", {
+            alias: "m",
+            type: "string",
+            describe:
+              "Path to mediamap.json for rewriting image links (optional).",
+            default: () => defaultMappingPath(),
+          })
+          .option("authors", {
+            alias: "a",
+            type: "string",
+            describe:
+              "Path to authors.json mapping file (defaults to authors.json in this directory).",
+            default: DEFAULT_AUTHORS_PATH,
+          })
+          .option("exclude-file", {
+            alias: "x",
+            type: "string",
+            describe:
+              "Path to a file containing glob patterns to exclude (one per line).",
+            default: undefined,
+          })
+          .option("recurse", {
+            alias: "r",
+            type: "boolean",
+            default: false,
+            describe: "Recurse into subdirectories when scanning for pages.",
+          })
+          .option("absolute-media-urls", {
+            type: "boolean",
+            default: false,
+            describe:
+              "Use absolute media URLs instead of relative paths when rewriting content.",
+          }),
+      (argv) => handleUploadPages(argv),
     )
     .command(
       "mediasync <paths...>",

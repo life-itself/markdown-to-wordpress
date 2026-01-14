@@ -10,6 +10,7 @@
     "dotenv": "^16.4.5",
     "glob": "^13.0.0",
     "gray-matter": "^4.0.3",
+    "minimatch": "^9.0.5",
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.0",
     "remark-html": "^16.0.1",

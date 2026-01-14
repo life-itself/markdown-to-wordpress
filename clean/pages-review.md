@@ -1,8 +1,92 @@
-# Prompt
+# Pages analysis
 
-> I want you to create a list of all the content md filese in the root folder. I want a sense of which ones are substantive, which are duplicate or similar (if any). It owuld be good to have a title for each as well as the filename and a brief opinion/evaluation of their content in a markdown table. Put all of this together with recommendations for action into sandbox/review.md
+## Directories analysis
 
-# Output
+Conclusion: can ignore all directories for pages migration. Instead doing the following:
+
+- either directory should become special posts e.g. `initiatives`, `learn`, `programs`
+- or: leave e.g. `people`, `blog`
+- or: leave as already existing e.g. `hubs`
+- or: leave as migrate elsewhere e.g. `labs`, `institute`
+- or: should become posts
+
+Special posts mean we have a post type for this using PODS in wordpress and create them as that post type.
+
+Posts means that page should become a normal blog post. Strictly i think calls and gathering should actually become special post types of courses/events/offerings (need to work that out). Frankly they don't matter for now and can be lef out.
+
+| Directory | Files | Ignore | Post | List | Existing | Elsewhere |
+| --- | ---: | --- | --- | --- | --- | --- |
+| calls | 3 |  | ✓ |  |  |  |
+| labs | 4 |  |  |  |  | ✓ |
+| learn | 7 |  | | ✓ |  |  |
+| institute | 3 |  |  |  |  | ✓ |
+| initiatives | 23 |  |  | ✓ |  |  |
+| programs | 32 |  |  | ✓ |  |  |
+| hubs | 4 |  |  |  | ✓ |  |
+| people | 26 | ✓ |  |  |  |  |
+| podcast | 44 |  |  | ✓ |  |  |
+| gathering | 1 |  | ✓ |  |  |  |
+
+### Prompt and results
+
+> outside of blog and sandbox what directories are there and how many files are in them and create a short one sentence summary of what you think that directory is. output this to sandbox/info.md
+
+There are following directories:
+
+```sh
+calls: 3 files — Markdown call descriptions for Life Itself programs. 
+labs: 4 files — project pages for lab initiatives. 
+learn: 7 files — essays outlining key learning themes. 
+institute: 3 files — pages describing institute offerings. 
+initiatives: 23 files — collection of initiative overview markdowns. 
+programs: 32 files — program and residency listings by year and series. 
+hubs: 4 files — hub location description pages. 
+people: 26 files — individual profile markdowns. 
+podcast: 44 files — podcast episode markdowns and index. 
+gathering: 1 file — markdown for the 2019 gathering. 
+```
+
+calls: 3 files — Markdown call descriptions for Life Itself programs. 
+labs: 4 files — project pages for lab initiatives. 
+learn: 7 files — essays outlining key learning themes. 
+institute: 3 files — pages describing institute offerings. 
+initiatives: 23 files — collection of initiative overview markdowns. 
+programs: 32 files — program and residency listings by year and series. 
+hubs: 4 files — hub location description pages. 
+people: 26 files — individual profile markdowns. 
+podcast: 44 files — podcast episode markdowns and index. 
+gathering: 1 file — markdown for the 2019 gathering. 
+
+3 categories
+
+- Later: Leave for now (and refactor later)
+- List: Becomes a special post type with listing
+- Ignore: e.g. people
+
+
+Tasks
+
+❌ = don't migrate
+
+- [ ] calls just be blog posts with a tag (another kind of event/course/offering)
+- [ ] labs: go to research.lifeitself.org with a redirect (at least for now don't upload them to new site)
+- [ ] learn: become blog posts (like existing ones)
+- [ ] institute: ditto for labs 📐
+- [ ] initiatives ...
+- [ ] programs = residencies
+- [ ] hubs: skip as we have pages for them
+- [ ] gathering ... => blog post about the event
+  - [ ] Aside: what happened to all the previous gatherings?
+  
+
+
+Rest are all collections
+  
+## How many files in the root folder
+
+> I want you to create a list of all the content md files in the root folder. I want a sense of which ones are substantive, which are duplicate or similar (if any). It owuld be good to have a title for each as well as the filename and a brief opinion/evaluation of their content in a markdown table. Put all of this together with recommendations for action into sandbox/review.md
+
+### Output
 
 Created a full inventory and appraisal of every root-level markdown file in sandbox/review.md:1-58, including titles, filenames, word counts, substance ratings, and brief qualitative notes. Highlighted overlaps (e.g., the three conscious- coliving course promos) and thin spots (metacrisis, jobs, people, contact, subscribe) so you can see at a glance which pieces are substantive versus light or stale.
 

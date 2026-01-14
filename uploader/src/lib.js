@@ -270,6 +270,7 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
   const sourcePath = options.sourcePath
     ? path.resolve(options.sourcePath)
     : undefined;
+  const forceFilenameSlug = Boolean(options.forceFilenameSlug);
   const { data: frontmatter, content } = matter(raw);
   assertFrontmatter(frontmatter);
   const mediaMap = options.mediaMap;
@@ -306,11 +307,14 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
   );
 
   // Derive slug from filename if not provided in frontmatter
-  const slug =
-    frontmatter.slug ||
-    (sourcePath
+  const slug = forceFilenameSlug
+    ? sourcePath
       ? path.basename(sourcePath, path.extname(sourcePath))
-      : undefined);
+      : undefined
+    : frontmatter.slug ||
+      (sourcePath
+        ? path.basename(sourcePath, path.extname(sourcePath))
+        : undefined);
 
   if (!slug) {
     throw new Error(
@@ -352,6 +356,18 @@ export async function convertMarkdownToPost(markdownInput, options = {}) {
     frontmatter,
     htmlContent,
   };
+}
+
+export async function convertMarkdownToPage(markdownInput, options = {}) {
+  if (!options.sourcePath) {
+    throw new Error(
+      "convertMarkdownToPage requires options.sourcePath to derive the slug.",
+    );
+  }
+  return convertMarkdownToPost(markdownInput, {
+    ...options,
+    forceFilenameSlug: true,
+  });
 }
 
 function sanitizeBaseUrl(url) {
@@ -403,6 +419,11 @@ export async function findPostBySlug(client, slug) {
   return response.length > 0 ? response[0] : null;
 }
 
+export async function findPageBySlug(client, slug) {
+  const response = await client.pages().slug(slug).get();
+  return response.length > 0 ? response[0] : null;
+}
+
 function stripBlogPrefix(slug) {
   if (typeof slug !== "string") return slug;
   return slug.replace(/^\/?blog\//i, "");
@@ -431,4 +452,22 @@ export async function upsertPostToWordpress(client, payload) {
     // Create new post, ensuring slug is explicitly set
     return client.posts().create(payloadWithSlug);
   }
+}
+
+export async function upsertPageToWordpress(client, payload) {
+  if (!client) throw new Error("A configured WPAPI client is required.");
+  if (!payload) throw new Error("No payload provided to upload.");
+  if (!payload.slug)
+    throw new Error("Payload must contain a slug for idempotent upload.");
+
+  const sanitizedSlug = stripBlogPrefix(payload.slug);
+  const payloadWithSlug = { ...payload, slug: sanitizedSlug };
+
+  const existingPage = await findPageBySlug(client, sanitizedSlug);
+  if (existingPage) {
+    return { action: "skipped", page: existingPage };
+  }
+
+  const created = await client.pages().create(payloadWithSlug);
+  return { action: "created", page: created };
 }
